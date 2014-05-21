@@ -1,0 +1,8 @@
+.module-cache
+.directory
+npm-debug.log
+server/config/development
+node_modules/*
+public/media/*
+.idea/*
+*.iml

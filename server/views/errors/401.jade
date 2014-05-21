@@ -1,0 +1,12 @@
+extends error.head
+
+block head
+    title Acesso negado
+block icon
+    span.glyphicon.glyphicon-lock.errorImage
+block text
+    h4.media-heading Acesso negado
+    |   Seu usuário não tem acesso a esta página.
+    |   Clique&nbsp;
+    a(href='/') aqui
+    |   para voltar para nossa página inicial.

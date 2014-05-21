@@ -1,0 +1,30 @@
+{
+    "name": "pager",
+    "description": "Painel de Gestão de Equipes e Rotas Inteligentes",
+    "version": "0.0.1",
+    "private": true,
+    "main": "server/pager.js",
+    "repository": {
+        "type": "bitbucket",
+        "url": "https://bitbucket.org/darthcas/pager"
+    },
+    "homepage": "http://pager.acwautosis.info",
+    "dependencies": {
+        "mysql": "*",
+        "debug": "*",
+        "express": "4.*",
+        "express-session": "*",
+        "cookie-parser": "*",
+        "body-parser": "*",
+        "authorized": "*",
+        "passport": "*",
+        "connect-flash": "*",
+        "lodash": "*",
+        "async": "*",
+        "gm": "*",
+        "mkdirp": "*",
+        "strftime": "*",
+        "connect-redis": "*",
+        "redis": "*"
+    }
+}

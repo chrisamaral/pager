@@ -1,0 +1,14 @@
+doctype html
+html
+    head
+        meta(http-equiv="Content-type", content="text/html; charset=utf-8")
+        link(href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css', rel='stylesheet', type='text/css', media='all')
+        link(href='/css/error.css', rel='stylesheet', type='text/css', media='all')
+        block head
+    body
+        div.container.bg-danger.text-danger
+            div.media
+                div.pull-left
+                    block icon
+                div.media-body
+                    block text
