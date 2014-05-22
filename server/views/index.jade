@@ -7,6 +7,8 @@ html
     link(rel='stylesheet', href='/css/pace.css')
     link(rel='stylesheet', href='/css/normalize.css')
     link(rel='stylesheet', href='/css/foundation.min.css')
+    link(rel='stylesheet', href='/css/foundation-icons/foundation-icons.css')
+    link(rel='stylesheet', href='/css/main.css')
     script
         | window.pager = {isDev: #{isDev}};
     script(src=isDev ? '/js/lazyload.js' : '/js/lazyload.min.js')
@@ -16,7 +18,8 @@ html
         |        '//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js',
         |        '//cdnjs.cloudflare.com/ajax/libs/pace/0.4.17/pace.min.js',
         |        '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js',
-        |        '//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/react.min.js',
+        |        pager.isDev ? '//fb.me/react-with-addons-0.10.0.js' : '//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/react.min.js',
+        |        '/js/cortex/build/cortex.min.js',
         |        '/js/foundation/foundation.min.js',
         |        pager.isDev ? '/js/inject.js' : '/js/inject.min.js'
         |    ];
@@ -37,3 +40,4 @@ html
         |    });
         |}());
   body
+    #container

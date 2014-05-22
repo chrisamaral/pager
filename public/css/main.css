@@ -1,0 +1,13 @@
+html, body, body > #container, .off-canvas-wrap {
+    height:100%;
+}
+.off-canvas-wrap {
+    overflow-y: auto;
+}
+.inner-wrap {
+    min-height: 100%;
+}
+.off-canvas-list i.the-icon{
+    font-size: 1em;
+    margin-right: 0.5em;
+}

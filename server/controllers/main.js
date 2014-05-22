@@ -107,13 +107,17 @@ authLib(function () {
             res.locals.isDev = app.ENV === 'development';
             res.locals.appData = new Buffer(JSON.stringify({
                 user: req.user,
-                org: rows[0]
+                org: rows[0],
+                urls: {
+                    base: app.baseUrl,
+                    app: app.appUrl
+                }
             })).toString('base64');
 
             res.render('index');
         });
     });
-
+    require('./boot.js');
     app.express.use(function (req, res, next) {
         if (req.xhr) {
             return res.send(404);
