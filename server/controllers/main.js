@@ -105,14 +105,15 @@ authLib(function () {
             }
 
             res.locals.isDev = app.ENV === 'development';
-            res.locals.appData = new Buffer(JSON.stringify({
+            res.locals.pager = {
                 user: req.user,
                 org: rows[0],
                 urls: {
                     base: app.baseUrl,
                     app: app.appUrl
                 }
-            })).toString('base64');
+            };
+            res.locals.appData = new Buffer(JSON.stringify(res.locals.pager)).toString('base64');
 
             res.render('index');
         });

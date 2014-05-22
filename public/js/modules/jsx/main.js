@@ -1,8 +1,8 @@
 /** @jsx React.DOM */
 
 define(function () {
-    var Pager, PageList, cortex, mainComponent;
-    //LazyLoad.css('');
+    $(document).foundation();
+    var PageList, cortex, pageMenu, mainComponent;
     PageList = React.createClass({
         render: function () {
 
@@ -48,53 +48,15 @@ define(function () {
         }
     });
 
-    Pager = React.createClass({
-        getInitialState: function(){
-            return {menuOpen: false};
-        },
-        toggleMenu: function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.setState({menuOpen: !this.state.menuOpen});
-        },
-        render: function () {
-            var classes = React.addons.classSet({"off-canvas-wrap": true, "move-left": this.state.menuOpen});
-            return <div className={classes} data-offcanvas>
-                <div className='inner-wrap'>
-                    <nav className="tab-bar">
-                        <section className="middle tab-bar-section">
-                            <h1 className="title">{'Pager - ' + pager.org.name}</h1>
-                        </section>
-                        <section className="right-small">
-                            <a className="right-off-canvas-toggle menu-icon" onClick={this.toggleMenu}>
-                                <span></span>
-                            </a>
-                        </section>
-                    </nav>
-                    <aside className="right-off-canvas-menu">
-                        <PageList urls={this.props.pager.urls} pages={this.props.pager.pages} />
-                    </aside>
-                    <section className='main-section'>
-                        <div className="row">
-                            <div className="large-12 columns">
-                                <br/>
-                                <h4>Boring</h4>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>;
-        }
-    });
-
     pager.pages = [];
     cortex = new Cortex(pager);
-    mainComponent = React.renderComponent(<Pager pager={cortex}/>, document.getElementById('container'));
-    /*
+    pageMenu = React.renderComponent(<PageList urls={cortex.urls} pages={cortex.pages} />, 
+        $('#container .right-off-canvas-menu')[0]);
+    
     cortex.on("update", function(newData) {
-      mainComponent.setProps({pager: newData});
+        pageMenu.setProps({pages: newData.pages});
     });
-    */
+    
     $.get('/' + cortex.org.id.getValue() + '/pages')
         .done(function(pages){
             if(pages instanceof Array){
@@ -104,5 +66,5 @@ define(function () {
             }
         });
 
-    return {cortex: cortex, root: mainComponent};
+    return cortex;
 });

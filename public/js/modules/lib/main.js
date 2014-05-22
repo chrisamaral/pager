@@ -1,8 +1,8 @@
 /** @jsx React.DOM */
 
 define(function () {
-    var Pager, PageList, cortex, mainComponent;
-    //LazyLoad.css('');
+    $(document).foundation();
+    var PageList, cortex, pageMenu, mainComponent;
     PageList = React.createClass({displayName: 'PageList',
         render: function () {
 
@@ -48,53 +48,15 @@ define(function () {
         }
     });
 
-    Pager = React.createClass({displayName: 'Pager',
-        getInitialState: function(){
-            return {menuOpen: false};
-        },
-        toggleMenu: function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.setState({menuOpen: !this.state.menuOpen});
-        },
-        render: function () {
-            var classes = React.addons.classSet({"off-canvas-wrap": true, "move-left": this.state.menuOpen});
-            return React.DOM.div( {className:classes, 'data-offcanvas':true}, 
-                React.DOM.div( {className:"inner-wrap"}, 
-                    React.DOM.nav( {className:"tab-bar"}, 
-                        React.DOM.section( {className:"middle tab-bar-section"}, 
-                            React.DOM.h1( {className:"title"}, 'Pager - ' + pager.org.name)
-                        ),
-                        React.DOM.section( {className:"right-small"}, 
-                            React.DOM.a( {className:"right-off-canvas-toggle menu-icon", onClick:this.toggleMenu}, 
-                                React.DOM.span(null)
-                            )
-                        )
-                    ),
-                    React.DOM.aside( {className:"right-off-canvas-menu"}, 
-                        PageList( {urls:this.props.pager.urls, pages:this.props.pager.pages} )
-                    ),
-                    React.DOM.section( {className:"main-section"}, 
-                        React.DOM.div( {className:"row"}, 
-                            React.DOM.div( {className:"large-12 columns"}, 
-                                React.DOM.br(null),
-                                React.DOM.h4(null, "Boring")
-                            )
-                        )
-                    )
-                )
-            );
-        }
-    });
-
     pager.pages = [];
     cortex = new Cortex(pager);
-    mainComponent = React.renderComponent(Pager( {pager:cortex}), document.getElementById('container'));
-    /*
+    pageMenu = React.renderComponent(PageList( {urls:cortex.urls, pages:cortex.pages} ), 
+        $('#container .right-off-canvas-menu')[0]);
+    
     cortex.on("update", function(newData) {
-      mainComponent.setProps({pager: newData});
+        pageMenu.setProps({pages: newData.pages});
     });
-    */
+    
     $.get('/' + cortex.org.id.getValue() + '/pages')
         .done(function(pages){
             if(pages instanceof Array){
@@ -104,5 +66,5 @@ define(function () {
             }
         });
 
-    return {cortex: cortex, root: mainComponent};
+    return cortex;
 });
