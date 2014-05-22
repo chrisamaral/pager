@@ -22,6 +22,7 @@
         "lodash": "*",
         "async": "*",
         "gm": "*",
+        "jade": "*",
         "mkdirp": "*",
         "strftime": "*",
         "connect-redis": "*",

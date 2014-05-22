@@ -9,6 +9,8 @@ function setVariables() {
     this.httpProtocol = 'http';
     this.DOMAIN = this.ENV === 'production' ? 'acwautosis.info' : 'acw.dev';
     this.SUBDOMAIN = this.ENV === 'production' ? 'pager.acwautosis.info' : 'pager.acw.dev';
+    this.baseUrl = this.httpProtocol + '://' + this.DOMAIN;
+    this.appUrl = this.httpProtocol + '://' + this.SUBDOMAIN;
 
     this.dbConfig.multipleStatements = (this.ENV === 'development');
 
@@ -16,6 +18,7 @@ function setVariables() {
     console.log("DOMAIN: " + this.DOMAIN);
     console.log("SUB-DOMAIN: " + this.SUBDOMAIN);
 }
+
 function Base(mysql) {
     setVariables.call(this);
     this.waitTime = 2;

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-jsx --watch public/jsx/ public/js/src/
+jsx --watch public/js/modules/jsx/ public/js/modules/lib/

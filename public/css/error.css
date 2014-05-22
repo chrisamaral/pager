@@ -1,0 +1,13 @@
+.container{
+    width: auto;
+    margin: 10% 3em;
+}
+.errorImage{
+    font-size: 3em;
+}
+body>.container{
+    margin: 4em 5% 0 5%;
+    padding: 1em;
+    border-radius: 3px;
+    font-size: medium;
+}
