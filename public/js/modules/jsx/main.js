@@ -90,11 +90,11 @@ define(function () {
     pager.pages = [];
     cortex = new Cortex(pager);
     mainComponent = React.renderComponent(<Pager pager={cortex}/>, document.getElementById('container'));
-
-    cortex.on("update", function(updatedOrder) {
-      mainComponent.setProps({order: updatedOrder});
+    /*
+    cortex.on("update", function(newData) {
+      mainComponent.setProps({pager: newData});
     });
-
+    */
     $.get('/' + cortex.org.id.getValue() + '/pages')
         .done(function(pages){
             if(pages instanceof Array){
