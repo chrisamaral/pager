@@ -1,0 +1,23 @@
+#Console{
+    width: 100%;
+    max-width: none;
+    display: flex;
+    flex-direction: row;
+}
+#LeftPanel{
+    display: flex;
+    height: auto;
+    flex: 0 1 15em;
+    background-color: red;
+    overflow-y: auto;
+}
+#RightPanel{
+    display: flex;
+    height: auto;
+    flex: 1 1 60%;
+    background-color: blue;
+}
+#ConsoleQueue, #ConsolePool{
+    position: relative;
+    display: block;
+}

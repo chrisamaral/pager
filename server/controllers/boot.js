@@ -1,6 +1,6 @@
 'use strict';
 var app = require('../base.js')(), async = require('async');
-app.express.get('/:org/pages', app.authorized.can('enter app'), function (req, res) {
+app.express.get('/:org/api/pages', app.authorized.can('enter app'), function (req, res) {
     /*
         {name: 'Início', url: app.baseUrl + '/home'},
         {name: 'Sair', url: app.baseUrl + '/logout'},

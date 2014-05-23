@@ -97,8 +97,7 @@ authLib(function () {
                 res.redirect(app.baseUrl + '/home');
             });
     });
-
-    app.express.get('/:org', app.authorized.can('enter app'), function (req, res) {
+    function renderMainPage(req, res){
         app.mysql.query('SELECT id, abbr, name FROM org WHERE id = ? ', [req.params.org], function (err, rows) {
             if (err) {
                 return res.status(500).render('errors/500');
@@ -117,6 +116,19 @@ authLib(function () {
 
             res.render('index');
         });
+    }
+    app.express.get('/:org', app.authorized.can('enter app'), function (req, res) {
+        renderMainPage(req, res);
+    });
+    app.express.get('/:org/*', app.authorized.can('enter app'), function (req, res, next) {
+
+        var org = req.params.org;
+
+        if (req.originalUrl.substr(org.length + 1, 5) === '/api/') {
+            return next();
+        }
+
+        renderMainPage(req, res);
     });
     require('./boot.js');
     app.express.use(function (req, res, next) {

@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-define(function () {
+define(['./utils'], function () {
     $(document).foundation();
     var PageList, cortex, pageMenu, mainComponent;
     PageList = React.createClass({displayName: 'PageList',
@@ -57,7 +57,7 @@ define(function () {
         pageMenu.setProps({pages: newData.pages});
     });
     
-    $.get('/' + cortex.org.id.getValue() + '/pages')
+    $.get('/' + cortex.org.id.getValue() + '/api/pages')
         .done(function(pages){
             if(pages instanceof Array){
                 pages.forEach(function(page){
@@ -66,5 +66,6 @@ define(function () {
             }
         });
 
+    require.run('./app');
     return cortex;
 });

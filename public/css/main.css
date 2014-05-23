@@ -1,5 +1,5 @@
 html, body, body > #container, .off-canvas-wrap {
-    height:100%;
+    height:100vh;
 }
 .off-canvas-wrap {
     overflow-y: auto;
