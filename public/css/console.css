@@ -1,15 +1,36 @@
+.panel{
+    padding: 3px;
+    margin: 0 3px;
+    margin-bottom: 0.5em;
+    background-color: white;
+}
+.panel.contained{
+    border: none;
+}
+.panel.sequential{
+    margin: 5px 0;
+}
+
 #Console{
     width: 100%;
     max-width: none;
     display: flex;
     flex-direction: row;
+    color: #404040;
 }
 #LeftPanel{
     display: flex;
     height: auto;
-    flex: 0 1 15em;
-    background-color: red;
+    flex: 0 1 20em;
+    background-color: #e5e5e5;
     overflow-y: auto;
+    z-index: 5;
+}
+#LeftPanelWrapper{
+    display: block;
+    padding: 3px;
+    width: auto;
+    height: auto;
 }
 #RightPanel{
     display: flex;
@@ -17,7 +38,84 @@
     flex: 1 1 60%;
     background-color: blue;
 }
-#ConsoleQueue, #ConsolePool{
+#Queue{
+    background-color: white;
+    border: 1px solid rgb(200,200,200);
+    border-radius: 3px;
+}
+#Queue>h4{
+    text-indent: 0.3em;
+    font-weight: bold;
+    background-color: #8A0808;
+    color: white;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    line-height: 1.7em;
+    margin-top: 0;
+}
+.activity-feed{
     position: relative;
-    display: block;
+    font-size: smaller;
+}
+
+.activity-item{
+    background-color: rgba(250,250,250,0.5);
+    box-shadow: 2px 3px 3px rgba(0,0,0,0.1);
+    border-radius: 3px;
+    border: 1px solid rgb(230,230,230);
+}
+.activity-header{
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 5px;
+}
+.activity-avatar{
+    margin-right: 0.5em;
+}
+.activity-avatar>img{
+    width: 40px; height: 40px;
+    border-radius: 100%;
+}
+
+.activity-footer{
+    text-align: right;
+    margin: 0.5em 3px 2px 0;
+}
+
+.activity-summary{
+    padding-top: 0.9em;
+    line-height: 1.2em;
+}
+.activity-timestamp{
+    position: absolute;
+    top: 3px; right: 10px;
+    font-size: smaller;
+    font-weight: bold;
+    color: rgb(100,100,100);
+}
+
+.attr-table{
+    width: 100%;
+    margin: 0.2em 0;
+}
+.attr-table>tbody>.main-attr:first-child{
+    background-color: rgba(0,0,0,0.1);
+}
+
+.main-attr>td{
+    font-weight: bold;
+    font-size: larger;
+    text-align: center;
+}
+
+.important-attr>td:first-child{
+    font-weight: bold;
+}
+.important-attr>td:last-child{
+    font-style: italic;
+}
+.oksized-thumbs>li{
+    display: inline-block;
+    width: 30%; height: auto;
+    margin: 2px;
 }

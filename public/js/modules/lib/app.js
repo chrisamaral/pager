@@ -2,30 +2,35 @@
 require.ensure(['./main', '../ext/aviator/main'], function(require){
     var Aviator = require('../ext/aviator/main'),
         container = $('#container .main-section')[0],
-        cortex = require('./main'),
+        pager = require('./main'),
         Main,
         AppRouteTarget,
         AppContainer,
-        PlaceHolder = React.createClass({displayName: 'PlaceHolder',render: function() { return React.DOM.div(null); }});
-        View = PlaceHolder,
         Views = {};
 
     function AppHandler (app) {
-        var Handler = {
-            init: function () {
-                var AppView;
-                if (!cortex[app]) {
-                    cortex.add(app, {});
-                    cortex[app].add('args', {});
-                }
 
-                require(['./' + app], function (App) {
-                    Main.setProps({view: App( {user:cortex.user, data:cortex[app]} )});
+        var $view;
+
+        var Handler = {
+
+            init: function () {
+
+                require(['./' + app], function (View) {
+
+                    View.librarian.init(Main, function (TargetLib) {
+                        Main.setProps({
+                            view: View.component,
+                            args: {},
+                            lib: TargetLib
+                        });
+                    });
+
                 });
 
             },
             setArgs: function (req) {
-                cortex[app].args.setValue(req.params);
+                Main.setProps({args: req.params});
             }
         };
 
@@ -38,19 +43,27 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
 
     AppContainer = React.createClass({displayName: 'AppContainer',
         render: function() {
-            var TargetView = this.props.view;
-            return  React.DOM.div( {id:"appContainer"}, TargetView ? TargetView : null);
+            var TargetView = this.props.view || null;
+            return  React.DOM.div( {id:"appContainer"},  TargetView &&
+                TargetView(
+                    {args:this.props.args,
+                    lib:this.props.lib} )
+            );
         }
     });
 
     AppRouteTarget = {
+
         goToMainPage: function (req) {
-            var mainPage = cortex.user.home ? cortex.user.home.getValue() : 'console';
+            var mainPage = pager.user.home ? pager.user.home.getValue() : 'console';
             Aviator.navigate(req.uri + '/' + mainPage);
         },
+
         setupLayout: function () {
-            Main = React.renderComponent(AppContainer( {view:null}), container);
+            //nothing so far
+            Main = React.renderComponent(AppContainer( {view:null} ), container);
         }
+
     };
 
     Aviator.setRoutes({

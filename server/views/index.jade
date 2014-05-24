@@ -16,10 +16,11 @@ html
         |;(function(){
         |    var deps = [
         |        '//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js',
+        |        '//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.min.js',
         |        '//cdnjs.cloudflare.com/ajax/libs/pace/0.4.17/pace.min.js',
         |        '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js',
         |        pager.isDev ? '/js/modules/ext/react-with-addons-0.10.0.js' : '/js/build/ext/react-with-addons-0.10.0.min.js',
-        |        '/js/cortex/build/cortex.min.js',
+        |//        '/js/cortex/build/cortex.min.js',
         |//        '/js/aviator.js',
         |        '/js/foundation/foundation.min.js',
         |        pager.isDev ? '/js/inject.js' : '/js/inject.min.js'
@@ -44,7 +45,7 @@ html
     #container
         div(class='off-canvas-wrap' data-offcanvas)
             div(class='inner-wrap')
-                nav(class="tab-bar")
+                nav(id='TopBar', class="tab-bar")
                     section(class="middle tab-bar-section")
                         h1(class="title")
                             | Pager - #{pager.org.name}
