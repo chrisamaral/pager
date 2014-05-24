@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 define(function(){
-    var AttrItem, AttrTable, TaskPendingApproval, Queue, SubTasks;
+    var AttrItem, AttrTable, TaskPendingApproval, Queue, SubTask;
 
     AttrItem = React.createClass({displayName: 'AttrItem',
         render: function () {
@@ -88,6 +88,19 @@ define(function(){
             );
         }
     });
+    function anyDate (d) {
+        var dd = new Date();
+
+        if (_.isString(d)) {
+            return new Date(d);
+        }
+
+        if (_.isNumber(d)) {
+            dd.setTime(d);
+        }
+
+        return _.isDate(d) ? dd.setTime(d.getTime()) : dd;
+    }
     TaskPendingApproval = React.createClass({displayName: 'TaskPendingApproval',
         getInitialState: function(){
             return {infoShown: false};
@@ -104,10 +117,11 @@ define(function(){
                     panel: true,
                     contained: true,
                     hide: !this.state.infoShown
-                });
+                }),
+                timestamp = anyDate(event.timestamp);
 
             return React.DOM.div( {className:"activity-item panel"}, 
-                React.DOM.span( {className:"activity-timestamp"}, event.timestamp.toLocaleTimeString()),
+                React.DOM.span( {className:"activity-timestamp"}, timestamp),
 
                 React.DOM.div( {className:"activity-header"}, 
                     React.DOM.div( {className:"activity-avatar"}, 

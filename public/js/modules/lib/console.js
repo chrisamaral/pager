@@ -1,10 +1,9 @@
 /** @jsx React.DOM */
-define(['./../lib/main', '../ext/aviator/main', './console.queue'], function (pager, Aviator, Queue) {
+define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.tasks'], function (pager, Aviator, Queue, Tasks) {
     var LeftPanel,
         RightPanel,
         Console,
         onResize,
-        OtherTasks,
         UserLink,
         ObjectLink;
 
@@ -45,12 +44,6 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue'], function (pa
         }
     });
 
-    OtherTasks = React.createClass({displayName: 'OtherTasks',
-        render: function(){
-            return React.DOM.div(null, "Nothing to see here...");
-        }
-    });
-
     LeftPanel = React.createClass({displayName: 'LeftPanel',
         getInitialState: function () {
             return {
@@ -81,8 +74,8 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue'], function (pa
                 React.DOM.div( {id:"LeftPanelWrapper"}, 
                      this.props.pending.length
                         ? Queue( {items:this.props.pending} ) : null, 
-                     this.props.loose.length
-                        ? OtherTasks(null ) : null 
+                     this.props.tasks.length
+                        ? Tasks(null ) : null 
                 )
             );
         }
@@ -109,10 +102,10 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue'], function (pa
                 locations: loc
             }
         },
-
+        /*
         componentWillReceiveProps: function(Props) {
             console.log(Props);
-        },
+        },*/
 
         componentDidMount: function () {
             this.putArgs();
@@ -132,7 +125,7 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue'], function (pa
 
         render: function () {
             return React.DOM.div( {id:"Console"}, 
-                LeftPanel( {pending:this.props.lib.data.pending, loose:this.props.lib.data.loose} ),
+                LeftPanel( {pending:this.props.lib.data.pending, tasks:this.props.lib.data.tasks} ),
                 RightPanel(null )
             );
         }
@@ -144,115 +137,30 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue'], function (pa
         this.component = null;
     }
 
+    Lib.prototype.put = function(){
+        this.component.setProps({lib: this});
+    };
+
     Lib.prototype.init = function (component, callback) {
         this.data = {
-            pending: [
-                {
-                    id: 'xxxxxxx',
-                    subject: pager.user,
-                    predicate: 'finalizou 3 ordens',
-                    object: {
-                        name: 'Jesus Cristo',
-                        adj: 'de',
-                        url: 'http://youtube.com'
-                    },
-                    attrs: [
-                        {
-                            descr: 'Inútil',
-                            value: 'Valor Inútil'
-                        },
-                        {
-                            descr: 'Assinante',
-                            value: 'Asmirindo da Silva',
-                            relevance: 3
-                        },
-                        {
-                            descr: 'Inútil',
-                            value: 'Valor Inútil'
-                        },
-                        {
-                            descr: 'Inútil',
-                            value: 'Valor Inútil',
-                            relevance: 2
-                        },
-                        {
-                            descr: 'Inútil',
-                            value: 'Valor Inútil',
-                            url: 'http://google.com'
-                        }
-                    ],
-                    pics: [
-                        {
-                            src: 'https://fbcdn-sphotos-a-a.akamaihd.net/hphotos-ak-prn2/t1.0-9/10172615_618191988277930_598428880313359111_n.jpg',
-                            descr: 'suicide tendencies'
-                        },
-                        {
-                            src: 'https://fbcdn-sphotos-d-a.akamaihd.net/hphotos-ak-frc3/t1.0-9/10175004_775799969119781_6070044369723313409_n.jpg',
-                            descr: 'no country for old men'
-                        },
-                        {
-                            src: 'https://scontent-a.xx.fbcdn.net/hphotos-prn2/t1.0-9/10295784_10152391158666294_7513131584187353529_n.jpg',
-                            descr: "Now that we know who you are, I know who I am. I'm not a mistake! It all makes sense! In a comic, you know how you can tell who the arch-villain's going to be? He's the exact opposite of the hero. And most times they're friends, like you and me! I should've known way back when... You know why, David? Because of the kids. They called me Mr Glass."
-                        }
-                    ],
-                    tasks: [
-                        {
-                            id: 'JJJ',
-                            attrs: [
-                                {
-                                    descr: 'Inútil',
-                                    value: 'Valor Inútil',
-                                    url: 'http://google.com'
-                                },
-                                {
-                                    descr: 'Assinante',
-                                    value: 'Reclamação',
-                                    relevance: 3
-                                },
-                                {
-                                    descr: 'Inútil',
-                                    value: 'Valor Inútil'
-                                },
-                                {
-                                    descr: 'Inútil',
-                                    value: 'Valor Inútil',
-                                    relevance: 2
-                                }
-                            ]
-                        },
-                        {
-                            id: 'KKKK',
-                            attrs: [
-                                {
-                                    descr: 'Inútil',
-                                    value: 'Valor Inútil',
-                                    url: 'http://google.com'
-                                },
-                                {
-                                    descr: 'Assinante',
-                                    value: 'Asmirindo da Silva',
-                                    relevance: 3
-                                },
-                                {
-                                    descr: 'Inútil',
-                                    value: 'Valor Inútil'
-                                },
-                                {
-                                    descr: 'Inútil',
-                                    value: 'Valor Inútil',
-                                    relevance: 2
-                                }
-                            ]
-                        }
-                    ],
-                    timestamp: new Date()
-                }
-            ],
-            loose: [],
+            pending: [],
+            tasks: [],
             workers: []
         };
         this.component = component;
+
         callback(this);
+
+        $.get('/json/console.pending.json')
+            .done(function(result){
+                this.data.pending = result;
+                this.put();
+            }.bind(this));
+        $.get('/json/console.tasks.json')
+            .done(function(result){
+                this.data.tasks = result;
+                this.put();
+            }.bind(this));
     };
 
     _.merge(pager.components, {UserLink: UserLink, ObjectLink: ObjectLink});

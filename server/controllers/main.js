@@ -20,14 +20,6 @@ app.express.use(cookieParser());
 app.express.use(connetFlash());
 app.express.set('view engine', 'jade');
 
-function dumpSession(header) {
-    return function (req, res, next) {
-        console.log('#################', header, '###############');
-        console.log(req.cookies, req.session, req.user, req.sessionID);
-        next();
-    };
-}
-
 app.express.use(expressSession({
     secret: 'maiorsegredodomundo',
     key: 'acw.sid',
@@ -55,12 +47,15 @@ app.avatarObj = function (uid, avatar) {
 
 authLib(function () {
     app.passport = require('passport');
+
     app.passport.serializeUser(function (user, done) {
         done(null, user.id);
     });
+
     app.passport.deserializeUser(function (id, done) {
         app.mysql.query(' SELECT user.id, user.short_name, user.full_name, user.avatar ' +
                 ' FROM  user ' +
+                ' JOIN active_user ON active_user.user = user.id ' +
                 ' WHERE user.id = ' + app.mysql.escape(id),
             function (err, rows) {
                 if (err) {
@@ -74,19 +69,30 @@ authLib(function () {
                 return done(null, false);
             });
     });
+
     app.express.use(app.passport.initialize());
     app.express.use(app.passport.session());
 
-    app.express.get('/', app.authorized.can('enter app'), function (req, res) {
-        app.mysql.query('SELECT org.id org ' +
+    app.express.use(function (req, res, next){
+        var url;
+        if (!req.isAuthenticated()) {
+            req.session.redirect_to = app.appUrl + req.originalUrl;
+            if (req.xhr) {
+                return res.send(401);
+            }
+            url = app.baseUrl + '/login';
+            return res.status(401).redirect(url);
+        }
+        next();
+    });
+
+    app.express.get('/', function (req, res) {
+        app.mysql.query('SELECT app_user.org ' +
             'FROM app_user ' +
-            'JOIN org_app ON org_app.id = app_user.org_app ' +
-            'JOIN org ON org.id = org_app.org ' +
-            'WHERE app_user.user = ?',
-            [req.user.id],
+            'WHERE app_user.user = ? AND app_user.app = ?',
+            [req.user.id, app.appID],
             function (err, rows) {
                 if (err) {
-                    console.log(err);
                     return res.render('errors/500');
                 }
 
@@ -97,6 +103,7 @@ authLib(function () {
                 res.redirect(app.baseUrl + '/home');
             });
     });
+
     function renderMainPage(req, res){
         app.mysql.query('SELECT id, abbr, name FROM org WHERE id = ? ', [req.params.org], function (err, rows) {
             if (err) {
@@ -120,6 +127,7 @@ authLib(function () {
     app.express.get('/:org', app.authorized.can('enter app'), function (req, res) {
         renderMainPage(req, res);
     });
+
     app.express.get('/:org/*', app.authorized.can('enter app'), function (req, res, next) {
 
         var org = req.params.org;
@@ -130,29 +138,24 @@ authLib(function () {
 
         renderMainPage(req, res);
     });
+
     require('./boot.js');
+
     app.express.use(function (req, res, next) {
+
         if (req.xhr) {
             return res.send(404);
         }
+
         res.status(404);
         res.render('errors/404');
+
     });
 
     app.express.use(function (err, req, res, next) {
-        var url;
-        if (err && err instanceof app.authorized.UnauthorizedError === false) {
-            console.log(err);
-            return res.status(500).render('errors/500');
-        }
 
-        if (!req.isAuthenticated()) {
-            req.session.redirect_to = app.appUrl + req.originalUrl;
-            if (req.xhr) {
-                return res.send(401);
-            }
-            url = app.baseUrl + '/login';
-            return res.status(401).redirect(url);
+        if (err && err instanceof app.authorized.UnauthorizedError === false) {
+            return res.status(500).render('errors/500');
         }
 
         if (req.xhr) {

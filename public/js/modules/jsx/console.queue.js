@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 define(function(){
-    var AttrItem, AttrTable, TaskPendingApproval, Queue, SubTasks;
+    var AttrItem, AttrTable, TaskPendingApproval, Queue, SubTask;
 
     AttrItem = React.createClass({
         render: function () {
@@ -88,6 +88,19 @@ define(function(){
             </div>;
         }
     });
+    function anyDate (d) {
+        var dd = new Date();
+
+        if (_.isString(d)) {
+            return new Date(d);
+        }
+
+        if (_.isNumber(d)) {
+            dd.setTime(d);
+        }
+
+        return _.isDate(d) ? dd.setTime(d.getTime()) : dd;
+    }
     TaskPendingApproval = React.createClass({
         getInitialState: function(){
             return {infoShown: false};
@@ -104,10 +117,11 @@ define(function(){
                     panel: true,
                     contained: true,
                     hide: !this.state.infoShown
-                });
+                }),
+                timestamp = anyDate(event.timestamp);
 
             return <div className='activity-item panel'>
-                <span className='activity-timestamp'>{event.timestamp.toLocaleTimeString()}</span>
+                <span className='activity-timestamp'>{timestamp}</span>
 
                 <div className='activity-header'>
                     <div className='activity-avatar'>

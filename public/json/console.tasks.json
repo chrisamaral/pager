@@ -1,0 +1,59 @@
+[
+    {
+        "type": "customer",
+        "id": "xxx988224sassss11",
+        "customer": {
+            "id": 998251244,
+            "name": "Carpano da Costa",
+            "attrs": [
+                {
+
+                }
+            ]
+        },
+        "address": {
+           "formatted_address": "Rua General Mário Xavier, 90 - Teixeiras, Juiz de Fora - Minas Gerais, 36033-170, Brazil",
+            "address_components": [
+                {
+                    "value": "Rua General Mário Xavier",
+                    "type": "route"
+                },
+                {
+                    "value": 90,
+                    "type": "street_number"
+                },
+                {
+                    "value": "Teixeiras",
+                    "type": "neighbourhood"
+                },
+                {
+                    "value": "Ap 202"
+                },
+                {
+                    "value": "Bloco 120"
+                },
+                {
+                    "value": "Ao Lado da padaria"
+                },
+                {
+                    "value": "Juiz de Fora",
+                    "short": "JF",
+                    "type": "city"
+                },
+                {
+                    "value": "Minas Gerais",
+                    "short": "MG",
+                    "type": "administrative_area"
+                },
+                {
+                    "value": "Brasil",
+                    "type": "country"
+                }
+            ]
+        },
+        "location": {
+            "lat" : -21.7859626,
+            "lng" : -43.3452083
+        }
+    }
+]

@@ -7,6 +7,7 @@ function setVariables() {
     this.dbConfig = require('./config/mysql.json');
     this.ENV = fs.existsSync('./config/development') ? 'development' : 'production';
     this.httpProtocol = 'http';
+    this.appID = 'xhuzy3eeg';
     this.DOMAIN = this.ENV === 'production' ? 'acwautosis.info' : 'acw.dev';
     this.SUBDOMAIN = this.ENV === 'production' ? 'pager.acwautosis.info' : 'pager.acw.dev';
     this.baseUrl = this.httpProtocol + '://' + this.DOMAIN;
