@@ -54,8 +54,8 @@ define(function(){
                     React.DOM.textarea( {className:txtClasses, placeholder:"Observação", name:"obs"}),
                     this.state.obsError ? React.DOM.small( {className:"error"}, "Campo necessário") : null,
                     React.DOM.div( {className:"text-right"}, 
-                        React.DOM.button( {className:"tiny alert button", type:"submit"}, "Cancelar"),
-                        React.DOM.button( {className:"tiny secondary button", type:"submit"}, "Salvar")
+                        React.DOM.button( {className:"tiny alert button", type:"submit"}, "Rejeitar"),
+                        React.DOM.button( {className:"tiny success button", type:"submit"}, "Aceitar")
                     )
                 )
             );

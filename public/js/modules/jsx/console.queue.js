@@ -54,8 +54,8 @@ define(function(){
                     <textarea className={txtClasses} placeholder='Observação' name='obs'></textarea>
                     {this.state.obsError ? <small className="error">Campo necessário</small> : null}
                     <div className='text-right'>
-                        <button className='tiny alert button' type='submit'>Cancelar</button>
-                        <button className='tiny secondary button' type='submit'>Salvar</button>
+                        <button className='tiny alert button' type='submit'>Rejeitar</button>
+                        <button className='tiny success button' type='submit'>Aceitar</button>
                     </div>
                 </form>
             </div>;
