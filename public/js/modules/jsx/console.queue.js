@@ -116,9 +116,12 @@ define(function(){
             return <div id='Queue'>
                 <h4>Ordens Pendentes</h4>
                 <div className='activity-feed'>
-                    {this.props.items.map(function (item) {
-                        return <TaskPendingApproval item={item} key={item.id} />;
-                    }) }
+                    { _.isArray(this.props.items)
+                        ? this.props.items.map(function (item) {
+                                return <TaskPendingApproval item={item} key={item.id} />;
+                            })
+                        : null
+                    }
                 </div>
             </div>;
 

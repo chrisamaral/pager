@@ -246,8 +246,13 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
 
         $.get('/json/console.pending.json')
             .done(function(result){
-                this.data.pending = result;
-                this.put();
+                try {
+                    result = JSON.parse(result);
+                    this.data.pending = result;
+                    this.put();
+                } catch (e) {
+                    console.log(e);
+                }
             }.bind(this));
     };
 

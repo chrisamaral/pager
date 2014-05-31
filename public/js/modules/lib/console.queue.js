@@ -116,9 +116,12 @@ define(function(){
             return React.DOM.div( {id:"Queue"}, 
                 React.DOM.h4(null, "Ordens Pendentes"),
                 React.DOM.div( {className:"activity-feed"}, 
-                    this.props.items.map(function (item) {
-                        return TaskPendingApproval( {item:item, key:item.id} );
-                    }) 
+                     _.isArray(this.props.items)
+                        ? this.props.items.map(function (item) {
+                                return TaskPendingApproval( {item:item, key:item.id} );
+                            })
+                        : null
+                    
                 )
             );
 
