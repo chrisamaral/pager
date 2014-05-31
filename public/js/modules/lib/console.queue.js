@@ -1,53 +1,14 @@
 /** @jsx React.DOM */
 define(function(){
-    var AttrItem, AttrTable, TaskPendingApproval, Queue, SubTask;
-
-    AttrItem = React.createClass({displayName: 'AttrItem',
-        render: function () {
-            var attr = this.props.attr,
-                classes = React.addons.classSet({
-                    'main-attr': attr.relevance === 3,
-                    'important-attr': attr.relevance === 2
-                }),
-                val = attr.relevance === 3 ? attr.value.toUpperCase() : attr.value;
-            return React.DOM.tr( {className:classes}, 
-                attr.relevance !== 3 ? React.DOM.td(null, attr.descr) : null,
-                React.DOM.td( {colSpan:attr.relevance === 3 ? 2 : 1}, 
-                    attr.url
-                        ? React.DOM.a( {href:attr.url, target:"_blank"}, val)
-                        : val
-                    
-                )
-            );
-        }
-    });
-
-    AttrTable = React.createClass({displayName: 'AttrTable',
-        render: function () {
-            return React.DOM.table( {className:"attr-table"}, 
-                    React.DOM.tbody(null, 
-                        this.props.attrs.sort(function(a, b){
-
-                            a.relevance = a.relevance || 1;
-                            b.relevance = b.relevance || 1;
-
-                            return a.relevance > b.relevance ? -1 : 1;
-                        }).map(function(attr){
-                            return AttrItem(
-                                {key:Foundation.utils.random_str(10),
-                                attr:attr} );
-                        })
-                    )
-                );
-        }
-    });
+    var TaskPendingApproval, Queue, SubTask;
 
     SubTask = React.createClass({displayName: 'SubTask',
         getInitialState: function () {
             return {obsError: false};
         },
         render: function(){
-            var txtClasses = React.addons.classSet({error: this.state.obsError, 'default-textarea': true});
+            var txtClasses = React.addons.classSet({error: this.state.obsError, 'default-textarea': true}),
+                AttrTable = pager.components.AttrTable;
             return React.DOM.div( {className:"panel sequential"}, 
                 AttrTable( {attrs:this.props.task.attrs} ),
                 React.DOM.form(null, 
@@ -73,9 +34,9 @@ define(function(){
         render: function(){
             return React.DOM.div( {className:"panel"}, 
                 React.DOM.ul( {className:"clearing-thumbs oksized-thumbs", 'data-clearing':true}, 
-                    this.props.pics.map(function(p){
+                    this.props.pics.map(function(p, index){
                         var pic = p && p.src ? p : {src: p};
-                        return React.DOM.li( {className:"panel radio", key:Foundation.utils.random_str(10)}, 
+                        return React.DOM.li( {className:"panel radio", key:index}, 
                             React.DOM.a( {href:pic.src}, 
                                 pic.descr
                                     ? React.DOM.img( {'data-caption':pic.descr, src:pic.src} )
@@ -118,7 +79,8 @@ define(function(){
                     contained: true,
                     hide: !this.state.infoShown
                 }),
-                timestamp = anyDate(event.timestamp);
+                timestamp = anyDate(event.timestamp),
+                AttrTable = pager.components.AttrTable;
 
             return React.DOM.div( {className:"activity-item panel"}, 
                 React.DOM.span( {className:"activity-timestamp"}, timestamp),

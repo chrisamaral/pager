@@ -1,7 +1,6 @@
 "use strict";
-var app = require('../base.js')();
-
-var express = require('express'),
+var app = require('../base.js')(),
+    express = require('express'),
     connetFlash = require('connect-flash'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
@@ -19,6 +18,7 @@ app.express.use(bodyParser());
 app.express.use(cookieParser());
 app.express.use(connetFlash());
 app.express.set('view engine', 'jade');
+app.express.set('json spaces', 2);
 
 app.express.use(expressSession({
     secret: 'maiorsegredodomundo',
@@ -73,7 +73,7 @@ authLib(function () {
     app.express.use(app.passport.initialize());
     app.express.use(app.passport.session());
 
-    app.express.use(function (req, res, next){
+    app.express.use(function (req, res, next) {
         var url;
         if (!req.isAuthenticated()) {
             req.session.redirect_to = app.appUrl + req.originalUrl;
@@ -104,46 +104,75 @@ authLib(function () {
             });
     });
 
-    function renderMainPage(req, res){
-        app.mysql.query('SELECT id, abbr, name FROM org WHERE id = ? ', [req.params.org], function (err, rows) {
-            if (err) {
-                return res.status(500).render('errors/500');
-            }
+    function translateOrg(req, res, isAPI, done) {
+        req.isAPICall = isAPI;
+        app.mysql.query('SELECT id, abbr, name FROM org WHERE id = ? OR abbr = ?',
+            [req.params.org, req.params.org],
+            function (err, rows) {
 
-            res.locals.isDev = app.ENV === 'development';
-            res.locals.pager = {
-                user: req.user,
-                org: rows[0],
-                urls: {
-                    base: app.baseUrl,
-                    app: app.appUrl
+                if (isAPI) {
+                    if (err) {
+                        return res.send(500);
+                    }
+                    if (!rows[0]) {
+                        return res.send(404);
+                    }
+                } else {
+                    if (err) {
+                        return res.status(500).render('errors/500');
+                    }
+                    if (!rows[0]) {
+                        return res.redirect('/');
+                    }
                 }
-            };
-            res.locals.appData = new Buffer(JSON.stringify(res.locals.pager)).toString('base64');
 
-            res.render('index');
-        });
+                var org = rows[0];
+                if (req.params.org.toLowerCase() === org.abbr.toLowerCase()) {
+                    return res.redirect('/' + org.id + req.originalUrl.substr(org.abbr.length + 1));
+                }
+
+                done(org);
+            });
     }
+
+    function renderMainPage(req, res, org) {
+        res.locals.isDev = app.ENV === 'development';
+        res.locals.pager = {
+            user: req.user,
+            org: org,
+            urls: {
+                base: app.baseUrl,
+                app: app.appUrl
+            }
+        };
+        res.locals.appData = new Buffer(JSON.stringify(res.locals.pager)).toString('base64');
+        res.render('index');
+    }
+
     app.express.get('/:org', app.authorized.can('enter app'), function (req, res) {
-        renderMainPage(req, res);
+        translateOrg(req, res, false, function (org) {
+            renderMainPage(req, res, org);
+        });
     });
 
     app.express.get('/:org/*', app.authorized.can('enter app'), function (req, res, next) {
 
-        var org = req.params.org;
-
-        if (req.originalUrl.substr(org.length + 1, 5) === '/api/') {
-            return next();
-        }
-
-        renderMainPage(req, res);
+        var remainingUri = req.originalUrl.substr(req.params.org.length + 1, 5),
+            isAPI =  remainingUri === '/api/' || remainingUri === '/api';
+        translateOrg(req, res, isAPI, function (org) {
+            if (isAPI) {
+                req.org = org;
+                return next();
+            }
+            renderMainPage(req, res, org);
+        });
     });
 
-    require('./boot.js');
+    require('./api.js');
 
     app.express.use(function (req, res, next) {
 
-        if (req.xhr) {
+        if (req.isAPICall) {
             return res.send(404);
         }
 
@@ -158,7 +187,7 @@ authLib(function () {
             return res.status(500).render('errors/500');
         }
 
-        if (req.xhr) {
+        if (req.isAPICall) {
             return res.send(403);
         }
 

@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-define(['./utils'], function () {
+define(['../helpers/utils'], function () {
     $(document).foundation();
     var zIndexAltered = false;
     setInterval(function() {

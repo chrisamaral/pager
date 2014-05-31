@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "port": 27017,
+    "user": "pagerNodeApp",
+    "password": "Jz2A3TKZjeMy7sJCtcbQcbdU",
+    "database": "pager"
+}

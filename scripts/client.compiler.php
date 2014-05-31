@@ -1,7 +1,8 @@
 <?php
 $path = realpath(dirname(__FILE__).'/..');
 chdir($path);
-exec("rm -R public/js/build/*");
+exec("rm -R public/js/build/lib/*");
+
 function compile_js($path){
     $output = str_replace('/src', '/build', $path);
     $file = pathinfo($output);
@@ -13,7 +14,7 @@ function compile_js($path){
     system($cmd);
 }
 
-$jsFiles = explode("\n", trim(shell_exec('find public/js/src/ -type f -not -path "*/.module-cache/*" -name "*.js"')));
+$jsFiles = explode("\n", trim(shell_exec('find public/js/modules/lib/ -type f -not -path "*/.module-cache/*" -name "*.js"')));
 foreach($jsFiles as $path){
     compile_js($path);
 }

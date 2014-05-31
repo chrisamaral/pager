@@ -5,7 +5,8 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
         Console,
         onResize,
         UserLink,
-        ObjectLink;
+        ObjectLink,
+        Librarian;
 
     LazyLoad.css([
         '/css/console.css'/*,
@@ -44,6 +45,48 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
         }
     });
 
+    AttrItem = React.createClass({
+        render: function () {
+            var attr = this.props.attr,
+                classes = React.addons.classSet({
+                    'main-attr': attr.relevance === 3,
+                    'important-attr': attr.relevance === 2
+                }),
+                val = attr.relevance === 3 && _.isString(attr.value)
+                    ? attr.value.toUpperCase()
+                    : attr.value,
+                hasDescr = attr.relevance !== 3 && attr.descr;
+            return <tr className={classes}>
+                {hasDescr ? <td>{attr.descr}</td> : null}
+                <td colSpan={attr.relevance === 3 || !hasDescr ? 2 : 1} title={!hasDescr && attr.descr ? attr.descr : ''}>
+                    {attr.url
+                        ? <a href={attr.url} target='_blank'>{val}</a>
+                        : val
+                        }
+                </td>
+            </tr>;
+        }
+    });
+
+    AttrTable = React.createClass({
+        render: function () {
+            var attrs = _.filter(this.props.attrs, {relevance: 3})
+                .concat(_.filter(this.props.attrs, {relevance: 2}))
+                .concat(_.filter(this.props.attrs, function(attr){
+                    return !attr.relevance || attr.relevance <= 1;
+                }));
+            return <table className='attr-table'>
+                <tbody>
+                        {attrs.map(function(attr, index){
+                            return <AttrItem
+                            key={index}
+                            attr={attr} />;
+                        })}
+                </tbody>
+            </table>;
+        }
+    });
+
     LeftPanel = React.createClass({
         getInitialState: function () {
             return {
@@ -66,16 +109,15 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
             $(window).off('resize', onResize);
         },
         render: function () {
-
-            var style = {height: $(window).height() - $('.tab-bar').outerHeight()};
+            var style = {};
+            style = {height: $(window).height() - $('.tab-bar').outerHeight()};
             if (!this.state.visible) style.display = 'none';
 
             return <nav id='LeftPanel' style={style}>
                 <div id='LeftPanelWrapper'>
                     { this.props.pending.length
                         ? <Queue items={this.props.pending} /> : null }
-                    { this.props.tasks.length
-                        ? <Tasks /> : null }
+                    <Tasks queries={this.props.queries} setQueries={this.props.setQueries} />
                 </div>
             </nav>;
         }
@@ -122,10 +164,13 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
                 Aviator.navigate(uri);
             }
         },
-
+        setQueries: function (items) {
+            this.props.lib.set('queries', items);
+        },
         render: function () {
             return <div id='Console'>
-                <LeftPanel pending={this.props.lib.data.pending} tasks={this.props.lib.data.tasks} />
+                <LeftPanel pending={this.props.lib.data.pending} 
+                    queries={this.props.lib.data.queries} setQueries={this.setQueries} />
                 <RightPanel />
             </div>;
         }
@@ -138,15 +183,63 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
     }
 
     Lib.prototype.put = function(){
+        if (Modernizr.localstorage) {
+            localStorage.setItem('queries', JSON.stringify(this.data.queries.slice(1)));
+        }
         this.component.setProps({lib: this});
+    };
+    
+    Lib.prototype.set = function (collection, items) {
+        
+        if (collection === 'queries') {
+            items = items.filter(function(item, index){
+                return index === 0 || (item.tasks && item.tasks.length);
+            });
+        }
+
+        this.data[collection] = items;
+        this.put();
     };
 
     Lib.prototype.init = function (component, callback) {
+        var aux;
         this.data = {
             pending: [],
-            tasks: [],
+            queries: [{
+                name: 'Agenda',
+                tasks: [],
+                query: {
+                    schedule: [(new Date()).toYMD()]
+                }
+            }],
             workers: []
         };
+
+        if (Modernizr.localstorage) {
+            var aux;
+            try{
+                aux = JSON.parse(localStorage.getItem('queries'));
+            } catch (xxx) {
+                console.log(xxx);
+            }
+
+            this.data.queries = aux && aux.length
+                ? this.data.queries.concat(aux)
+                : this.data.queries;
+        }
+
+        this.data.queries.forEach(function(query, index){
+            $.get('/' + pager.org.id + '/api/console/tasks', query.query)
+                .done(function (tasks) {
+                    if(!_.isArray(tasks)){
+                        return;
+                    }
+                    query.tasks = tasks;
+                    this.put();
+
+                }.bind(this));
+        }.bind(this));
+
         this.component = component;
 
         callback(this);
@@ -156,17 +249,17 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
                 this.data.pending = result;
                 this.put();
             }.bind(this));
-        $.get('/json/console.tasks.json')
-            .done(function(result){
-                this.data.tasks = result;
-                this.put();
-            }.bind(this));
     };
 
-    _.merge(pager.components, {UserLink: UserLink, ObjectLink: ObjectLink});
+    _.merge(pager.components, {UserLink: UserLink, ObjectLink: ObjectLink, AttrTable: AttrTable});
+    Librarian = new Lib();
+
+    if (pager.isDev) {
+        pager.console = Librarian;
+    }
 
     return {
         component: Console,
-        librarian: new Lib()
+        librarian: Librarian
     };
 });

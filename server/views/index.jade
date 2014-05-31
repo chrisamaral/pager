@@ -9,8 +9,6 @@ html
     link(rel='stylesheet', href='/css/foundation.min.css')
     link(rel='stylesheet', href='/css/foundation-icons/foundation-icons.css')
     link(rel='stylesheet', href='/css/main.css')
-    script
-        | window.pager = {isDev: #{isDev}};
     script(src=isDev ? '/js/lazyload.js' : '/js/lazyload.min.js')
     script
         |;(function(){
@@ -19,11 +17,15 @@ html
         |        '//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.min.js',
         |        '//cdnjs.cloudflare.com/ajax/libs/pace/0.4.17/pace.min.js',
         |        '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js',
-        |        pager.isDev ? '/js/modules/ext/react-with-addons-0.10.0.js' : '/js/build/ext/react-with-addons-0.10.0.min.js',
-        |//        '/js/cortex/build/cortex.min.js',
-        |//        '/js/aviator.js',
+        if isDev
+            |        '/js/modules/ext/react-with-addons-0.10.0.js',
+        else
+            |        '/js/build/ext/react-with-addons-0.10.0.min.js',
         |        '/js/foundation/foundation.min.js',
-        |        pager.isDev ? '/js/inject.js' : '/js/inject.min.js'
+        if isDev
+            |        '/js/inject.js'
+        else
+            |       '/js/inject.min.js'
         |    ];
         |    if (!window.btoa) { deps.unshift('//cdnjs.cloudflare.com/ajax/libs/Base64/0.3.0/base64.min.js'); }
         |    LazyLoad.js(deps, function () {
@@ -31,13 +33,17 @@ html
         |            encode: window.btoa.bind(window),
         |            decode: window.atob.bind(window)
         |        };
-        |        _.merge(pager, 
+        |        window.pager = _.merge({isDev: #{isDev}},
         |            JSON.parse(
         |                Base64.decode('#{appData}')
         |            )
         |        );
-        |        Inject.setModuleRoot(pager.isDev ? '/js/modules' : '/js/build');
-        |        Inject.setExpires(pager.isDev ? 0 : 1000 * 60 * 24);
+        if isDev
+            |        Inject.setModuleRoot('/js/modules');
+            |        Inject.setExpires(0);
+        else
+            |        Inject.setModuleRoot('/js/build');
+            |        Inject.setExpires(1000 * 60 * 24);
         |        require.run('lib/main.js');
         |    });
         |}());
@@ -54,3 +60,4 @@ html
                             span
                 aside(class="right-off-canvas-menu")
                 section(class='main-section')
+    #junkContainer

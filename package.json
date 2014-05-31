@@ -26,6 +26,7 @@
         "mkdirp": "*",
         "strftime": "*",
         "connect-redis": "*",
-        "redis": "*"
+        "redis": "*",
+        "mongodb": "*"
     }
 }

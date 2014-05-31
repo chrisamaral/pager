@@ -42,7 +42,7 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
     }
 
     AppContainer = React.createClass({displayName: 'AppContainer',
-        render: function() {
+        render: function () {
             var TargetView = this.props.view || null;
             return  React.DOM.div( {id:"appContainer"},  TargetView &&
                 TargetView(
@@ -56,7 +56,7 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
 
         goToMainPage: function (req) {
             var mainPage = pager.user.home ? pager.user.home.getValue() : 'console';
-            Aviator.navigate(req.uri + '/' + mainPage);
+            Aviator.navigate(req.uri + (req.uri.charAt(req.uri.length - 1) === '/' ? '' : '/') + mainPage);
         },
 
         setupLayout: function () {

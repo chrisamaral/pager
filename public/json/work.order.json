@@ -1,0 +1,36 @@
+{
+    "sys_id": "xxxx",
+
+    "customer": {
+        "sys_id": "xxxxx",
+        "nome": "nome grande",
+        "etc": ""
+    },
+
+    "address_components": [],
+    "geo": {},
+    
+    "address": "Rua X das Carilhas, 94898",
+    "type": "Visita técnica",
+    "products": [],
+    "assets": [],
+    "status": "Finalizada",
+
+    "history": [
+        {
+            "status": "Pendente",
+            "timestamp": "{{timestamp}}",
+            "user": "{{id do usuário que modificou}}"
+        }
+    ],
+    
+    "msg": [
+        {"msg": "olá td bem", "timestamp": "{{timestamp}}", "user": "{{usuário}}"}
+    ],
+
+    "creation": "Tue May 27 2014 14:42:21 GMT-0300 (BRT)",
+    "schedule": {
+        "date": "Tue May 27 2014",
+        "time": ["08:00:00", "11:00:00"]
+    }
+}

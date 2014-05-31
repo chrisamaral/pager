@@ -1,59 +1,43 @@
 [
     {
-        "type": "customer",
-        "id": "xxx988224sassss11",
         "customer": {
             "id": 998251244,
             "name": "Carpano da Costa",
             "attrs": [
                 {
-
+                    "type": "Afiliado"
                 }
             ]
         },
-        "address": {
-           "formatted_address": "Rua General Mário Xavier, 90 - Teixeiras, Juiz de Fora - Minas Gerais, 36033-170, Brazil",
-            "address_components": [
-                {
-                    "value": "Rua General Mário Xavier",
-                    "type": "route"
-                },
-                {
-                    "value": 90,
-                    "type": "street_number"
-                },
-                {
-                    "value": "Teixeiras",
-                    "type": "neighbourhood"
-                },
-                {
-                    "value": "Ap 202"
-                },
-                {
-                    "value": "Bloco 120"
-                },
-                {
-                    "value": "Ao Lado da padaria"
-                },
-                {
-                    "value": "Juiz de Fora",
-                    "short": "JF",
-                    "type": "city"
-                },
-                {
-                    "value": "Minas Gerais",
-                    "short": "MG",
-                    "type": "administrative_area"
-                },
-                {
-                    "value": "Brasil",
-                    "type": "country"
-                }
-            ]
-        },
-        "location": {
+        "location": "AXJ45",
+        "address": "Rua General Mário Xavier, 90 - Teixeiras, Juiz de Fora - Minas Gerais, 36033-170, Brazil",
+        "geo": {
             "lat" : -21.7859626,
             "lng" : -43.3452083
-        }
+        },
+        "work_orders": [
+            {
+                "id": 5789,
+                "type": "Visita técnica",
+                "products": [],
+                "assets": [],
+                "status": "Finalizada",
+                "history": [
+                    {
+                        "status": "Pendente",
+                        "timestamp": "{{timestamp}}",
+                        "user": "{{id do usuário que modificou}}"
+                    }
+                ],
+                "msg": [
+                    {"msg": "olá td bem", "timestamp": "{{timestamp}}", "user": "{{usuário}}"}
+                ],
+                "creation": "Tue May 27 2014 14:42:21 GMT-0300 (BRT)",
+                "schedule": {
+                    "date": "Tue May 27 2014",
+                    "time": ["08:00:00", "11:00:00"]
+                }
+            }
+        ]
     }
 ]
