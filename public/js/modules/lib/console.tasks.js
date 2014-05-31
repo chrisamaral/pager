@@ -163,13 +163,8 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             e.preventDefault();
             this.props.popQuery(this.props.key);
         },
-        componentWillReceiveProps: function () {
-            $('#' + this.state.auxId + 'toggleTasks').off('click', this.toggleTasks);
-            $('#' + this.state.auxId + 'toggleTasks').click(this.toggleTasks);
-        },
         componentDidMount: function () {
             $(this.getDOMNode()).foundation();
-            $('#' + this.state.auxId + 'toggleTasks').click(this.toggleTasks);
             $('#' + this.state.auxId + 'killMe').click(this.killMe);
         },
         componentDidUpdate: function(){
@@ -191,33 +186,20 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         },
         render: function () {
             var hasTasks = this.props.query.tasks.length > 0,
-                tasksClass = React.addons.classSet({'no-flow-x': true, hide: hasTasks && !this.state.visibleTasks}),
-                hasMenu = this.props.key > 0 || hasTasks;
+                tasksClass = React.addons.classSet({'no-flow-x': true, hide: hasTasks && !this.state.visibleTasks});
             return (
                 React.DOM.div( {className:"panel queryResult"}, 
-                    React.DOM.h5( {className:"clearfix"}, 
+                    React.DOM.h5( {className:"clearfix", onClick:this.toggleTasks}, 
                         this.props.query.name ? this.props.query.name : null,
-                        React.DOM.a( {'data-options':"is_hover:true", className:"right radius ico fi-info", title:"Informação", 'data-dropdown':this.state.auxId + 'Info'}),
-                        hasMenu &&
-                            React.DOM.a( {'data-options':"is_hover:true", className:"right radius ico fi-list", title:"Menu", 'data-dropdown':this.state.auxId + 'Menu'})
+                        React.DOM.a( {'data-options':"is_hover:true", onClick:function(e){e.stopPropagation();}, className:"right radius ico fi-info", title:"Informação", 'data-dropdown':this.state.auxId + 'Info'}),
+                        React.DOM.a( {'data-options':"is_hover:true", onClick:function(e){e.stopPropagation();}, className:"right radius ico fi-list", title:"Menu", 'data-dropdown':this.state.auxId + 'Menu'})
                     ),
                     React.DOM.div( {className:tasksClass}, 
                          hasTasks
                             ? QueryTasks( {tasks:this.props.query.tasks, removeTask:this.removeTask} ) : null 
                     ),
                     React.DOM.ul( {id:this.state.auxId + 'Menu', className:"tiny f-dropdown hide", 'data-dropdown-content':true}, 
-                         hasTasks
-                            ? React.DOM.li(null, 
-                                    React.DOM.a( {id:this.state.auxId + 'toggleTasks'}, 
-                                        this.state.visibleTasks ? 'Diminuir' : 'Expandir'
-                                    )
-                                )
-                            : null,
-                        
-                         this.props.key > 0
-                            ? React.DOM.li(null, React.DOM.a( {id:this.state.auxId + 'killMe'}, "Descartar"))
-                            : null
-                        
+                        React.DOM.li(null, React.DOM.a( {id:this.state.auxId + 'killMe'}, "Descartar"))
                     ),
                     QueryInfoDropDown(
                         {id:this.state.auxId + 'Info',

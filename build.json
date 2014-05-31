@@ -1,0 +1,70 @@
+{
+    "default": {
+        "css": {
+            "pace":
+                "/css/pace.css",
+            "normalize":
+                "/css/normalize.css",
+            "foundation":
+                "/css/foundation.min.css",
+            "foundationIcons":
+                "/css/foundation-icons/foundation-icons.css",
+            "main":
+                "/css/main.css"
+        }
+    },
+    "development": {
+        "moduleRoot": "/js/modules",
+        "moduleExpiration": 3600000,
+        "pager": {
+            "isDev": true
+        },
+        "js": {
+            "lazyload":
+                "/js/modules/ext/lazyload.js",
+            "inject": 
+                "/js/inject.js",
+            "base64": 
+                "/js/modules/ext/base64.js",
+            "lodash": 
+                "/js/modules/ext/lodash.js",
+            "modernizr": 
+                "/js/modules/ext/modernizr.js",
+            "pace": 
+                "/js/modules/ext/pace.js",
+            "jquery": 
+                "/js/modules/ext/jquery.js",
+            "react": 
+                "/js/modules/ext/react-with-addons-0.10.0.js",
+            "foundation": 
+                "/js/foundation/foundation.min.js"
+        }
+    },
+    "production": {
+        "moduleRoot": "/js/build",
+        "moduleExpiration": 86400000,
+        "pager": {
+            "isDev": false
+        },
+        "js": {
+            "lazyload":
+                "/js/modules/ext/lazyload.min.js",
+            "inject":
+                "/js/inject.min.js",
+            "base64":
+                "/js/modules/ext/base64.min.js",
+            "lodash":
+                "/js/modules/ext/lodash.min.js",
+            "modernizr":
+                "/js/modules/ext/modernizr.min.js",
+            "pace":
+                "/js/modules/ext/pace.min.js",
+            "jquery":
+                "/js/modules/ext/jquery.min.js",
+            "react":
+                "/js/modules/ext/react-with-addons-0.10.0.min.js",
+            "foundation":
+                "/js/foundation/foundation.min.js"
+        }
+    }
+}

@@ -26,6 +26,7 @@ define(['../ext/strftime'], function (strftime) {
 
         cssLoad.call(LazyLoad, urls, callback);
     };
+
     Date.prototype.toYMD = function () {
         return strftime('%Y-%m-%d', this);
     };

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>PAGER - Painel de Gestão de Equipes e Rotas Inteligentes</title>
+        <link rel="shortcut icon" href="/fav.ico">
+        <script src="/js/modules/ext/lazyload.min.js"></script>
+        <script>
+            function supports_html5_storage() {
+                try {
+                    return 'localStorage' in window && window['localStorage'] !== null;
+                } catch (e) {
+                    return false;
+                }
+            }
+        </script>
+        <script>
+            //<![CDATA[
+            if (supports_html5_storage()) {
+                ;(function () {
+
+                    var jsLoad = LazyLoad.js, allStuff = '', callbacks = [];
+
+                    LazyLoad.js = function (urls, callback) {
+
+                        if (urls instanceof Array === false) {
+                            urls = [urls];
+                        }
+
+                        var completed = 0, sameDomain = urls.every(function(url){
+                            return url.substr(0, 1) === '/' && url.substr(0, 2) !== '//';
+                        });
+
+                        if (!sameDomain) {
+                            return jsLoad.call(LazyLoad, urls, callback);
+                        }
+
+                        urls.forEach(function(){callbacks.push(null);});
+
+                        function createScript (text) {
+                            var g = document.createElement('script');
+                            var s = document.getElementsByTagName('script')[0];
+                            g.text = text;
+                            s.parentNode.insertBefore(g, s);
+                        }
+                        function parseJsText(url, text) {
+                            localStorage.setItem('Iscache-ObeseLoadExpiration:' + url, Date.now() + 1000 * 60 * 60 * 24);
+                            localStorage.setItem('Iscache-ObeseLoad:' + url, text);
+                            createScript(text);
+                            //eval(text);
+                        }
+
+                        function proceed () {
+                            completed++;
+                            if (completed === urls.length) {
+                                callbacks.forEach(function(callback){
+                                    callback();
+                                });
+                                callback();
+                            }
+                        }
+
+                        function loadFromLocalStorage(url){
+                            var expiration = localStorage.getItem('Iscache-ObeseLoadExpiration:' + url);
+                            if (expiration && parseInt(expiration, 10) > Date.now()) {
+                                return localStorage.getItem('Iscache-ObeseLoad:' + url);
+                            } else {
+                                localStorage.removeItem('Iscache-ObeseLoadExpiration:' + url);
+                                localStorage.removeItem('Iscache-ObeseLoad:' + url);
+                            }
+                            return null;
+                        }
+
+                        urls.forEach(function (url, index) {
+                            var xhr, fromLocalStorage = loadFromLocalStorage(url);
+
+                            if (fromLocalStorage) {
+
+
+                                callbacks[index] = function () {
+                                    createScript(fromLocalStorage);
+                                    //eval(fromLocalStorage);
+                                };
+
+                                return proceed();
+                            }
+
+                            xhr = new XMLHttpRequest();
+                            xhr.onload = function () {
+                                if (xhr.readyState === 4) {
+                                    if (xhr.status === 200) {
+                                        callbacks[index] = function () {
+                                            parseJsText(url, xhr.responseText);
+                                        };
+                                        proceed();
+                                    } else {
+                                        console.error(xhr.statusText);
+                                    }
+                                }
+                            };
+                            xhr.open('get', url, true);
+                            xhr.send();
+                        });
+                    };
+                }());
+            }
+            //]]>
+        </script>
+        <script>
+            ;(function () {
+                var build = JSON.parse('{"moduleRoot":"\/js\/build","moduleExpiration":86400000,"pager":{"isDev":false},"js":{"lazyload":"\/js\/modules\/ext\/lazyload.min.js","inject":"\/js\/inject.min.js","base64":"\/js\/modules\/ext\/base64.min.js","lodash":"\/js\/modules\/ext\/lodash.min.js","modernizr":"\/js\/modules\/ext\/modernizr.min.js","pace":"\/js\/modules\/ext\/pace.min.js","jquery":"\/js\/modules\/ext\/jquery.min.js","react":"\/js\/modules\/ext\/react-with-addons-0.10.0.min.js","foundation":"\/js\/foundation\/foundation.min.js"},"css":{"pace":"\/css\/pace.css","normalize":"\/css\/normalize.css","foundation":"\/css\/foundation.min.css","foundationIcons":"\/css\/foundation-icons\/foundation-icons.css","main":"\/css\/main.css"}}'),
+                    jsDeps = [
+                        build.js.lodash,
+                        build.js.modernizr,
+                        build.js.jquery,
+                        build.js.pace,
+                        build.js.react,
+                        build.js.foundation,
+                        build.js.inject
+                    ], cssDeps = [
+                        build.css.normalize,
+                        build.css.foundation,
+                        build.css.pace,
+                        build.css.foundationIcons,
+                        build.css.main
+                    ];
+                
+                if (!window.btoa) {
+                    jsDeps.unshift(build.js.base64);
+                }
+
+                LazyLoad.css(cssDeps);
+                LazyLoad.js(jsDeps, function () {
+
+                    window.Base64 = {
+                        encode: window.btoa.bind(window),
+                        decode: window.atob.bind(window)
+                    };
+
+
+                    Inject.setModuleRoot(build.moduleRoot);
+                    Inject.setExpires(build.moduleExpiration);
+
+                    window.pager = build.pager;
+                    delete build.pager;
+                    window.pager.build = build;
+                    require.run('lib/main.js');
+                });
+
+            }());
+        </script>
+    </head>
+    <body><div id='container'></div></body>
+</html>

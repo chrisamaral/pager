@@ -1,5 +1,5 @@
 /** @jsx React.DOM */
-define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.tasks'], function (pager, Aviator, Queue, Tasks) {
+define(['../ext/aviator/main', './console.queue', './console.tasks'], function (Aviator, Queue, Tasks) {
     var LeftPanel,
         RightPanel,
         Console,
@@ -184,7 +184,13 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
 
     Lib.prototype.put = function(){
         if (Modernizr.localstorage) {
-            localStorage.setItem('queries', JSON.stringify(this.data.queries.slice(1)));
+            localStorage.setItem('pager.console.queries', JSON.stringify(this.data.queries.filter(function (query) {
+                return query.name !== 'Agenda';
+            }).map(function (query) {
+                query = _.cloneDeep(query);
+                query.tasks = [];
+                return query;
+            })));
         }
         this.component.setProps({lib: this});
     };
@@ -193,7 +199,7 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
         
         if (collection === 'queries') {
             items = items.filter(function(item, index){
-                return index === 0 || (item.tasks && item.tasks.length);
+                return item.name === 'Agenda' || (item.tasks && item.tasks.length);
             });
         }
 
@@ -216,9 +222,8 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
         };
 
         if (Modernizr.localstorage) {
-            var aux;
             try{
-                aux = JSON.parse(localStorage.getItem('queries'));
+                aux = JSON.parse(localStorage.getItem('pager.console.queries'));
             } catch (xxx) {
                 console.log(xxx);
             }
@@ -245,14 +250,17 @@ define(['./../lib/main', '../ext/aviator/main', './console.queue', './console.ta
         callback(this);
 
         $.get('/json/console.pending.json')
-            .done(function(result){
-                try {
-                    result = JSON.parse(result);
-                    this.data.pending = result;
-                    this.put();
-                } catch (e) {
-                    console.log(e);
+            .done(function (result) {
+                if (_.isString(result)) {
+                    try {
+                        result = JSON.parse(result);
+                    } catch (e) {
+                        console.log(e);
+                        result = [];
+                    }
                 }
+                this.data.pending = result;
+                this.put();
             }.bind(this));
     };
 

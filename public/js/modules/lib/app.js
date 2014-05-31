@@ -1,9 +1,6 @@
 /** @jsx React.DOM */
-require.ensure(['./main', '../ext/aviator/main'], function(require){
+require.ensure(['../ext/aviator/main'], function(require){
     var Aviator = require('../ext/aviator/main'),
-        container = $('#container .main-section')[0],
-        pager = require('./main'),
-        Main,
         AppRouteTarget,
         AppContainer,
         Views = {};
@@ -18,8 +15,8 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
 
                 require(['./' + app], function (View) {
 
-                    View.librarian.init(Main, function (TargetLib) {
-                        Main.setProps({
+                    View.librarian.init(pager.rootElem, function (TargetLib) {
+                        pager.rootElem.setProps({
                             view: View.component,
                             args: {},
                             lib: TargetLib
@@ -30,7 +27,7 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
 
             },
             setArgs: function (req) {
-                Main.setProps({args: req.params});
+                pager.rootElem.setProps({args: req.params});
             }
         };
 
@@ -44,10 +41,8 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
     AppContainer = React.createClass({displayName: 'AppContainer',
         render: function () {
             var TargetView = this.props.view || null;
-            return  React.DOM.div( {id:"appContainer"},  TargetView &&
-                TargetView(
-                    {args:this.props.args,
-                    lib:this.props.lib} )
+            return  React.DOM.div( {id:"appContainer"}, 
+                 TargetView && TargetView( {args:this.props.args, lib:this.props.lib} ) 
             );
         }
     });
@@ -61,7 +56,7 @@ require.ensure(['./main', '../ext/aviator/main'], function(require){
 
         setupLayout: function () {
             //nothing so far
-            Main = React.renderComponent(AppContainer( {view:null} ), container);
+            pager.rootElem.setProps({app: AppContainer});
         }
 
     };

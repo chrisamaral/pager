@@ -1,11 +1,17 @@
 'use strict';
 var app = require('../base.js')(), async = require('async');
+
 app.express.get('/:org/api', app.authorized.can('enter app'), function (req, res) {
     res.json({
+        urls:   {
+            base: app.baseUrl,
+            app: app.appUrl
+        },
         org: req.org,
         user: req.user
     });
 });
+
 app.express.get('/:org/api/pages', app.authorized.can('enter app'), function (req, res) {
     /*
         {name: 'Início', url: app.baseUrl + '/home'},
