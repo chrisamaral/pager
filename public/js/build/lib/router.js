@@ -1,0 +1,1 @@
+define(["../ext/strftime"],function(f){function b(e,a,c){this.day=e;this.tasks=a.concat();this.workers=c.concat()}b.prototype.init=function(){var e=this.day,a={};this.tasks.forEach(function(c){var d="today",b=c.schedule?new Date(c.schedule.from):null;b&&b.toYMD()===e||(d="others");a[d]=a[d]||[];a[d].push(c)});console.log(a)};return b});
