@@ -1,5 +1,5 @@
 CACHE MANIFEST
-#1402084363
+#1402097970
 
 NETWORK:
 *
@@ -21,12 +21,15 @@ CACHE:
 /js/build/ext/aviator/main.js
 /js/build/ext/react-with-addons-0.10.0.min.js
 /js/build/ext/lodash.min.js
+/js/build/lib/console.map.js
 /js/build/lib/app.js
 /js/build/lib/component.DateInput.js
+/js/build/lib/task.geocoder.js
 /js/build/lib/console.tasks.js
 /js/build/lib/console.js
 /js/build/lib/console.queue.js
 /js/build/lib/main.js
+/js/build/lib/router.js
 /js/build/helpers/utils.js
 /css/foundation-icons/foundation-icons.woff
 /css/main.css

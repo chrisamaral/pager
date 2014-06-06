@@ -42,7 +42,7 @@
     },
     "production": {
         "moduleRoot": "/js/build",
-        "moduleExpiration": 86400000,
+        "moduleExpiration": 1440,
         "pager": {
             "isDev": false
         },
