@@ -3,31 +3,39 @@ require.ensure(['../ext/aviator/main'], function(require){
     var Aviator = require('../ext/aviator/main'),
         AppRouteTarget,
         AppContainer,
+        CachedViews = {},
         Views = {};
 
     function AppHandler (app) {
 
-        var $view;
-
         var Handler = {
+            initialized: false,
+            init: function (req) {
 
-            init: function () {
-
-                require(['./' + app], function (View) {
-
+                this.initialized = true;
+                var run = function (View) {
                     View.librarian.init(pager.rootElem, function (TargetLib) {
+
                         pager.rootElem.setProps({
+                            args: req.params,
                             view: View.component,
-                            args: {},
                             lib: TargetLib
                         });
+
                     });
-
-                });
-
+                };
+                if (CachedViews[app]) {
+                    return run(CachedViews[app]);
+                }
+                require(['./' + app], run);
             },
             setArgs: function (req) {
-                pager.rootElem.setProps({args: req.params});
+
+                if (!this.initialized) {
+                    return this.init(req);
+                }
+
+                pager.rootElem.setProps({args: _.cloneDeep(req.params)});
             }
         };
 
@@ -50,7 +58,7 @@ require.ensure(['../ext/aviator/main'], function(require){
     AppRouteTarget = {
 
         goToMainPage: function (req) {
-            var mainPage = pager.user.home ? pager.user.home.getValue() : 'console';
+            var mainPage = pager.user.home ? pager.user.home : 'console';
             Aviator.navigate(req.uri + (req.uri.charAt(req.uri.length - 1) === '/' ? '' : '/') + mainPage);
         },
 
@@ -68,7 +76,7 @@ require.ensure(['../ext/aviator/main'], function(require){
             '/': 'goToMainPage',
             '/console': {
                 target: AppHandler('console'),
-                '/*': 'init',
+                '/': 'init',
                 '/:day': 'setArgs',
                 '/:day/:locations': 'setArgs'
             }
@@ -76,4 +84,9 @@ require.ensure(['../ext/aviator/main'], function(require){
     });
 
     Aviator.dispatch();
+
+    if (pager.isDev) {
+        pager.Aviator = Aviator;
+    }
+
 });

@@ -5,20 +5,19 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         FilterList,
         FilterItem,
         TxtInput,
-        Query,
+        QueryElem,
         QueryInfoDropDown,
-        QueryTasks,
         QueryTask,
+        LookupProgress,
         filterName = {
             schedule: "Agenda::Ordem",
             task_id: "Código::Ordem",
             creation: "Ingresso::Ordem",
             task_status: "Status::Ordem",
             task_type: "Tipo::Ordem",
-            customer_id: "Código::Assinante",
-            customer_name: "Nome::Assinante",
-            address: "Endereço::Assinante"
-
+            customer_id: "Código::Cliente",
+            customer_name: "Nome::Cliente",
+            address: "Endereço::Cliente"
         };
 
 
@@ -31,7 +30,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
     FilterItem = React.createClass({
         killFilter: function(e){
             e.preventDefault();
-            this.props.removeFilter(this.props.key);
+            this.props.removeFilter(this.props.index);
         },
         render: function () {
             var FilterInput;
@@ -86,7 +85,8 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             var fs = this.props.filters.map(function (filter, index) {
                     var _id = Foundation.utils.random_str(10);
                     return <FilterItem
-                                key={index}
+                                key={filter.key}
+                                index={index}
                                 id={filter.id} name={filter.name}
                                 removeFilter={this.props.removeFilter} />;
                 }.bind(this));
@@ -126,85 +126,244 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             </div>);
         }
     });
-
     QueryTask = React.createClass({
+        getInitialState: function () {
+            return {id: 'Q' + Math.random().toString(36).substr(2), hasLocation: false};
+        },
+        renderDropdown: function (props) {
+            props = props || this.props;
+
+            $('#' + this.state.id + 'Menu').remove();
+            var menu =  $(React.renderComponentToString(
+                <ul id={this.state.id + 'Menu'} className='tiny f-dropdown hide' data-dropdown-content>
+                    { props.task.location
+                        ? <li><a id={this.state.id + 'focusOnMe'}>Focar</a></li>
+                        : null }
+                    <li><a id={this.state.id + 'killMe'}>Descartar</a></li>
+                </ul>)).appendTo('body');
+
+            $('#' + this.state.id + 'focusOnMe').click(this.mapFocusOnMe);
+            $('#' + this.state.id + 'killMe').click(this.killMe);
+
+            if (this.state.hasLocation !== !!props.task.location) {
+                this.setState({hasLocation: !!props.task.location});
+            }
+            menu.foundation();
+        },
+        componentDidMount: function () {
+            this.renderDropdown();
+        },
+        componentWillReceiveProps: function (newProps) {
+            if (newProps.task.location && !this.state.hasLocation) {
+                this.renderDropdown(newProps);
+            }
+        },
+        componentWillUnmount: function () {
+            $('#' + this.state.id + 'Menu').remove();
+        },
         killMe: function () {
-            this.props.removeTask(this.props.key);
+            this.props.removeTask(this.props.index);
+            $('#' + this.state.id + 'Menu').remove();
+        },
+        mapFocusOnMe: function () {
+            this.props.setTaskFocus(this.props.task.id);
         },
         render: function () {
-            return <div className='queryTask'>
-                <a className='right radius ico fi-x-circle' title='Remover' onClick={this.killMe}></a>
-                <AttrTable key={this.props.key} attrs={this.props.task.attrs} />
-            </div>;
-        }
-    });
-
-    QueryTasks = React.createClass({
-
-        render: function () {
             var AttrTable = pager.components.AttrTable;
-            return <div>
-                {this.props.tasks.map(function (task, index) {
-                    return <QueryTask key={index} task={task} removeTask={this.props.removeTask} />;
-                }.bind(this))}
+            return <div className='queryTask'>
+                <a className='radius ico fi-list' title='Menu' data-dropdown={this.state.id + 'Menu'}></a>
+                <AttrTable attrs={this.props.task.attrs} />
             </div>;
         }
     });
+    LookupProgress = React.createClass({
 
-    Query = React.createClass({
+        getInitialState: function () {
+            return {
+                lookupProgress: null,
+                alreadyStartedLookup: false
+            };
+        },
+
+        startGeoLookup: function () {
+
+            if (this.state.alreadyStartedLookup) {
+                return;
+            }
+
+            this.setState({alreadyStartedLookup: true});
+
+            require(['../lib/task.geocoder'], function (Geocoder) {
+                var g = new Geocoder(this.props.tasks);
+
+                g.onProgress = function (completed, total, currentTask, action) {
+
+                    if (!this.isMounted()) {
+                        return g.abort();
+                    }
+
+                    try{
+
+                        this.setState({
+                            lookupProgress: total ? Math.floor(100 * completed / total) : null
+                        }, function () {
+                            if (action !== 'noRedraw') {
+                                this.props.updateTask(currentTask);
+                            }
+                        }.bind(this));
+
+
+                    } catch (e) {
+                        g.abort();
+                        throw e;
+                    }
+
+                }.bind(this);
+
+                g.onComplete = function () {
+                    setTimeout(function(){
+                        this.setState({
+                            lookupProgress: null
+                        });
+                    }.bind(this), 1000 * 2);
+
+                }.bind(this);
+
+                g.init();
+            }.bind(this));
+
+        },
+
+        componentWillReceiveProps: function (newProps) {
+            if (newProps.hasGoogleMaps) {
+                this.startGeoLookup();
+            }
+        },
+        componentDidMount: function () {
+            if (this.props.hasGoogleMaps) {
+                this.startGeoLookup();
+            }
+        },
+        render: function () {
+            var style = {};
+            if (this.state.lookupProgress === null) {
+                style.display = 'none';
+            }
+            return <progress style={style} value={this.state.lookupProgress} max={100} title={this.state.lookupProgress + '% das ordens foram localizadas'} />;
+        }
+    });
+    QueryElem = React.createClass({
+
         getInitialState: function(){
             return {
+                taskLength: this.props.query.tasks.length,
                 visibleTasks: true,
                 triggedMenu: false,
                 auxId: 'q' + Math.random().toString(36).substr(2)
             };
         },
+
         killMe: function (e) {
             e.preventDefault();
-            this.props.popQuery(this.props.key);
+            this.props.popQuery(this.props.index);
         },
-        componentDidMount: function () {
-            $(this.getDOMNode()).foundation();
+
+        routeMe: function(e) {
+            e.preventDefault();
+            this.props.routeThem(this.props.query.tasks);
+        },
+
+        cleanDropdown: function () {
+            $('#' + this.state.auxId + 'Menu').remove();
+            $('#' + this.state.auxId + 'Info').remove();
+        },
+
+        renderDropdown: function () {
+            this.cleanDropdown();
+            var menu = 
+                $(React.renderComponentToString(
+                    <ul id={this.state.auxId + 'Menu'} className='tiny f-dropdown hide' data-dropdown-content>
+                        <li><a id={this.state.auxId + 'routeMe'}>Rotear</a></li>
+                        <li><a id={this.state.auxId + 'killMe'}>Descartar</a></li>
+                    </ul>)).appendTo('body'),
+                info =
+                    $(React.renderComponentToString(
+                        <QueryInfoDropDown
+                                id={this.state.auxId + 'Info'}
+                                count={this.props.query.tasks.length}
+                                query={this.props.query.query} />)).appendTo('body');
+
             $('#' + this.state.auxId + 'killMe').click(this.killMe);
+            $('#' + this.state.auxId + 'routeMe').click(this.routeMe);
+
+            $([this.getDOMNode(), menu[0], info[0]]).foundation();
         },
-        componentDidUpdate: function(){
-            $(this.getDOMNode()).foundation();
+
+        componentDidMount: function () {
+            this.renderDropdown();
         },
+
+        componentWillUnmount: function () {
+            this.cleanDropdown();
+        },
+
+        componentDidUpdate: function () {
+            if (this.props.query.tasks.length !== this.state.taskLength) {
+                this.renderDropdown();
+                this.setState({taskLength: this.props.query.tasks.length});
+            }
+        },
+
         removeTask: function (index) {
             var tasks = this.props.query.tasks;
             tasks.splice(index, 1);
             this.setTasks(tasks);
         },
+
+        updateTask: _.debounce(function (task) {
+            var tasks = this.props.query.tasks,
+                index = _.findIndex(tasks, {id: task.id});
+
+            if(index < 0) {
+                return;
+            }
+
+            tasks[index] = task;
+            this.setTasks(tasks);
+        }, 300),
+
         setTasks: function (tasks) {
             var n_query = this.props.query;
             n_query.tasks = tasks;
-            this.props.setQuery(n_query, this.props.key);
+            this.props.setQuery(n_query, this.props.index);
         },
+
         toggleTasks: function (e) {
             e.preventDefault();
             this.setState({visibleTasks: !this.state.visibleTasks});
         },
+
         render: function () {
-            var hasTasks = this.props.query.tasks.length > 0,
-                tasksClass = React.addons.classSet({'no-flow-x': true, hide: hasTasks && !this.state.visibleTasks});
+            var tasksClass = React.addons.classSet({
+                    'no-flow-x': true,
+                    hide: !this.state.visibleTasks
+                }),
+                noPropagation = function(e){e.stopPropagation();};
             return (
-                <div className='panel queryResult'>
+                <div className='panel sequential queryResult'>
                     <h5 className='clearfix' onClick={this.toggleTasks}>
                         {this.props.query.name ? this.props.query.name : null}
-                        <a data-options='is_hover:true' onClick={function(e){e.stopPropagation();}} className='right radius ico fi-info' title='Informação' data-dropdown={this.state.auxId + 'Info'}></a>
-                        <a data-options='is_hover:true' onClick={function(e){e.stopPropagation();}} className='right radius ico fi-list' title='Menu' data-dropdown={this.state.auxId + 'Menu'}></a>
+                        <a onClick={noPropagation} className='right radius ico fi-info' title='Informação' data-dropdown={this.state.auxId + 'Info'}></a>
+                        <a onClick={noPropagation} className='right radius ico fi-list' title='Menu' data-dropdown={this.state.auxId + 'Menu'}></a>
                     </h5>
+                    <LookupProgress updateTask={this.updateTask} tasks={this.props.query.tasks} hasGoogleMaps={this.props.hasGoogleMaps} />
                     <div className={tasksClass}>
-                        { hasTasks
-                            ? <QueryTasks tasks={this.props.query.tasks} removeTask={this.removeTask} /> : null }
+                        {this.props.query.tasks.map(function (task, index) {
+                            return <QueryTask key={task.id} index={index} task={task}
+                                        setTaskFocus={this.props.setTaskFocus}
+                                        removeTask={this.removeTask} />;
+                        }.bind(this))}
                     </div>
-                    <ul id={this.state.auxId + 'Menu'} className='tiny f-dropdown hide' data-dropdown-content>
-                        <li><a id={this.state.auxId + 'killMe'}>Descartar</a></li>
-                    </ul>
-                    <QueryInfoDropDown
-                        id={this.state.auxId + 'Info'}
-                        count={this.props.query.tasks.length}
-                        query={this.props.query.query} />
                 </div>
             );
         }
@@ -216,7 +375,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                 filters: []
             };
         },
-        pushQuery: function (query, tasks, callback) {
+        pushQuery: function (query, tasks) {
             var queries = this.props.queries, n_query = {};
             
             n_query.query = query;
@@ -249,6 +408,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
 
             filters.push({
                 id: $type.value,
+                key: 'filter-' + Math.random().toString(36).substr(2),
                 name: $($type).find('option:selected').text()
             });
             this.setState({filters: filters});
@@ -258,18 +418,16 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         },
         render: function () {
             return (
-                <div className='panel content'>
+                <div className='panel contained'>
                     <form onSubmit={this.createFilter}>
-                        <div className='row'>
-                            <div className='large-12 columns'>
-                                <label>Filtrar por
-                                    <select name='type' ref='filterType'>
-                                        {_.map(filterName, function(name, key){
-                                            return <option key={key} value={key}>{name}</option>;
-                                        })}
-                                    </select>
-                                </label>
-                            </div>
+                        <div>
+                            <label>Filtrar por
+                                <select name='type' ref='filterType'>
+                                    {_.map(filterName, function(name, key){
+                                        return <option key={key} value={key}>{name}</option>;
+                                    })}
+                                </select>
+                            </label>
                         </div>
                         <div className='row'>
                             <div className='large-12 columns text-right'>
@@ -282,9 +440,19 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                     ? <FilterList removeFilter={this.removeFilter} 
                             filters={this.state.filters} 
                             pushQuery={this.pushQuery} /> : null }
-                    <div className='panel contained'>
+                    <div className='panel sequential contained'>
                         {this.props.queries.map(function (query, index) {
-                            return <Query popQuery={this.popQuery} setQuery={this.setQuery} key={index} query={query} />;
+                            return (
+                                <QueryElem
+                                    routeThem={this.props.routeThem}
+                                    setTaskFocus={this.props.setTaskFocus}
+                                    hasGoogleMaps={this.props.hasGoogleMaps}
+                                    popQuery={this.popQuery}
+                                    setQuery={this.setQuery}
+                                    key={query.id}
+                                    index={index}
+                                    query={query} />
+                            );
                         }.bind(this))}
                     </div>
                 </div>
@@ -292,11 +460,109 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         }
     });
 
+    function groupTasksByTarget(tasks) {
+        var grouped = [];
+        tasks.forEach(function (task) {
+
+            if (!task.location) {
+                return;
+            }
+
+            var inCollection = _.find(grouped, function (that) {
+
+                if (that.ref !== task.ref) {
+                    return false;
+                }
+
+                var target1 = that.target ? that.target.sys_id : null,
+                    target2 = task.target ? task.target.sys_id : null,
+                    isEqual = (target1 === target2 &&
+                        that.address.address.toLowerCase() === task.address.address.toLowerCase());
+
+                return isEqual;
+            }), newTask, itIsAMe = function(me){
+                return me.sys_id === task.sys_id || me.id === task.id;
+            };
+
+            if (inCollection) {
+
+                if (_.any(inCollection.tasks, itIsAMe)) {
+                    return;
+                }
+
+                inCollection.tasks.push(task);
+                inCollection.types.push(task.type);
+
+                if (task.schedule) {
+                    inCollection.schedule = inCollection.schedule || task.schedule;
+
+                    inCollection.schedule.from = inCollection.schedule.from < task.schedule.from
+                        ? inCollection.schedule.from
+                        : task.schedule.from;
+
+                    inCollection.schedule.to = inCollection.schedule.to < task.schedule.to
+                        ? inCollection.schedule.to
+                        : task.schedule.to;
+                }
+
+            } else {
+
+                newTask = {
+                    ref: task.ref,
+                    address: task.address,
+                    target: task.target,
+                    types: [task.type],
+                    tasks: [task]
+                };
+
+                if (task.schedule) {
+                    newTask.schedule = task.schedule;
+                }
+
+                if (task.location) {
+                    newTask.location = task.location;
+                }
+
+                grouped.push(newTask);
+            }
+        });
+        return grouped;
+    }
+
     Tasks = React.createClass({
+
+        routeThem: function (tasks) {
+            this.props.routeTasks(groupTasksByTarget(tasks));
+        },
+
+        routeThemAll: function (e) {
+            e.stopPropagation();
+            var tasks = [];
+            this.props.queries.forEach(function(query){
+                query.tasks.forEach(function(task){
+                    if (!_.any(task,{sys_id: task.sys_id})) {
+                        tasks.push(task);
+                    }
+                });
+            });
+            this.routeThem(tasks);
+        },
+
+        toggleContent: function (e) {
+            $(e.currentTarget).next('.panel').toggle();
+        },
+
         render: function () {
             return <div id='Tasks'>
-                <h4>Ordens livres</h4>
-                <TaskInput 
+                <h4 onClick={this.toggleContent}>Ordens livres
+                    <a onClick={this.routeThemAll} className='right radius ico fi-fast-forward' title='Rotear todos'></a>
+                </h4>
+                <TaskInput
+                    routeThem={this.routeThem}
+                    locations={this.props.locations}
+                    day={this.props.day}
+                    setTaskFocus={this.props.setTaskFocus}
+                    hasGoogleMaps={this.props.hasGoogleMaps}
                     setQueries={this.props.setQueries}
                     queries={this.props.queries} />
             </div>;

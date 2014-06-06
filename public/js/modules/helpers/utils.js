@@ -31,6 +31,15 @@ define(['../ext/strftime'], function (strftime) {
         return strftime('%Y-%m-%d', this);
     };
 
+    Date.prototype.fromYMD = function (str) {
+        var d = new Date(str);
+        if (d.toYMD().replace(/\D/g,'') !== str.replace(/\D/g,'')) {
+            d.setHours(0,0,0,0);
+            d.setTime(d.getTime() + 1000 * 60 * 60 * 24);
+        }
+        return d;
+    };
+
     Date.prototype.toYMDHMS = function () {
         return strftime('%Y-%m-%d %H:%M:%S', this);
     };
@@ -87,6 +96,14 @@ define(['../ext/strftime'], function (strftime) {
                     }
                 }
             }
+        }, loadAPIKeys: function (callback) {
+            $.get('/' + pager.org.id + '/api/k')
+                .done(function (keys) {
+                    if(keys && _.isObject(keys)) {
+                        pager.keys = keys;
+                        callback(keys);
+                    }
+                });
         }
     };
 });

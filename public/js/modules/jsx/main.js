@@ -73,7 +73,6 @@ define(['../helpers/utils'], function (utils) {
         },
         render: function () {
             var App = this.props.app;
-
             return (
                 <div data-offcanvas className="off-canvas-wrap">
                     <div className="inner-wrap">
@@ -92,7 +91,9 @@ define(['../helpers/utils'], function (utils) {
                         </aside>
                         <section className="main-section">
                             { App &&
-                                <App view={this.props.view} args={this.props.args} lib={this.props.lib} />
+                                <App view={this.props.view}
+                                        args={this.props.args}
+                                            lib={this.props.lib} />
                             }
                         </section>
                     </div>
@@ -105,7 +106,7 @@ define(['../helpers/utils'], function (utils) {
     pager.components = {};
 
     function loadFromLocalStorage(item) {
-        var aux = localStorage.getItem('pager.' + item);
+        var aux = localStorage.getItem('pager.' + pager.org.id + '.' + item);
         pager[item] = aux && JSON.parse(aux) || pager[item];
     }
 
@@ -115,14 +116,11 @@ define(['../helpers/utils'], function (utils) {
         });
     }
 
-
-
-
     function saveAll(){
         ['urls', 'pages', 'org', 'user', 'org', 'build'].forEach(function (key) {
             var item = pager[key];
             if (item && Modernizr.localstorage) {
-                localStorage.setItem('pager.' + key, JSON.stringify(item));
+                localStorage.setItem('pager.' + pager.org.id + '.' + key, JSON.stringify(item));
             }
         });
     }

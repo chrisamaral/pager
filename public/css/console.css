@@ -15,37 +15,40 @@ label>strong{
 }
 
 #Console{
+    position: relative;
+    display: block;
+    overflow-y: auto;
     width: 100%;
-    max-width: none;
-    display: flex;
-    flex-direction: row;
     color: #404040;
 }
 #LeftPanel{
-    display: flex;
+    display: block; position: absolute;
+    left: 0; top: 0;
+    
     height: auto;
-    flex: 0 1 20em;
-    background-color: #e5e5e5;
+    max-height: 100%;
     overflow-y: auto;
-    z-index: 5;
-}
-#LeftPanelWrapper{
-    display: block;
-    padding: 3px;
-    width: auto;
-    height: auto;
+
+    width: 30%;
+    max-width: 300px;
+
+    padding: 5px;
 }
 #RightPanel{
-    display: flex;
-    height: auto;
-    flex: 1 1 60%;
-    background-color: blue;
+    display: block; position: absolute;
+    right: 0; top: 0;
+    width: 70%;
+    padding: 5px;
 }
 #LeftPanelWrapper>div{
     background-color: white;
-    border: 1px solid rgb(200,200,200);
-    border-radius: 3px;
-    margin-top: 3px;
+    box-shadow: 2px 3px 2px rgba(0,0,0,0.2);
+}
+#Queue>.panel, #Tasks>.panel{
+    margin: 3px;
+}
+#Queue{
+    margin-bottom: 3px;
 }
 #Queue>h4{
     background-color: #8A0808;
@@ -53,14 +56,23 @@ label>strong{
 #Tasks>h4{
     background-color: #424242;
 }
+#Tasks>h4 a.ico{
+    color: rgb(250,250,250);
+    width: auto;
+    height: 100%;
+    line-height: 1.7em;
+    margin-right: 0.5em;
+    display: inline;
+}
+#Tasks>h4 a.ico:hover{
+    background-color: inherit;
+}
 #LeftPanelWrapper>div>h4{
     text-indent: 0.3em;
     font-weight: bold;
     color: white;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
     line-height: 1.7em;
-    margin-top: 0;
+    margin: 0;
 }
 .activity-feed{
     position: relative;
@@ -119,7 +131,6 @@ label>strong{
 .main-attr>td{
     font-weight: bold;
     font-size: larger;
-    text-align: center;
 }
 
 .important-attr>td:first-child{
@@ -152,10 +163,21 @@ label>strong{
     margin-left: 0.3em;
     margin-bottom: 0;
 }
+.queryResult>progress{
+    display: block;
+    width: 95%;
+    line-height: 2em;
+    margin: 3px auto;
+}
 .queryTask{
     position: relative;
 }
 .queryTask>a.ico{
     position: absolute;
     right: 5px; top: 3px;
+}
+#ConsoleMainMap{
+    display: block; position: relative;
+    width: 100%;
+    height: 100%;
 }

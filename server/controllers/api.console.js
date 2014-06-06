@@ -4,8 +4,93 @@ var app = require('../base.js')(),
     _ = require('lodash'),
     strftime = require('strftime');
 
+function formatTasks(req, res) {
+    return function (err, result) {
+        if (err) {
+            console.log(err);
+            return res.send(500);
+        }
+        if (!_.isArray(result)) {
+            return res.json([]);
+        }
+        var orders = result.map(function (order) {
+            var o = {
+                id: order._id,
+                sys_id: order.sys_id,
+                address: order.address,
+                creation: order.creation,
+                type: order.type,
+                attrs: []
+            }, target;
+
+
+
+            if (order.location) {
+                o.location = {
+                    lng: order.location.coordinates[0],
+                    lat: order.location.coordinates[1]
+                };
+            }
+
+            o.attrs.push({descr: 'Tipo', value: order.type, relevance: 3});
+            o.attrs.push({descr: 'Código Ordem', value: order.sys_id, relevance: 2});
+            o.attrs.push({descr: 'Status', value: order.status, relevance: 2});
+            o.attrs.push({descr: 'Ingresso', value: strftime('%d/%m/%Y', order.creation)});
+
+            target = order.customer || order.asset;
+
+            if (target) {
+
+                o.ref = order.customer ? 'customer' : 'asset';
+                o.target = {id: target.sys_id, name: target.name};
+
+                o.attrs.push({descr: order.customer ? 'Cliente' : 'Equipamento',
+                    value: target.name, relevance: 2});
+
+                o.attrs.push({descr: order.customer ? 'Tipo Cliente' : 'Tipo Equipamento',
+                    value: target.type});
+
+                o.attrs.push({descr: order.customer ? 'Código Cliente' : 'Código Equipamento',
+                    value: target.sys_id});
+
+            }
+
+            if (order.schedule && order.schedule.from && order.schedule.to) {
+                o.schedule = {from: order.schedule.from, to: order.schedule.to};
+
+                if (order.schedule.shift) {
+
+                    o.attrs.push({
+                        descr: 'Agenda',
+                        value: strftime('%d/%m/%Y', order.schedule.from)
+                    });
+
+                    o.attrs.push({
+                        descr: 'Turno',
+                        value: order.schedule.shift.join(' <> ')
+                    });
+
+                } else {
+
+                    o.attrs.push({
+                        descr: 'Agenda',
+                        value: strftime('%d/%m/%Y %R', order.schedule.from) + ' <> ' + strftime('%d/%m/%Y %R', order.schedule.to)
+                    });
+
+                }
+            }
+
+            o.attrs.push({value: o.address.address});
+
+            return o;
+        });
+
+        res.json(orders);
+    };
+}
+
 app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), function (req, res) {
-    var query = req.query;
+    var query = req.query, oneDay = 24 * 60 * 60 * 1000;
     if (!Object.keys(query).length) {
         return res.json([]);
     }
@@ -41,7 +126,7 @@ app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), func
 
         if (query.schedule && _.isArray(query.schedule)) {
             query.schedule.forEach(function (schedule) {
-                var ini = new Date(schedule), end = new Date(schedule), oneDay = 24 * 60 * 60 * 1000;
+                var ini = new Date(schedule), end = new Date(schedule);
 
                 ini.setTime(ini.getTime() + oneDay);
                 ini.setHours(0);
@@ -53,76 +138,139 @@ app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), func
                 });
             });
         }
+
+        if (query.creation) {
+            query.creation.forEach(function (creation) {
+                var ini = new Date(creation), end = new Date(creation);
+
+                ini.setTime(ini.getTime() + oneDay);
+                ini.setHours(0);
+                end.setTime(ini.getTime() + oneDay);
+
+                search.$or.push({creation: {$gt: ini, $lt: end}});
+            });
+        }
+
+        if (query.task_id) {
+            query.task_id.forEach(function (task_id) {
+                search.$or.push({sys_id: task_id});
+            });
+        }
+
+        if (query.customer_id) {
+            query.customer_id.forEach(function (customer_id) {
+                search.$or.push({'customer.sys_id': customer_id});
+            });
+        }
+
+        if (query.task_status) {
+            query.task_status.forEach(function (task_status) {
+                search.$or.push({status: task_status.toLowerCase()});
+            });
+        }
+
+        if (query.task_type) {
+            query.task_type.forEach(function (task_type) {
+                search.$or.push({type: task_type.toLowerCase()});
+            });
+        }
+
         if (!search.$or.length) {
             return res.json([]);
         }
 
-        workOrders.find(search, {limit: 100}).toArray(function (err, result) {
+        workOrders.find(search, {limit: 1000}).toArray(formatTasks(req, res));
+    });
+});
+
+app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter app'), function (req, res) {
+
+    if (!req.body || !req.body.lat || !req.body.lng) {
+        return res.send(400);
+    }
+
+    var id = req.params.id,
+        ObjectID = require('mongodb').ObjectID,
+        lat = parseFloat(req.body.lat),
+        lng = parseFloat(req.body.lng),
+        location = {type: 'Point', coordinates: [lng, lat]};
+
+    app.mongo.collection('work_order', function (err, workOrders) {
+        async.waterfall([
+            //atualiza ordem
+            function (callback) {
+                workOrders.update({_id: ObjectID(id)}, {$set: {location: location}}, function () {
+                    callback();
+                });
+            },
+            //busca ordem pra verificar se é necessário atualizar tabela customers
+            function (callback) {
+                workOrders.findOne({_id: ObjectID(id)}, function (err, wo) {
+
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    if (!wo) {
+                        return callback('Not Found');
+                    }
+
+                    callback(null, wo);
+                });
+            },
+            //atualiza customer caso necessário
+            function (workOrder, callback) {
+                if (!workOrder.customer) {
+                    return callback(null, null);
+                }
+
+                workOrders.update({'address.address': workOrder.address.address, location: {$exists: false}},
+                    {$set: {location: location}}, {multi: true}, function (err, what) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        return what;
+                    });
+
+                app.mongo.collection('customer', function (err, customers) {
+                    customers.update({sys_id: workOrder.customer.sys_id},
+                            {$set: {location: location}},
+                        function (err, info) {
+                            if (err) {
+                                return callback(err);
+                            }
+                            callback(null, null);
+                        });
+                });
+
+            }
+        ], function (err, result) {
+            if (err) {
+
+                console.log(err);
+                res.send(500);
+            }
+            res.send(204);
+        });
+    });
+});
+
+
+app.express.get('/:org/api/console/workers',  app.authorized.can('enter app'), function (req, res) {
+    app.mongo.collection('worker', function (err, workerCollection) {
+        if (err) {
+            console.log(err);
+            return res.send(500);
+        }
+        workerCollection.find({
+            org: req.params.org,
+            'types.0': {$exists: true}
+        }).toArray(function (err, types) {
             if (err) {
                 console.log(err);
                 return res.send(500);
             }
-            if (!_.isArray(result)) {
-                return res.json([]);
-            }
-            var orders = result.map(function (order) {
-                var o = {
-                    id: order._id,
-                    sys_id: order.sys_id,
-                    address: order.address,
-                    creation: order.creation,
-                    attrs: []
-                };
-
-
-
-                if (order.geo) {
-                    o.geo = order.geo;
-                }
-
-                o.attrs.push({descr: 'Tipo', value: order.type, relevance: 3});
-                o.attrs.push({descr: 'Código Ordem', value: order.sys_id, relevance: 2});
-                o.attrs.push({descr: 'Status', value: order.status, relevance: 2});
-                o.attrs.push({descr: 'Ingresso', value: strftime('%d/%m/%Y', order.creation)});
-
-                if (order.customer) {
-                    o.customer = {id: order.customer.sys_id, name: order.customer.name};
-                    o.attrs.push({descr: 'Assinante', value: order.customer.name, relevance: 2});
-                    o.attrs.push({descr: 'Tipo Assinante', value: order.customer.type});
-                    o.attrs.push({descr: 'Código Assinante', value: order.customer.sys_id});
-                }
-
-                if (order.schedule && order.schedule.from && order.schedule.to) {
-                    o.schedule = {from: order.schedule.from, to: order.schedule.to};
-
-                    if (order.schedule.shift) {
-
-                        o.attrs.push({
-                            descr: 'Agenda',
-                            value: strftime('%d/%m/%Y', order.schedule.from)
-                        });
-
-                        o.attrs.push({
-                            descr: 'Turno',
-                            value: order.schedule.shift.join(' <> ')
-                        });
-
-                    } else {
-
-                        o.attrs.push({
-                            descr: 'Agenda',
-                            value: strftime('%d/%m/%Y %R', order.schedule.from) + ' <> ' + strftime('%d/%m/%Y %R', order.schedule.to)
-                        });
-
-                    }
-                }
-
-                o.attrs.push({value: o.address.address});
-
-                return o;
-            });
-
-            res.json(orders);
+            res.json(types);
         });
     });
 });

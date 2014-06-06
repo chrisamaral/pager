@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html manifest="/pager.manifest">
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>PAGER - Painel de Gestão de Equipes e Rotas Inteligentes</title>
+        <link rel="shortcut icon" href="/fav.ico">
+        <script src="/js/build/ext/lazyload.min.js"></script>
+        <script>
+            ;(function () {
+                var build = JSON.parse('{"moduleRoot":"\/js\/build","moduleExpiration":86400000,"pager":{"isDev":false},"js":{"lazyload":"\/js\/build\/ext\/lazyload.min.js","inject":"\/js\/inject.min.js","base64":"\/js\/build\/ext\/base64.min.js","lodash":"\/js\/build\/ext\/lodash.min.js","modernizr":"\/js\/build\/ext\/modernizr.min.js","pace":"\/js\/build\/ext\/pace.min.js","jquery":"\/js\/build\/ext\/jquery.min.js","react":"\/js\/build\/ext\/react-with-addons-0.10.0.min.js","foundation":"\/js\/build\/ext\/foundation.min.js"},"css":{"pace":"\/css\/pace.css","normalize":"\/css\/normalize.css","foundation":"\/css\/foundation.min.css","foundationIcons":"\/css\/foundation-icons\/foundation-icons.css","main":"\/css\/main.css"}}'),
+                    jsDeps = [
+                        build.js.lodash,
+                        build.js.modernizr,
+                        build.js.jquery,
+                        build.js.pace,
+                        build.js.react,
+                        build.js.foundation,
+                        build.js.inject
+                    ], cssDeps = [
+                        build.css.normalize,
+                        build.css.foundation,
+                        build.css.pace,
+                        build.css.foundationIcons,
+                        build.css.main
+                    ];
+                
+                if (!window.btoa) {
+                    jsDeps.unshift(build.js.base64);
+                }
+
+                LazyLoad.css(cssDeps);
+                LazyLoad.js(jsDeps, function () {
+
+                    window.Base64 = {
+                        encode: window.btoa.bind(window),
+                        decode: window.atob.bind(window)
+                    };
+
+
+                    Inject.setModuleRoot(build.moduleRoot);
+                    Inject.setExpires(build.moduleExpiration);
+
+                    window.pager = build.pager;
+                    delete build.pager;
+                    window.pager.build = build;
+                    require.run('lib/main.js');
+                });
+
+            }());
+        </script>
+    </head>
+    <body><div id='container'></div></body>
+</html>

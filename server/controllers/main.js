@@ -148,7 +148,7 @@ authLib(function () {
             };
             res.locals.appData = new Buffer(JSON.stringify(res.locals.pager)).toString('base64');
         */
-        res.sendfile('views/index.' + app.ENV + '.html');
+        res.sendfile('build/index.' + app.ENV + '.html');
     }
 
     app.express.get('/:org', app.authorized.can('enter app'), function (req, res) {
@@ -161,6 +161,7 @@ authLib(function () {
 
         var remainingUri = req.originalUrl.substr(req.params.org.length + 1, 5),
             isAPI =  remainingUri === '/api/' || remainingUri === '/api';
+
         translateOrg(req, res, isAPI, function (org) {
             if (isAPI) {
                 req.org = org;

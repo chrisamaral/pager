@@ -51,3 +51,8 @@ a.ico:hover{
 .no-flow-x{
     overflow-x: hidden;
 }
+.gm-style img { max-width: none; }
+.gm-style label { width: auto; display: inline; }
+.f-dropdown{
+    z-index: 100;
+}

@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-define(['../helpers/utils', '../ext/strftime-min'], function(utils, strftime){
+define(['../helpers/utils', '../ext/strftime'], function(utils, strftime){
     var NativeDate, hasDate = Modernizr.inputtypes.date, MaskedDate;
 
     function sanitizeDate(d) {
@@ -50,7 +50,7 @@ define(['../helpers/utils', '../ext/strftime-min'], function(utils, strftime){
 
     NativeDate = React.createClass({displayName: 'NativeDate',
         render: function(){
-            return React.DOM.input( {name:this.props.inputName, required:true, type:"date", defaultValue:(new Date()).toYMD()} );
+            return React.DOM.input( {name:this.props.inputName, required:true, type:"date", defaultValue:this.props.date || (new Date()).toYMD()} );
         }
     });
 

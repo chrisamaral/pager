@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>PAGER - Painel de Gestão de Equipes e Rotas Inteligentes</title>
+        <link rel="shortcut icon" href="/fav.ico">
+        <script src="/js/modules/ext/lazyload.js"></script>
+        <script>
+            ;(function () {
+                var build = JSON.parse('{"moduleRoot":"\/js\/modules","moduleExpiration":0,"pager":{"isDev":true},"js":{"lazyload":"\/js\/modules\/ext\/lazyload.js","inject":"\/js\/inject.js","base64":"\/js\/modules\/ext\/base64.js","lodash":"\/js\/modules\/ext\/lodash.js","modernizr":"\/js\/modules\/ext\/modernizr.js","pace":"\/js\/modules\/ext\/pace.js","jquery":"\/js\/modules\/ext\/jquery.js","react":"\/js\/modules\/ext\/react-with-addons-0.10.0.js","foundation":"\/js\/modules\/ext\/foundation.min.js"},"css":{"pace":"\/css\/pace.css","normalize":"\/css\/normalize.css","foundation":"\/css\/foundation.min.css","foundationIcons":"\/css\/foundation-icons\/foundation-icons.css","main":"\/css\/main.css"}}'),
+                    jsDeps = [
+                        build.js.lodash,
+                        build.js.modernizr,
+                        build.js.jquery,
+                        build.js.pace,
+                        build.js.react,
+                        build.js.foundation,
+                        build.js.inject
+                    ], cssDeps = [
+                        build.css.normalize,
+                        build.css.foundation,
+                        build.css.pace,
+                        build.css.foundationIcons,
+                        build.css.main
+                    ];
+                
+                if (!window.btoa) {
+                    jsDeps.unshift(build.js.base64);
+                }
+
+                LazyLoad.css(cssDeps);
+                LazyLoad.js(jsDeps, function () {
+
+                    window.Base64 = {
+                        encode: window.btoa.bind(window),
+                        decode: window.atob.bind(window)
+                    };
+
+
+                    Inject.setModuleRoot(build.moduleRoot);
+                    Inject.setExpires(build.moduleExpiration);
+
+                    window.pager = build.pager;
+                    delete build.pager;
+                    window.pager.build = build;
+                    require.run('lib/main.js');
+                });
+
+            }());
+        </script>
+    </head>
+    <body><div id='container'></div></body>
+</html>

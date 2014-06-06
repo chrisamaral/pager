@@ -50,6 +50,18 @@ app.express.get('/:org/api/pages', app.authorized.can('enter app'), function (re
             }));
         });
 });
+
+app.express.get('/:org/api/k', app.authorized.can('enter app'), function (req, res) {
+    res.json(app.ENV === 'development'
+        ? {
+            google: 'AIzaSyBvh52I1rpU-f1Cj-eNSMJCeiKNT85Da4Y'
+        }
+        : {
+            google: 'AIzaSyBRipkiYUdPOBj6FY-_0PQ02gealXooM8Y'
+        }
+    );
+});
+
 require('./api.console');
 if (app.ENV === 'development') {
     require('../mock/api.mock');

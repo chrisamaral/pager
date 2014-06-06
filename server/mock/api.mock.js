@@ -1,13 +1,14 @@
 'use strict';
 var app = require('../base.js')(),
     async = require('async'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    names = ['Miguel', 'Davi', 'Arthur', 'Gabriel', 'Pedro', 'Lucas', 'Matheus', 'Bernardo', 'Rafael', 'Guilherme', 'Sophia', 'Julia', 'Alice', 'Manuela', 'Isabella', 'Laura', 'Maria Eduarda', 'Giovanna', 'Valentina', 'Beatriz'],
+    surnames = ["Silva", "Santos", "Souza", "Oliveira", "Pereira", "Lima", "Carvalho", "Ferreira", "Rodrigues", "Almeida", "Costa", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Ribeiro", "Alves", "Cardoso", "Schmitz", "Rocha", "Correia", "Dias", "Teixeira", "Fernandes", "Azevedo", "Cavalcante", "Montes", "Morais", "Gonçalves"],
+    workTypes = ['Visita Técnica', 'Instalação', 'Mudança', 'Melhora', 'Desconexão'].map(function(t){return t.toLowerCase();});
 
 app.express
     .get('/:org/api/mock/customers', app.authorized.can('enter app'), function (req, res) {
-        var names = ['Miguel', 'Davi', 'Arthur', 'Gabriel', 'Pedro', 'Lucas', 'Matheus', 'Bernardo', 'Rafael', 'Guilherme', 'Sophia', 'Julia', 'Alice', 'Manuela', 'Isabella', 'Laura', 'Maria Eduarda', 'Giovanna', 'Valentina', 'Beatriz'],
-            surnames = ["Silva", "Santos", "Souza", "Oliveira", "Pereira", "Lima", "Carvalho", "Ferreira", "Rodrigues", "Almeida", "Costa", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Ribeiro", "Alves", "Cardoso", "Schmitz", "Rocha", "Correia", "Dias", "Teixeira", "Fernandes", "Azevedo", "Cavalcante", "Montes", "Morais", "Gonçalves"],
-            types = ['Corporativo', 'Hotelaria', 'Individual', 'Afiliado', 'Condomínio'],
+        var types = ['Corporativo', 'Hotelaria', 'Individual', 'Afiliado', 'Condomínio'],
             init = Date.now(),
             customer,
             c = 0,
@@ -19,7 +20,7 @@ app.express
             name,
             type;
 
-        app.mongo.collection('customer', {strict: true}, function (err, customerCollection) {
+        app.mongo.collection('customer', function (err, customerCollection) {
             if (err) {
                 console.log(err);
                 return res.send(500);
@@ -84,7 +85,7 @@ app.express
                                 sys_id: Math.random().toString(36).substr(2),
                                 org: req.params.org,
                                 name: name.join(' '),
-                                type: type,
+                                type: type.toLowerCase(),
                                 address: formatted_address,
                                 addresses: [
                                     {
@@ -163,7 +164,7 @@ app.express
         var customerCollection, workOrderCollection, c = 0;
         async.parallel([
             function (callback) {
-                app.mongo.collection('customer', {strict: true}, function (err, collection) {
+                app.mongo.collection('customer', function (err, collection) {
                     if (err) {
                         return callback(err);
                     }
@@ -172,7 +173,7 @@ app.express
                 });
             },
             function (callback) {
-                app.mongo.collection('work_order', {strict: true}, function (err, collection) {
+                app.mongo.collection('work_order', function (err, collection) {
                     if (err) {
                         return callback(err);
                     }
@@ -218,7 +219,7 @@ app.express
                 function (customer, callback) {
                     function insertWorkOrder(extra, callback) {
 
-                        var types = ['Visita Técnica', 'Instalação', 'Mudança', 'Melhora'],
+                        var types = workTypes,
                             shift = [
                                 ['08:00', '11:00'],
                                 ['11:00', '13:00'],
@@ -226,13 +227,14 @@ app.express
                                 ['17:00', '20:00'],
                                 ['20:00', '23:00']
                             ],
-                            myshift, aux,
+                            myshift,
+                            aux,
                             status = ['Finalizado', 'Cancelado', 'Emitida', 'Pendente', 'Suspensa'],
                             workOrder = {
                                 sys_id: Math.random().toString(36).substr(2),
                                 org: req.params.org,
-                                type: types[Math.floor(Math.random() * types.length)],
-                                status: status[Math.floor(Math.random() * status.length)]
+                                type: types[Math.floor(Math.random() * types.length)].toLowerCase(),
+                                status: status[Math.floor(Math.random() * status.length)].toLowerCase()
                             };
 
                         workOrder.creation = new Date();
@@ -288,18 +290,26 @@ app.express
                             insertWorkOrder({address: address}, callback);
                         });
                     } else {
-                        if (!customer.addresses) {
-                            console.log(customer);
+
+                        if (customer.addresses) {
+
+                            aux = {address: customer.addresses[0]};
+
+                            if (customer.location) {
+                                aux.location = customer.location;
+                            }
+
+                            aux.customer = {
+                                sys_id: customer.sys_id,
+                                name: customer.name,
+                                type: customer.type,
+                                creation: customer.creation
+                            };
+
+                            insertWorkOrder(aux, callback);
+                        } else {
+                            console.log('customer without address:', customer);
                         }
-
-                        aux = {address: customer.addresses[0], customer: customer};
-
-                        delete customer.addresses;
-                        delete customer.address;
-                        delete customer.addres;
-                        delete customer.org;
-
-                        insertWorkOrder(aux, callback);
                     }
                 }
             ], function (err, result) {
@@ -315,4 +325,77 @@ app.express
                 res.send(204);
             });
         }
+    });
+app.express
+    .get('/:org/api/mock/workers', app.authorized.can('enter app'), function (req, res) {
+        async.waterfall([
+            function(callback) {
+                app.mysql.query('SELECT user.id user_id, user.full_name name ' +
+                    'FROM active_user ' +
+                    'JOIN user ON user.id = active_user.user ' +
+                    'ORDER BY RAND() ',
+                    function (err, users) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        console.log(users.length);
+                        callback(null, users);
+                    });
+            },
+            function (users, callback) {
+                app.mongo.collection('worker', function (err, workerCollection) {
+                    if (err) {
+                        return callback(err);
+                    }
+                    callback(null, users, workerCollection);
+                });
+            },
+            function (users, workerCollection, callback){
+                var user,
+                    worker,
+                    everyone = [],
+                    types = workTypes,
+                    aux,
+                    myTypes,
+                    i;
+
+                while (users.length && everyone.length <= 20) {
+                    worker = {sys_id: Math.random().toString(36).substr(2)};
+                    user = users.splice(0, 1)[0];
+                    aux = Math.floor(Math.random() * types.length);
+                    myTypes = [];
+
+                    for(i = 0; i < aux; i++) {
+                        myTypes.push(types[Math.floor(Math.random() * types.length)]);
+                    }
+
+                    if (!user || Date.now() % 3 === 0) {
+                        user = {
+                            name: [names[Math.floor(Math.random() * names.length)],
+                                surnames[Math.floor(Math.random() * surnames.length)]].join(' ')
+                        };
+                    }
+
+                    _.merge(worker, user);
+                    worker.types = _.unique(myTypes);
+                    worker.org = req.params.org;
+                    console.log('new', worker);
+                    everyone.push(worker);
+                }
+
+                workerCollection.insert(everyone, function (err, info){
+                    if (err) {
+                        return callback(err);
+                    }
+                    callback(null, null);
+                });
+
+            }
+        ], function (err, result) {
+            if (err) {
+                console.log(err);
+                return res.send(500);
+            }
+            res.send(204);
+        });
     });

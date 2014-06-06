@@ -111,11 +111,14 @@ define(function(){
     });
 
     Queue = React.createClass({
+        toggleContent: function (e) {
+            $(e.currentTarget).next('.panel').toggle();
+        },
         render: function () {
 
             return <div id='Queue'>
-                <h4>Ordens Pendentes</h4>
-                <div className='activity-feed'>
+                <h4 onClick={this.toggleContent}>Ordens Pendentes</h4>
+                <div className='panel contained activity-feed'>
                     { _.isArray(this.props.items)
                         ? this.props.items.map(function (item) {
                                 return <TaskPendingApproval item={item} key={item.id} />;
