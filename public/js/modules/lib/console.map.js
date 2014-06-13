@@ -28,6 +28,7 @@ var drawQueue = [];
             }
 
             task.marker = new google.maps.Marker({
+                title: task.address.address,
                 map: pager.console.map,
                 position: new google.maps.LatLng(task.location.lat, task.location.lng)
             });
@@ -46,11 +47,12 @@ var drawQueue = [];
                         return;
                     }
 
-                    var marker = {id: task.id},
+                    var marker = {id: task._id},
                         index = _.findIndex(oldMarkers, marker),
                         old = oldMarkers[index];
 
-                    marker.location = marker.location || task.location;
+                    marker.location = task.location;
+                    marker.address = task.address;
 
                     if (old && old.marker) {
                         marker.marker = old.marker;
@@ -89,7 +91,7 @@ var drawQueue = [];
 
             } else if (props.mapState === 'task') {
 
-                newMarkers = newMarkers.map(function (marker) {
+                newMarkers.forEach(function (marker) {
                     if (marker.marker) {
                         marker.marker.setMap(null);
                         delete marker.marker;
@@ -102,6 +104,7 @@ var drawQueue = [];
                 if (selected) {
                     selected.marker =
                         new google.maps.Marker({
+                            title: selected.address.address,
                             map: pager.console.map,
                             position: new google.maps.LatLng(selected.location.lat, selected.location.lng)
                         });

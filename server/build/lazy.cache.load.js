@@ -1,4 +1,4 @@
-;(function () {
+(function () {
     function supports_html5_storage() {
         try {
             return 'localStorage' in window && window['localStorage'] !== null;
@@ -26,10 +26,22 @@
                 callbacks.push(null);
             });
 
-            function createAssetTag(text, tag) {
+            function createAssetTag(text, tag, url) {
                 if (tag === 'script') {
-                    var g = document.createElement(tag);
-                    var s = document.getElementsByTagName('script')[0];
+                    var g = document.createElement(tag),
+                        s = document.getElementsByTagName('script')[0],
+                        aux;
+                    if (typeof pager !== 'undefined' && pager.build && pager.build.js) {
+                        aux = pager.build.js;
+
+                        for (var i in aux) {
+                            if (aux.hasOwnProperty(i) && aux[i] === url) {
+                                g.id = 'script_' + i;
+                                break;
+                            }
+                        }
+                    }
+
                     g.text = text;
                     s.parentNode.insertBefore(g, s);
                 } else {
@@ -47,22 +59,26 @@
                 }
             }
 
-            function createScriptTag(text) {
-                createAssetTag(text, 'script');
+            function createScriptTag(text, url) {
+                createAssetTag(text, 'script', url);
             }
 
-            function createStyleTag(text) {
-                createAssetTag(text, 'style');
+            function createStyleTag(text, url) {
+                createAssetTag(text, 'style', url);
             }
 
             function parseJsText(url, text) {
-                localStorage.setItem('Iscache-ObeseLoadExpiration:' + url, Date.now() + 1000 * 60 * 60 * 24);
-                localStorage.setItem('Iscache-ObeseLoad:' + url, text);
+
+                /* localStorage disabled
+                    localStorage.setItem('ObeseLoadExpiration:' + url, Date.now() + 1000 * 60 * 60 * 24);
+                    localStorage.setItem('ObeseLoad:' + url, text);
+                */
+
                 if (type === 'js') {
-                    //createScriptTag(text);
-                    eval(text);
+                    createScriptTag(text, url);
+                    //eval(text);
                 } else {
-                    createStyleTag(text);
+                    createStyleTag(text, url);
                 }
 
             }
@@ -78,14 +94,17 @@
             }
 
             function loadFromLocalStorage(url) {
-                var expiration = localStorage.getItem('Iscache-ObeseLoadExpiration:' + url);
+                return null;
+                /* disabled
+                var expiration = localStorage.getItem('ObeseLoadExpiration:' + url);
                 if (expiration && parseInt(expiration, 10) > Date.now()) {
-                    return localStorage.getItem('Iscache-ObeseLoad:' + url);
+                    return localStorage.getItem('ObeseLoad:' + url);
                 } else {
-                    localStorage.removeItem('Iscache-ObeseLoadExpiration:' + url);
-                    localStorage.removeItem('Iscache-ObeseLoad:' + url);
+                    localStorage.removeItem('ObeseLoadExpiration:' + url);
+                    localStorage.removeItem('ObeseLoad:' + url);
                 }
                 return null;
+                */
             }
 
             urls.forEach(function (url, index) {
@@ -95,10 +114,10 @@
 
                     callbacks[index] = function () {
                         if (type === 'js') {
-                            //createScriptTag(fromLocalStorage);
-                            eval(fromLocalStorage);
+                            createScriptTag(fromLocalStorage, url);
+                            //eval(fromLocalStorage);
                         } else {
-                            createStyleTag(fromLocalStorage);
+                            createStyleTag(fromLocalStorage, url);
                         }
                     };
 

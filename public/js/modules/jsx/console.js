@@ -189,8 +189,20 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
             this.props.lib.state.mapState = state;
             this.props.lib.put();
         },
-        prepareRoute: function (tasks) {
-            this.props.lib.router(this.state.day, tasks);
+        startRouter: function (tasks) {
+            if (!Modernizr.webworkers) {
+                alert('Este navegador não suporta as tecnologias necessárias para utilização do roteador. Por favor, atualize seu browser e tente novamente.');
+            }
+            var main = this;
+
+            require(['../lib/router'], function(Router){
+
+                if (!main.isMounted()){
+                    return;
+                }
+
+                var router = new Router(main.state.day, tasks, main.props.lib.data.workers);
+            });
         },
         render: function () {
             var style = {height: $(window).height() - $('.tab-bar').outerHeight()};
@@ -204,7 +216,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
                     : null
                 }
                 <LeftPanel pending={this.props.lib.data.pending}
-                    routeTasks={this.prepareRoute}
+                    routeTasks={this.startRouter}
                     queries={this.props.lib.data.queries}
                     day={this.state.day}
                     locations={this.state.locations}
@@ -240,26 +252,21 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
 
     Lib.prototype.put = function () {
         if (Modernizr.localstorage) {
-            localStorage.setItem('pager.' + pager.org.id + '.console.queries', JSON.stringify(this.data.queries.filter(function (query) {
-                return query.name !== 'Agenda';
-            }).map(function (query) {
-                query = _.cloneDeep(query);
-                query.tasks = [];
-                return query;
-            })));
+            localStorage.setItem('pager.' + pager.org.id + '.console.queries',
+                JSON.stringify(this.data.queries.filter(function (query) {
+                        return query.name !== 'Agenda';
+                    }).map(function (query) {
+                        query = _.clone(query);
+                        query.tasks = [];
+                        return query;
+                    })
+                )
+            );
             localStorage.setItem('pager.' + pager.org.id + '.console.workers', JSON.stringify(this.data.workers));
         }
 
         this.rootComponent.setProps({lib: this});
 
-    };
-
-    Lib.prototype.router = function (day, tasks) {
-        var that = this;
-        require(['../lib/router'], function(Router){
-            var router = new Router(day, tasks, that.data.workers);
-            router.init();
-        });
     };
 
     Lib.prototype.set = function (collection, items) {
@@ -338,7 +345,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
 
     Lib.prototype.fetchQueries = function () {
         this.data.queries.forEach(function (query, index) {
-            $.get('/' + pager.org.id + '/api/console/tasks', query.query)
+            $.get(pager.urls.ajax + 'console/tasks', query.query)
                 .done(function (tasks) {
                     if (!_.isArray(tasks)) {
                         return;
@@ -351,7 +358,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
     };
 
     Lib.prototype.fetchWorkers = function () {
-        $.get('/' + pager.org.id + '/api/console/workers')
+        $.get(pager.urls.ajax + 'console/workers')
             .done(function (workers) {
                 this.set('workers', workers);
             }.bind(this));

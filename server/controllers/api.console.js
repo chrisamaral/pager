@@ -15,7 +15,7 @@ function formatTasks(req, res) {
         }
         var orders = result.map(function (order) {
             var o = {
-                id: order._id,
+                _id: order._id,
                 sys_id: order.sys_id,
                 address: order.address,
                 creation: order.creation,
@@ -42,7 +42,7 @@ function formatTasks(req, res) {
             if (target) {
 
                 o.ref = order.customer ? 'customer' : 'asset';
-                o.target = {id: target.sys_id, name: target.name};
+                o.target = {sys_id: target.sys_id, name: target.name};
 
                 o.attrs.push({descr: order.customer ? 'Cliente' : 'Equipamento',
                     value: target.name, relevance: 2});
@@ -99,32 +99,39 @@ app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), func
         if (err) {
             return res.send(500);
         }
-        var search = {org: req.params.org, $or: []};
+        var search = {org: req.params.org, $and: []}, aux, notEmptyArray = function(a){
+            return a && _.isArray(a) && a.length;
+        };
 
-        if (query.address && _.isArray(query.address)) {
+        if (notEmptyArray(query.address)) {
+            aux = {$or: []};
             query.address.forEach(function (address) {
-                search.$or.push({
+                aux.$or.push({
                     'address.address': {
                         $regex: new RegExp(address),
                         $options: 'i'
                     }
                 });
             });
+            search.$and.push(aux);
         }
 
-        if (query.customer_name && _.isArray(query.customer_name)) {
+        if (notEmptyArray(query.customer_name)) {
+            aux = {$or: []};
             query.customer_name.forEach(function (customer_name) {
-                search.$or.push({
+                aux.$or.push({
                     'customer.name': {
                         $regex: new RegExp('^' + customer_name),
                         $options: 'i'
                     }
                 });
             });
+            search.$and.push(aux);
         }
 
 
-        if (query.schedule && _.isArray(query.schedule)) {
+        if (notEmptyArray(query.schedule)) {
+            aux = {$or: []};
             query.schedule.forEach(function (schedule) {
                 var ini = new Date(schedule), end = new Date(schedule);
 
@@ -132,14 +139,16 @@ app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), func
                 ini.setHours(0);
                 end.setTime(ini.getTime() + oneDay);
 
-                search.$or.push({
+                aux.$or.push({
                     'schedule.from': {$lt: end},
                     'schedule.to': {$gt: ini}
                 });
             });
+            search.$and.push(aux);
         }
 
-        if (query.creation) {
+        if (notEmptyArray(query.creation)) {
+            aux = {$or: []};
             query.creation.forEach(function (creation) {
                 var ini = new Date(creation), end = new Date(creation);
 
@@ -147,35 +156,44 @@ app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), func
                 ini.setHours(0);
                 end.setTime(ini.getTime() + oneDay);
 
-                search.$or.push({creation: {$gt: ini, $lt: end}});
+                aux.$or.push({creation: {$gt: ini, $lt: end}});
             });
+            search.$and.push(aux);
         }
 
-        if (query.task_id) {
+        if (notEmptyArray(query.task_id)) {
+            aux = {$or: []};
             query.task_id.forEach(function (task_id) {
-                search.$or.push({sys_id: task_id});
+                aux.$or.push({sys_id: task_id});
             });
+            search.$and.push(aux);
         }
 
-        if (query.customer_id) {
+        if (notEmptyArray(query.customer_id)) {
+            aux = {$or: []};
             query.customer_id.forEach(function (customer_id) {
-                search.$or.push({'customer.sys_id': customer_id});
+                aux.$or.push({'customer.sys_id': customer_id});
             });
+            search.$and.push(aux);
         }
 
-        if (query.task_status) {
+        if (notEmptyArray(query.task_status)) {
+            aux = {$or: []};
             query.task_status.forEach(function (task_status) {
-                search.$or.push({status: task_status.toLowerCase()});
+                aux.$or.push({status: task_status.toLowerCase()});
             });
+            search.$and.push(aux);
         }
 
-        if (query.task_type) {
+        if (notEmptyArray(query.task_type)) {
+            aux = {$or: []};
             query.task_type.forEach(function (task_type) {
-                search.$or.push({type: task_type.toLowerCase()});
+                aux.$or.push({type: task_type.toLowerCase()});
             });
+            search.$and.push(aux);
         }
 
-        if (!search.$or.length) {
+        if (!search.$and.length) {
             return res.json([]);
         }
 
@@ -273,4 +291,21 @@ app.express.get('/:org/api/console/workers',  app.authorized.can('enter app'), f
             res.json(types);
         });
     });
+});
+
+app.express.get('/:org/api/console/typeDuration', app.authorized.can('enter app'), function (req, res) {
+    var types = req.query.types,
+        duration = {
+
+        }, myTypes = {};
+
+    if (!types || !_.isArray(types)) {
+        return res.status(500).send('Tipos inválidos');
+    }
+
+    types.forEach(function(type){
+        myTypes[type] = duration[type] || 30;
+    });
+
+    res.json(myTypes);
 });

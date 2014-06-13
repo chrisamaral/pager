@@ -26,10 +26,6 @@ define(function(){
     PicSlide = React.createClass({
         componentDidMount: function(){
             $(this.getDOMNode()).foundation();
-
-            $(document.body).on("open.clearing.fndtn", function(event) {
-                console.info("About to open thumbnail with src ", $('img', event.target).attr('src'));
-            });
         },
         render: function(){
             return <div className='panel'>

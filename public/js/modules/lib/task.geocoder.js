@@ -57,7 +57,7 @@ define(function () {
             //by pass
             if (task.location) {
                 if (_.isFunction(that.onProgress)) {
-                    that.onProgress(originalQueue.length - queue.length, originalQueue.length, task, 'noRedraw');
+                    that.onProgress(originalQueue.length - queue.length, originalQueue.length, task, 'unchanged');
                 }
                 return inASec();
             }
@@ -110,7 +110,7 @@ define(function () {
                         that.onProgress(originalQueue.length - queue.length, originalQueue.length, task);
                     }
 
-                    $.post('/' + pager.org.id + '/api/workOrder/' + task.id + '/location', task.location);
+                    $.post(pager.urls.ajax + 'workOrder/' + task._id + '/location', task.location);
 
                 } else {
                     console.log('Geocode failure: ' + status);

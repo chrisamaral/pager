@@ -6,7 +6,8 @@
         <link rel="shortcut icon" href="/fav.ico">
         <script src="[ INSERT LAZYLOAD SCRIPT URL HERE ]"></script>
         <script>
-            ;(function () {
+            //INSERT LAZY CACHE LOAD HERE
+            (function () {
                 var build = JSON.parse('[ INSERT BUILD OBJECT HERE ]'),
                     jsDeps = [
                         build.js.lodash,
@@ -28,6 +29,10 @@
                     jsDeps.unshift(build.js.base64);
                 }
 
+                window.pager = build.pager;
+                delete build.pager;
+                window.pager.build = build;
+
                 LazyLoad.css(cssDeps);
                 LazyLoad.js(jsDeps, function () {
 
@@ -36,13 +41,9 @@
                         decode: window.atob.bind(window)
                     };
 
-
                     Inject.setModuleRoot(build.moduleRoot);
                     Inject.setExpires(build.moduleExpiration);
 
-                    window.pager = build.pager;
-                    delete build.pager;
-                    window.pager.build = build;
                     require.run('lib/main.js');
                 });
 

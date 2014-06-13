@@ -193,7 +193,7 @@ app.express
             async.waterfall([
                 function (callback) {
                     var customer;
-                    if (Math.floor(Math.random() * 100) % 3 === 0) {
+                    if (Math.floor(Math.random() * 100) % 3 !== 0) {
                         return customerCollection.count({addresses: {$exists: true}}, function (err, count) {
                             if (err) {
                                 return callback(err);
@@ -357,17 +357,23 @@ app.express
                     types = workTypes,
                     aux,
                     myTypes,
-                    i;
+                    range = _.range(1, types.length + 1);
 
-                while (users.length && everyone.length <= 20) {
+                while (users.length && everyone.length < 200) {
                     worker = {sys_id: Math.random().toString(36).substr(2)};
                     user = users.splice(0, 1)[0];
-                    aux = Math.floor(Math.random() * types.length);
+                    aux = [];
+
+                    range.forEach(function(num){
+                        for (var i = 0; i < (100 / num); i++) {
+                            aux.push(num);
+                        }
+                    });
+
+                    aux = aux[Math.floor(Math.random() * aux.length)];
                     myTypes = [];
 
-                    for(i = 0; i < aux; i++) {
-                        myTypes.push(types[Math.floor(Math.random() * types.length)]);
-                    }
+                    myTypes = _.sample(types, aux);
 
                     if (!user || Date.now() % 3 === 0) {
                         user = {
@@ -377,12 +383,15 @@ app.express
                     }
 
                     _.merge(worker, user);
-                    worker.types = _.unique(myTypes);
+
+                    worker.types = myTypes;
                     worker.org = req.params.org;
-                    console.log('new', worker);
+
                     everyone.push(worker);
                 }
 
+                everyone = _.sample(everyone, 20);
+                console.log(everyone);
                 workerCollection.insert(everyone, function (err, info){
                     if (err) {
                         return callback(err);

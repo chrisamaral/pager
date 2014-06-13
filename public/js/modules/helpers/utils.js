@@ -26,9 +26,12 @@ define(['../ext/strftime'], function (strftime) {
 
         cssLoad.call(LazyLoad, urls, callback);
     };
-
+    function padZero (str) {
+        str = _.isString(str) ? str : '' + str;
+        return str.length >= 2 ? str : '0' + str;
+    }
     Date.prototype.toYMD = function () {
-        return strftime('%Y-%m-%d', this);
+        return this.getFullYear() + '-' + padZero(this.getMonth() + 1) + '-' + padZero(this.getDate());
     };
 
     Date.prototype.fromYMD = function (str) {

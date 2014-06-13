@@ -71,7 +71,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                 parsed[item.name].push(item.value);
             });
 
-            $.get('/' + pager.org.id + '/api/console/tasks', parsed)
+            $.get(pager.urls.ajax + 'console/tasks', parsed)
                 .done(function (tasks) {
                     if(!_.isArray(tasks)){
                         return;
@@ -196,7 +196,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             require(['../lib/task.geocoder'], function (Geocoder) {
                 var g = new Geocoder(this.props.tasks);
 
-                g.onProgress = function (completed, total, currentTask, action) {
+                g.onProgress = function (completed, total, currentTask, status) {
 
                     if (!this.isMounted()) {
                         return g.abort();
@@ -207,7 +207,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                         this.setState({
                             lookupProgress: total ? Math.floor(100 * completed / total) : null
                         }, function () {
-                            if (action !== 'noRedraw') {
+                            if (status !== 'unchanged') {
                                 this.props.updateTask(currentTask);
                             }
                         }.bind(this));
@@ -322,7 +322,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
 
         updateTask: _.debounce(function (task) {
             var tasks = this.props.query.tasks,
-                index = _.findIndex(tasks, {id: task.id});
+                index = _.findIndex(tasks, {id: task._id});
 
             if(index < 0) {
                 return;
@@ -359,7 +359,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                     LookupProgress( {updateTask:this.updateTask, tasks:this.props.query.tasks, hasGoogleMaps:this.props.hasGoogleMaps} ),
                     React.DOM.div( {className:tasksClass}, 
                         this.props.query.tasks.map(function (task, index) {
-                            return QueryTask( {key:task.id, index:index, task:task,
+                            return QueryTask( {key:task._id, index:index, task:task,
                                         setTaskFocus:this.props.setTaskFocus,
                                         removeTask:this.removeTask} );
                         }.bind(this))
@@ -460,79 +460,10 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         }
     });
 
-    function groupTasksByTarget(tasks) {
-        var grouped = [];
-        tasks.forEach(function (task) {
-
-            if (!task.location) {
-                return;
-            }
-
-            var inCollection = _.find(grouped, function (that) {
-
-                if (that.ref !== task.ref) {
-                    return false;
-                }
-
-                var target1 = that.target ? that.target.sys_id : null,
-                    target2 = task.target ? task.target.sys_id : null,
-                    isEqual = (target1 === target2 &&
-                        that.address.address.toLowerCase() === task.address.address.toLowerCase());
-
-                return isEqual;
-            }), newTask, itIsAMe = function(me){
-                return me.sys_id === task.sys_id || me.id === task.id;
-            };
-
-            if (inCollection) {
-
-                if (_.any(inCollection.tasks, itIsAMe)) {
-                    return;
-                }
-
-                inCollection.tasks.push(task);
-                inCollection.types.push(task.type);
-
-                if (task.schedule) {
-                    inCollection.schedule = inCollection.schedule || task.schedule;
-
-                    inCollection.schedule.from = inCollection.schedule.from < task.schedule.from
-                        ? inCollection.schedule.from
-                        : task.schedule.from;
-
-                    inCollection.schedule.to = inCollection.schedule.to < task.schedule.to
-                        ? inCollection.schedule.to
-                        : task.schedule.to;
-                }
-
-            } else {
-
-                newTask = {
-                    ref: task.ref,
-                    address: task.address,
-                    target: task.target,
-                    types: [task.type],
-                    tasks: [task]
-                };
-
-                if (task.schedule) {
-                    newTask.schedule = task.schedule;
-                }
-
-                if (task.location) {
-                    newTask.location = task.location;
-                }
-
-                grouped.push(newTask);
-            }
-        });
-        return grouped;
-    }
-
     Tasks = React.createClass({displayName: 'Tasks',
 
         routeThem: function (tasks) {
-            this.props.routeTasks(groupTasksByTarget(tasks));
+            this.props.routeTasks(tasks);
         },
 
         routeThemAll: function (e) {

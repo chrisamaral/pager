@@ -4,7 +4,7 @@ define(['../helpers/utils'], function (utils) {
     var zIndexAltered = false, Root, PageList, uri = location.pathname.split('/');
 
     if (!uri[1]) {
-        $('<h1>Erro</h1>').appendTo('body');
+        $('body').html('<h1>Erro</h1>');
         return;
     }
 
@@ -142,11 +142,18 @@ define(['../helpers/utils'], function (utils) {
         require.run('./app');
     }
 
+    $( document ).ajaxError(function( event, jqxhr ) {
+        if (jqxhr.status === 401) {
+            location.reload(true);
+        }
+    });
+
     if (pager.org) {
         $.get('/' + pager.org.id + '/api')
             .done(function (result) {
                 if (_.isObject(result)) {
                     _.merge(pager, result);
+                    pager.urls.ajax = '/' + pager.org.id + '/api/';
                     saveAll();
                 }
             }).always(init);
