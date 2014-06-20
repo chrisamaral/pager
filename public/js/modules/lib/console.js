@@ -44,6 +44,9 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
     });
 
     AttrItem = React.createClass({displayName: 'AttrItem',
+        toggleTb: function() {
+            $(this.getDOMNode()).closest('table').find('tbody>tr').not('.main-attr').toggle();
+        },
         render: function () {
             var attr = this.props.attr,
                 classes = React.addons.classSet({
@@ -54,7 +57,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
                     ? attr.value.toUpperCase()
                     : attr.value,
                 hasDescr = attr.relevance !== 3 && attr.descr;
-            return React.DOM.tr( {className:classes}, 
+            return React.DOM.tr( {className:classes, onClick:attr.relevance === 3 ? this.toggleTb : null }, 
                 hasDescr ? React.DOM.td(null, attr.descr) : null,
                 React.DOM.td( {colSpan:attr.relevance === 3 || !hasDescr ? 2 : 1, title:!hasDescr && attr.descr ? attr.descr : ''}, 
                     attr.url
@@ -102,6 +105,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
                         locations:this.props.locations,
                         day:this.props.day,
                         setTaskFocus:this.props.setTaskFocus,
+                        selectedTask:this.props.selectedTask,
                         hasGoogleMaps:this.props.hasGoogleMaps,
                         queries:this.props.queries,
                         setQueries:this.props.setQueries} )
@@ -176,6 +180,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
         setTaskFocus: function (taskId) {
 
             if (this.props.lib.state.selectedTask === taskId && this.props.lib.state.mapState === 'task') {
+                this.props.lib.state.selectedTask = null;
                 this.props.lib.state.mapState = 'tasks';
                 return this.props.lib.put();
             }
@@ -187,6 +192,11 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
 
         setMapState: function (state) {
             this.props.lib.state.mapState = state;
+
+            if (state !== 'task') {
+                this.props.lib.state.selectedTask = undefined;
+            }
+
             this.props.lib.put();
         },
         startRouter: function (tasks) {
@@ -210,6 +220,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
             return React.DOM.div( {id:"Console", style:style}, 
                  this.props.lib.state.hasGoogleMaps
                     ? Map( {queries:this.props.lib.data.queries,
+                            setTaskFocus:this.setTaskFocus,
                             mapState:this.props.lib.state.mapState,
                             setMapState:this.setMapState,
                             selectedTask:this.props.lib.state.selectedTask} )
@@ -222,6 +233,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
                     locations:this.state.locations,
                     hasGoogleMaps:this.props.lib.state.hasGoogleMaps,
                     setQueries:this.setQueries,
+                    selectedTask:this.props.lib.state.selectedTask,
                     setTaskFocus:this.setTaskFocus} ),
 
                 RightPanel( {workers:this.props.lib.data.workers,
@@ -276,7 +288,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
             items = items.filter(function(item, index){
                 return item.name === 'Agenda' || (item.tasks && item.tasks.length);
             }).map(function(item){
-                item.id = item.id || 'query-' + Math.random().toString();
+                item.id = item.id || 'query-' + Math.random().toString(36).substr(2);
                 return item;
             });
         }
@@ -316,6 +328,11 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
     };
 
     Lib.prototype.setDefaultQuery = function (day, dayHasChanged) {
+
+        if (pager.isDev) {
+            return;
+        }
+
         var d = {
                 id: 'query-' + Math.random().toString(36).substr(2),
                 name: 'Agenda',
@@ -339,6 +356,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
         }
 
         console.log('update day', day);
+
         this.put();
         this.fetchQueries();
     };

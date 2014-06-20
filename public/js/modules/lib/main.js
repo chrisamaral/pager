@@ -143,7 +143,14 @@ define(['../helpers/utils'], function (utils) {
     }
 
     $( document ).ajaxError(function( event, jqxhr ) {
+
         if (jqxhr.status === 401) {
+
+            if (pager.urls) {
+                location.href = pager.urls.base + '/login';
+                return;
+            }
+
             location.reload(true);
         }
     });

@@ -130,7 +130,7 @@ function pickRandomAddress(callback) {
         'concat(LEFT(cep, 5),"-",RIGHT(cep, 3)) postal_code, ' +
         'cidade city ' +
         'FROM cep ' +
-        'WHERE cep BETWEEN "20000000" AND "28999999" ' +
+        'WHERE cep BETWEEN "20000000" AND "28999999" AND tp_logradouro IN ("Rua", "Avenida")' +
         'ORDER BY RAND() LIMIT 1',
         function (err, rows) {
             if (err) {
@@ -151,8 +151,8 @@ function pickRandomAddress(callback) {
             address_components.push({name: 'state', value: 'Rio de Janeiro', short: 'RJ'});
             address_components.push({name: 'country', value: 'Brasil'});
 
-            formatted_address = address.route + ' - ' + address.neighbourhood + ', ' +
-                    address.city + ' - ' + 'RJ, ' + address.postal_code + ' - Brasil';
+            formatted_address = [address.route, address.neighbourhood, address.city].join(', '); /* + ', ' +
+                    address.city + ' - ' + 'RJ, ' + address.postal_code + ' - Brasil'; */
 
             callback(null, {address: formatted_address, components: address_components});
 

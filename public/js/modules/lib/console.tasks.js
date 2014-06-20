@@ -136,13 +136,9 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             $('#' + this.state.id + 'Menu').remove();
             var menu =  $(React.renderComponentToString(
                 React.DOM.ul( {id:this.state.id + 'Menu', className:"tiny f-dropdown hide", 'data-dropdown-content':true}, 
-                     props.task.location
-                        ? React.DOM.li(null, React.DOM.a( {id:this.state.id + 'focusOnMe'}, "Focar"))
-                        : null, 
                     React.DOM.li(null, React.DOM.a( {id:this.state.id + 'killMe'}, "Descartar"))
                 ))).appendTo('body');
 
-            $('#' + this.state.id + 'focusOnMe').click(this.mapFocusOnMe);
             $('#' + this.state.id + 'killMe').click(this.killMe);
 
             if (this.state.hasLocation !== !!props.task.location) {
@@ -164,14 +160,23 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         killMe: function () {
             this.props.removeTask(this.props.index);
             $('#' + this.state.id + 'Menu').remove();
+            if (this.props.selectedTask === this.props.task._id) {
+                this.mapFocusOnMe();
+            }
         },
         mapFocusOnMe: function () {
-            this.props.setTaskFocus(this.props.task.id);
+            this.props.setTaskFocus(this.props.task._id);
         },
         render: function () {
-            var AttrTable = pager.components.AttrTable;
-            return React.DOM.div( {className:"queryTask"}, 
-                React.DOM.a( {className:"radius ico fi-list", title:"Menu", 'data-dropdown':this.state.id + 'Menu'}),
+            var AttrTable = pager.components.AttrTable, classes = React.addons.classSet({
+                queryTask: true,
+                selectedTask: this.props.selectedTask === this.props.task._id
+            });
+            return React.DOM.div( {className:classes, 'data-task':this.props.task._id}, 
+                React.DOM.span( {className:"icos"}, 
+                     this.props.task.location && React.DOM.a( {className:"radius ico fi-target-two", onClick:this.mapFocusOnMe, title:"Selecionar"}), 
+                    React.DOM.a( {className:"radius ico fi-list", title:"Menu", 'data-dropdown':this.state.id + 'Menu'})
+                ),
                 AttrTable( {attrs:this.props.task.attrs} )
             );
         }
@@ -257,8 +262,6 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         getInitialState: function(){
             return {
                 taskLength: this.props.query.tasks.length,
-                visibleTasks: true,
-                triggedMenu: false,
                 auxId: 'q' + Math.random().toString(36).substr(2)
             };
         },
@@ -320,9 +323,9 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             this.setTasks(tasks);
         },
 
-        updateTask: _.debounce(function (task) {
+        updateTask: function (task) {
             var tasks = this.props.query.tasks,
-                index = _.findIndex(tasks, {id: task._id});
+                index = _.findIndex(tasks, {_id: task._id});
 
             if(index < 0) {
                 return;
@@ -330,7 +333,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
 
             tasks[index] = task;
             this.setTasks(tasks);
-        }, 300),
+        },
 
         setTasks: function (tasks) {
             var n_query = this.props.query;
@@ -340,15 +343,11 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
 
         toggleTasks: function (e) {
             e.preventDefault();
-            this.setState({visibleTasks: !this.state.visibleTasks});
+            $(this.refs.tasks.getDOMNode()).toggle();
         },
 
         render: function () {
-            var tasksClass = React.addons.classSet({
-                    'no-flow-x': true,
-                    hide: !this.state.visibleTasks
-                }),
-                noPropagation = function(e){e.stopPropagation();};
+            var noPropagation = function(e){e.stopPropagation();};
             return (
                 React.DOM.div( {className:"panel sequential queryResult"}, 
                     React.DOM.h5( {className:"clearfix", onClick:this.toggleTasks}, 
@@ -357,10 +356,11 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                         React.DOM.a( {onClick:noPropagation, className:"right radius ico fi-list", title:"Menu", 'data-dropdown':this.state.auxId + 'Menu'})
                     ),
                     LookupProgress( {updateTask:this.updateTask, tasks:this.props.query.tasks, hasGoogleMaps:this.props.hasGoogleMaps} ),
-                    React.DOM.div( {className:tasksClass}, 
+                    React.DOM.div( {ref:"tasks", className:"QueryElem no-flow-x"}, 
                         this.props.query.tasks.map(function (task, index) {
                             return QueryTask( {key:task._id, index:index, task:task,
                                         setTaskFocus:this.props.setTaskFocus,
+                                        selectedTask:this.props.selectedTask,
                                         removeTask:this.removeTask} );
                         }.bind(this))
                     )
@@ -418,7 +418,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         },
         render: function () {
             return (
-                React.DOM.div( {className:"panel contained"}, 
+                React.DOM.div( {className:"TaskInput panel contained"}, 
                     React.DOM.form( {onSubmit:this.createFilter}, 
                         React.DOM.div(null, 
                             React.DOM.label(null, "Filtrar por",
@@ -446,6 +446,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                                 QueryElem(
                                     {routeThem:this.props.routeThem,
                                     setTaskFocus:this.props.setTaskFocus,
+                                    selectedTask:this.props.selectedTask,
                                     hasGoogleMaps:this.props.hasGoogleMaps,
                                     popQuery:this.popQuery,
                                     setQuery:this.setQuery,
@@ -493,6 +494,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                     locations:this.props.locations,
                     day:this.props.day,
                     setTaskFocus:this.props.setTaskFocus,
+                    selectedTask:this.props.selectedTask,
                     hasGoogleMaps:this.props.hasGoogleMaps,
                     setQueries:this.props.setQueries,
                     queries:this.props.queries} )

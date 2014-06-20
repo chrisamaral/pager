@@ -197,7 +197,7 @@ app.express.get('/:org/api/console/tasks', app.authorized.can('enter app'), func
             return res.json([]);
         }
 
-        workOrders.find(search, {limit: 1000}).toArray(formatTasks(req, res));
+        workOrders.find(search, {limit: 300}).toArray(formatTasks(req, res));
     });
 });
 
@@ -304,7 +304,7 @@ app.express.get('/:org/api/console/typeDuration', app.authorized.can('enter app'
     }
 
     types.forEach(function(type){
-        myTypes[type] = duration[type] || 30;
+        myTypes[type] = duration[type] || _.sample([15, 30, 45, 60]);
     });
 
     res.json(myTypes);

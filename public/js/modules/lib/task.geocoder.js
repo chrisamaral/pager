@@ -81,15 +81,19 @@ define(function () {
                     geocodeOptions.componentRestrictions.administrativeArea = info.state;
                 }
 
-                /*
-                 if (info.postal_code) {
-                 geocodeOptions.componentRestrictions.postalCode = info.postal_code;
-                 }
 
-                 if (info.route) {
-                 geocodeOptions.componentRestrictions.route = info.route;
-                 }
-                 */
+
+                /*
+
+                    if (info.route) {
+                        geocodeOptions.componentRestrictions.route = info.route;
+                    }
+
+                    if (info.postal_code) {
+                        geocodeOptions.componentRestrictions.postalCode = info.postal_code;
+                    }
+
+                */
 
             }
 

@@ -1,5 +1,5 @@
 CACHE MANIFEST
-#1402518650
+#1403304740
 
 NETWORK:
 *
@@ -14,13 +14,17 @@ CACHE:
 /js/build/ext/jquery.min.js
 /js/build/ext/base64.min.js
 /js/build/ext/pace.min.js
+/js/build/ext/sigma.min.js
 /js/build/ext/aviator/navigator.js
 /js/build/ext/aviator/request.js
 /js/build/ext/aviator/route.js
 /js/build/ext/aviator/helpers.js
 /js/build/ext/aviator/main.js
 /js/build/ext/react-with-addons-0.10.0.min.js
+/js/build/ext/BpTspSolver.js
+/js/build/ext/crypto.sha1.min.js
 /js/build/ext/lodash.min.js
+/js/build/lib/router.worker.js
 /js/build/lib/console.map.js
 /js/build/lib/app.js
 /js/build/lib/component.DateInput.js
