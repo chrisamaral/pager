@@ -107,20 +107,20 @@ define(function(){
     });
 
     Queue = React.createClass({
-        toggleContent: function (e) {
-            $(e.currentTarget).next('.panel').toggle();
-        },
         render: function () {
 
-            return <div id='Queue'>
-                <h4 onClick={this.toggleContent}>Ordens Pendentes</h4>
-                <div className='panel contained activity-feed'>
-                    { _.isArray(this.props.items)
-                        ? this.props.items.map(function (item) {
-                                return <TaskPendingApproval item={item} key={item.id} />;
-                            })
-                        : null
-                    }
+            return <div id='Queue' className='leftMapControl'>
+                <div className='controlIco'><i className='fi-clock'></i></div>
+                <div className='controlContent'>
+                    <h4>Ordens Pendentes</h4>
+                    <div className='panel contained activity-feed'>
+                        { _.isArray(this.props.items)
+                            ? this.props.items.map(function (item) {
+                                    return <TaskPendingApproval item={item} key={item.id} />;
+                                })
+                            : null
+                        }
+                    </div>
                 </div>
             </div>;
 

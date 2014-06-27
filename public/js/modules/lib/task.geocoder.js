@@ -42,7 +42,7 @@ define(function () {
             }
 
             var task = queue.splice(0, 1), geocoder, inASec = function () {
-                if (Date.now() - lastLookup > 900) {
+                if (Date.now() - lastLookup > 1100) {
                     tick(queue);
                 } else {
                     setTimeout(inASec, 100);
@@ -80,8 +80,6 @@ define(function () {
                 if (info.state) {
                     geocodeOptions.componentRestrictions.administrativeArea = info.state;
                 }
-
-
 
                 /*
 

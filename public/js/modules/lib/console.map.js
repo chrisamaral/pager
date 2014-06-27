@@ -1,51 +1,11 @@
 /** @jsx React.DOM */
 
 define(function () {
-    var Map, infoWindows = {}, AttrTable;
-    function infoWindowFactory (marker, mapElem) {
-        return function () {
-            function killMe () {
-                infoWindows[marker._id].close();
-                delete infoWindows[marker._id];
-            }
+    var Map,
+        AttrTable;
 
-            if (infoWindows[marker._id]) {
-
-                return killMe();
-            }
-
-            infoWindows[marker._id] = new google.maps.InfoWindow({
-                content:
-                    $('<div class="consoleInfoWindow">')
-                        .append(
-                        React.renderComponentToString(AttrTable( {attrs:marker.task.attrs} ))
-                    )
-                        .append(
-                        $('<p>').append(
-                            $('<a title="Ver todos"><i class="fi-arrow-left"></i></a>').click(function () {
-
-                                mapElem.props.setTaskFocus(marker._id);
-                                killMe();
-
-                            })
-                        )
-                    )[0]
-            });
-
-            infoWindows[marker._id].open(pager.console.map, marker.marker);
-
-            google.maps.event.addListener(infoWindows[marker._id], 'closeclick', function () {
-                delete infoWindows[marker._id];
-            });
-        };
-    }
     Map = React.createClass({displayName: 'Map',
-
-        getInitialState: function () {
-            return {
-                markedTasks: []
-            };
-        },
+        getInitialState: function(){ return {markers: [], infoW: {}}; },
 
         massTaskMarker: function (tasks) {
 
@@ -75,13 +35,55 @@ define(function () {
 
             }, this);
 
-            this.setState({markedTasks: tasks});
+            return tasks;
+        },
+
+        selectedTaskClick: function (marker) {
+            var infoWindows = this.state.infoW;
+
+            function killMe () {
+
+                infoWindows[marker._id].close();
+                delete infoWindows[marker._id];
+
+                this.setState({infoW: infoWindows});
+            }
+
+            if (infoWindows[marker._id]) {
+                return killMe.call(this);
+            }
+
+            infoWindows[marker._id] = new google.maps.InfoWindow({
+                content:
+                    $('<div class="consoleInfoWindow">')
+                        .append(React.renderComponentToString(AttrTable( {attrs:marker.task.attrs} )))
+                        .append(
+                        $('<p>').append(
+                            $('<a title="Ver todos"><i class="fi-arrow-left"></i></a>')
+                                .click(function () {
+                                    this.props.setTaskFocus(marker._id);
+                                    killMe.call(this);
+                                }.bind(this))
+                        )
+                    )[0]
+            });
+
+            infoWindows[marker._id].open(pager.console.map, marker.marker);
+            this.setState({infoW: infoWindows});
+
+            google.maps.event.addListener(infoWindows[marker._id], 'closeclick', function () {
+                var infoWindows = this.state.infoW;
+                delete infoWindows[marker._id];
+                this.setState({infoW: infoWindows});
+            }.bind(this));
+
         },
 
         filterTasks: function (props) {
-            var newMarkers = [], oldMarkers = this.state.markedTasks;
+            var newMarkers = [],
+                oldMarkers = this.state.markers;
 
-            props.queries.forEach(function (query) {
+            props.mapState !== 'router' && props.queries.forEach(function (query) {
                 query.tasks.forEach(function (task) {
 
                     if (!task.location) {
@@ -96,10 +98,20 @@ define(function () {
                     marker.address = task.address;
                     marker.task = task;
 
-                    if (old && old.marker && old.isSelected) {
+                    function unMark () {
                         old.marker.setMap(null);
-                    } else if (old && old.marker) {
-                        marker.marker = old.marker;
+                        delete old.marker;
+                    }
+
+                    if (old && old.marker) {
+
+                        if ((props.mapState === 'tasks' && !old.hasSelectedMarker) ||
+                            (props.mapState === 'task' && old.hasSelectedMarker && old._id === props.selectedTask)
+                        ) {
+                            marker.marker = old.marker;
+                        } else {
+                            unMark();
+                        }
                     }
 
                     newMarkers.push(marker);
@@ -122,52 +134,107 @@ define(function () {
 
         updateMapView: function (newProps) {
 
-            var props = newProps || this.props, newMarkers, aux, spawnInfoWindow;
+            AttrTable = AttrTable || pager.components.AttrTable;
 
-            newMarkers = this.filterTasks(props);
+            var props = newProps || this.props,
+                infoWindows = this.state.infoW,
+                newMarkers,
+                aux,
+                mapElem = this,
+                selected;
+
             console.log('update map view');
 
-            if (props.mapState === 'tasks') {
+            switch (props.mapState) {
+                case 'tasks':
+                    newMarkers = this.filterTasks(props);
+                    newMarkers = this.massTaskMarker(newMarkers);
+                    break;
+                case 'task':
+                    newMarkers = this.filterTasks(props);
+                    selected = _.find(newMarkers, {_id: props.selectedTask});
+                    if (selected) {
+                        selected.hasSelectedMarker = true;
 
-                this.massTaskMarker(newMarkers);
+                        if (!selected.marker) {
 
-            } else if (props.mapState === 'task') {
+                            aux = new google.maps.LatLng(selected.location.lat, selected.location.lng);
+                            selected.marker = new google.maps.Marker({
+                                title: selected.address.address,
+                                map: pager.console.map,
+                                icon: '/icons/selected_marker.png',
+                                position: aux
+                            });
 
-                newMarkers.forEach(function (marker) {
+                            pager.console.map.panTo(aux);
 
-                    if (marker.marker) {
-                        marker.marker.setMap(null);
-                        delete marker.marker;
+                            _.forEach(infoWindows, function (i) {
+                                i.close();
+                            });
+
+                            for (var i in infoWindows) {
+                                if (infoWindows.hasOwnProperty(i)) delete infoWindows[i];
+                            }
+
+                            this.selectedTaskClick(selected);
+
+                            google.maps.event.addListener(selected.marker, 'click', function () {
+                                this.selectedTaskClick(selected);
+                            }.bind(this));
+                        }
                     }
 
-                    if (marker._id === props.selectedTask) {
-                        marker.isSelected = true;
-                        aux = new google.maps.LatLng(marker.location.lat, marker.location.lng);
+                    break;
+                case 'router':
+                    newMarkers = this.filterTasks(props);
 
-                        marker.marker = new google.maps.Marker({
-                            title: marker.address.address,
+                    _.forEach(infoWindows, function (i) {i.close();});
+                    infoWindows = {};
+
+                    newMarkers = props.routerWorker.wayPoints.map(function (wayPoint) {
+
+                        wayPoint.marker = new google.maps.Marker({
                             map: pager.console.map,
-                            icon: '/icons/selected_marker.png',
-                            position: aux
-                        });
-                        pager.console.map.panTo(aux);
-
-                        _.forEach(infoWindows, function (i, index) {
-                            i.close();
-                            delete infoWindows[index];
+                            icon: '/icons/fixed_marker.png',
+                            position: new google.maps.LatLng(wayPoint.location.lat, wayPoint.location.lng)
                         });
 
-                        AttrTable = AttrTable || pager.components.AttrTable;
+                        google.maps.event.addListener(wayPoint.marker, 'click', function () {
 
-                        spawnInfoWindow = infoWindowFactory(marker, this);
+                            function killMe () {
 
-                        google.maps.event.addListener(marker.marker, 'click', spawnInfoWindow);
+                                infoWindows[wayPoint.id].close();
+                                delete infoWindows[wayPoint.id];
 
-                    }
-                }.bind(this));
+                                mapElem.setState({infoW: infoWindows});
+                            }
 
-                this.setState({markedTasks: newMarkers});
+                            if (infoWindows[wayPoint.id]) {
+                                return killMe();
+                            }
+
+                            infoWindows[wayPoint.id] = new google.maps.InfoWindow({
+                                content:
+                                    $('<div class="consoleInfoWindow">')
+                                        .append(React.renderComponentToString(AttrTable(
+                                            {attrs:wayPoint.attrs} )))[0]
+                            });
+
+                            infoWindows[wayPoint.id].open(pager.console.map, wayPoint.marker);
+                            mapElem.setState({infoW: infoWindows});
+
+                            google.maps.event.addListener(infoWindows[wayPoint.id], 'closeclick', function () {
+                                var infoWindows = mapElem.state.infoW;
+                                delete infoWindows[wayPoint.id];
+                                mapElem.setState({infoW: infoWindows});
+                            });
+                        });
+
+                        return wayPoint;
+                    });
+                    break;
             }
+            this.setState({markers: newMarkers, infoW: infoWindows});
         },
 
         componentDidMount: function () {

@@ -76,7 +76,11 @@ authLib(function () {
     app.express.use(function (req, res, next) {
         var url;
         if (!req.isAuthenticated()) {
-            req.session.redirect_to = app.appUrl + req.originalUrl;
+
+            if (req.originalUrl && req.originalUrl.indexOf('/api') === -1) {
+                req.session.redirect_to = app.appUrl + req.originalUrl;
+            }
+
             if (req.xhr) {
                 return res.send(401);
             }

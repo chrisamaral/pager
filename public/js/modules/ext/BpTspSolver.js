@@ -71,7 +71,7 @@ define(function () {
     };
     var onProgressCallback = null;
     var originalOnFatalErrorCallback = function (tsp, errMsg) {
-        alert("Request failed: " + errMsg);
+        throw "Request failed: " + errMsg;
     };
     var onFatalErrorCallback = originalOnFatalErrorCallback;
     var doNotContinue = false;
@@ -605,7 +605,7 @@ define(function () {
 
         // Roundtrip
         if (numActive > maxTspSize) {
-            alert("Too many locations! You have " + numActive + ", but max limit is " + maxTspSize);
+            throw "Too many locations! You have " + numActive + ", but max limit is " + maxTspSize;
         } else {
             legsTmp = [];
             distances = [];
@@ -675,7 +675,7 @@ define(function () {
                     } else {
                         var errorMsg = DIR_STATUS_MSG[directionsStatus];
                         var doNotContinue = true;
-                        alert("Request failed: " + errorMsg);
+                        throw "Request failed: " + errorMsg;
                     }
                 });
         } else {
@@ -856,7 +856,7 @@ define(function () {
                 }, 100);
             } else {
                 --addressRequests;
-                alert("Failed to geocode address: " + address + ". Reason: " + GEO_STATUS_MSG[status]);
+                console.log("Failed to geocode address: " + address + ". Reason: " + GEO_STATUS_MSG[status]);
                 ++currQueueNum;
                 addressProcessing = false;
                 if (typeof(callback) == 'function')
@@ -934,8 +934,7 @@ define(function () {
 
     function BpTspSolver(map, panel, onFatalError) {
         if (tsp) {
-            alert('You can only create one BpTspSolver at a time.');
-            return;
+            throw 'You can only create one BpTspSolver at a time.';
         }
 
         gebMap = map;
@@ -1124,8 +1123,7 @@ define(function () {
 
     BpTspSolver.prototype.solveRoundTrip = function (callback) {
         if (doNotContinue) {
-            alert('Cannot continue after fatal errors.');
-            return;
+            throw 'Cannot continue after fatal errors.';
         }
 
         if (!this.isReady()) {
@@ -1142,8 +1140,7 @@ define(function () {
 
     BpTspSolver.prototype.solveAtoZ = function (callback) {
         if (doNotContinue) {
-            alert('Cannot continue after fatal errors.');
-            return;
+            throw 'Cannot continue after fatal errors.';
         }
 
         if (!this.isReady()) {

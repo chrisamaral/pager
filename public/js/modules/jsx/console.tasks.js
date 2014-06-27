@@ -340,17 +340,14 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             n_query.tasks = tasks;
             this.props.setQuery(n_query, this.props.index);
         },
-
-        toggleTasks: function (e) {
-            e.preventDefault();
-            $(this.refs.tasks.getDOMNode()).toggle();
+        toggleMe: function (e) {
+            $(e.currentTarget).parent().children('.QueryElem').toggle();
         },
-
         render: function () {
             var noPropagation = function(e){e.stopPropagation();};
             return (
                 <div className='panel sequential queryResult'>
-                    <h5 className='clearfix' onClick={this.toggleTasks}>
+                    <h5 className='clearfix' onClick={this.toggleMe}>
                         {this.props.query.name ? this.props.query.name : null}
                         <a onClick={noPropagation} className='right radius ico fi-info' title='Informação' data-dropdown={this.state.auxId + 'Info'}></a>
                         <a onClick={noPropagation} className='right radius ico fi-list' title='Menu' data-dropdown={this.state.auxId + 'Menu'}></a>
@@ -466,9 +463,20 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         routeThem: function (tasks) {
             this.props.routeTasks(tasks);
         },
-
+        componentDidUpdate: function () {
+            $(this.refs.clickToRoute.getDOMNode())
+                .off('click', this.routeThemAll)
+                .on('click', this.routeThemAll);
+        },
+        componentDidMount: function () {
+            $(this.refs.clickToRoute.getDOMNode())
+                .off('click', this.routeThemAll)
+                .on('click', this.routeThemAll);
+        },
         routeThemAll: function (e) {
             e.stopPropagation();
+            e.preventDefault();
+
             var tasks = [];
             this.props.queries.forEach(function(query){
                 query.tasks.forEach(function(task){
@@ -478,26 +486,26 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                 });
             });
             this.routeThem(tasks);
-        },
-
-        toggleContent: function (e) {
-            $(e.currentTarget).next('.panel').toggle();
+            return false;
         },
 
         render: function () {
-            return <div id='Tasks'>
-                <h4 onClick={this.toggleContent}>Ordens livres
-                    <a onClick={this.routeThemAll} className='right radius ico fi-fast-forward' title='Rotear todos'></a>
-                </h4>
-                <TaskInput
-                    routeThem={this.routeThem}
-                    locations={this.props.locations}
-                    day={this.props.day}
-                    setTaskFocus={this.props.setTaskFocus}
-                    selectedTask={this.props.selectedTask}
-                    hasGoogleMaps={this.props.hasGoogleMaps}
-                    setQueries={this.props.setQueries}
-                    queries={this.props.queries} />
+            return <div id='Tasks' className='leftMapControl'>
+                <div className='controlIco'><i className='fi-calendar'></i></div>
+                <div className='controlContent'>
+                    <h4>Ordens livres
+                        <a ref='clickToRoute' className='right radius ico fi-fast-forward' title='Rotear todos'></a>
+                    </h4>
+                    <TaskInput
+                        routeThem={this.routeThem}
+                        locations={this.props.locations}
+                        day={this.props.day}
+                        setTaskFocus={this.props.setTaskFocus}
+                        selectedTask={this.props.selectedTask}
+                        hasGoogleMaps={this.props.hasGoogleMaps}
+                        setQueries={this.props.setQueries}
+                        queries={this.props.queries} />
+                </div>
             </div>;
         }
     });

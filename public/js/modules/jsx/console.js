@@ -1,6 +1,17 @@
 /** @jsx React.DOM */
-define(['../ext/aviator/main', './console.queue', './console.tasks', './console.map', '../helpers/utils.js'], function (Aviator, Queue, Tasks, Map, utils) {
+define([
+    '../ext/aviator/main',
+    './console.queue',
+    './console.tasks',
+    './console.map',
+    '../helpers/utils.js',
+    '../ext/strftime'
+],
+function (Aviator, Queue, Tasks, Map, utils, strftime) {
     var LeftPanel,
+        RouterController,
+        RouterWorkers,
+        RouterWorker,
         RightPanel,
         Console,
         onResize,
@@ -88,19 +99,180 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
         }
     });
 
-    LeftPanel = React.createClass({
+    RouterWorker = React.createClass({
+        drawMe: function () {
+            this.props.drawWorkerDirections(this.props.worker._id);
+        },
+        render: function () {
+            return <li key={this.props.worker._id}>
+                <a onClick={this.drawMe}>{this.props.worker.name}</a>
+            </li>
+        }
+    });
+
+    RouterWorkers = React.createClass({
+        drawWorkerDirections: function (id) {
+
+            this.props.workers.forEach(function (worker) {
+                if (worker._id === id && worker.drawDirections()) {
+
+                    this.props.switchToRouterMode(worker._id,
+                        worker.tasks.map(
+                            function (task) {
+
+                                if (!task.schedule) return;
+
+                                var attrs = [
+                                    {relevance: 3, value: worker.name},
+                                    {descr: 'Tipos', value: _.uniq(task.types).join(', ')},
+                                    {
+                                        descr: 'Deslocamento',
+                                        value: strftime('%H:%M', task.directions.schedule.ini) + ' < ' +
+                                            task.directions.duration.text + ' - ' + task.directions.distance.text +
+                                            ' > ' + strftime('%H:%M', task.directions.schedule.end)
+                                    },
+                                    {
+                                        descr: 'Execução',
+                                        value: strftime('%H:%M', task.schedule.ini) + ' < ' +
+                                                 Math.floor(task.duration/1000/60) + 'min' + ' > ' +
+                                                    strftime('%H:%M', task.schedule.end)
+                                    },
+                                    {descr: 'Duração', value: Math.floor(task.duration/1000/60) + 'min'}
+                                ], ids = _.map(task.tasks, '_id');
+
+                                if (task.schedule.from && task.schedule.to) {
+                                    !_.isDate(task.schedule.from) && (task.schedule.from = new Date(task.schedule.from));
+                                    !_.isDate(task.schedule.to) && (task.schedule.to = new Date(task.schedule.to));
+
+                                    attrs.push({descr: 'Agenda', value: strftime('%d/%m/%Y', task.schedule.from)});
+
+                                    attrs.push({
+                                        descr: 'Turno',
+                                        value: strftime('%H:%M', task.schedule.from)
+                                            + ' <> ' + strftime('%H:%M', task.schedule.to)
+                                    });
+                                }
+
+                                ids.length && attrs.push({descr: 'ID', value: ids.join(', ')});
+
+                                if (task.target) {
+                                    attrs.push({descr: 'Cliente', value: task.target.name, relevance: 2});
+                                }
+
+                                attrs.push({value: task.address.address});
+                                return {
+                                    id: 'wRTask-' + task.id,
+                                    worker: worker.name,
+                                    location: task.location,
+                                    attrs: attrs
+                                };
+                            }
+                        )
+                    );
+
+                } else {
+                    worker._id !== id && worker.cleanDirections();
+                    worker._id === id && this.props.switchToRouterMode(null);
+                }
+            }.bind(this));
+
+        },
+
+        render: function () {
+            return <div id='RouterWorkers'>
+                <ul>
+                    {this.props.workers.map(function (worker) {
+                        return <RouterWorker drawWorkerDirections={this.drawWorkerDirections} key={worker._id} worker={worker} />;
+                    }.bind(this))}
+                </ul>
+            </div>;
+        }
+    });
+
+    RouterController = React.createClass({
         getInitialState: function () {
             return {
-                visible: true,
-                lastUpdate: Date.now()
+                messages: [],
+                workers: []
             };
         },
-        
+
+        componentDidMount: function() {
+            this.props.router.progress(function (type, data) {
+                if (!this.isMounted()) return;
+
+                switch (type) {
+                    case 'message':
+                        this.state.messages.push(data);
+                        this.setState({messages: this.state.messages});
+                        break;
+                }
+            }.bind(this));
+
+            this.props.router.done(function (workers) {
+                if (!this.isMounted()) return;
+
+                this.setState({workers: workers});
+            }.bind(this));
+
+        },
+        cancel: function () {
+            this.state.workers.forEach(function(worker){
+                worker.cleanDirections();
+            });
+            this.props.cancelRoute();
+        },
+        save: function () {
+            this.state.workers.forEach(function(worker){
+                worker.cleanDirections();
+            });
+            this.props.saveRoute(this.state.workers);
+        },
+        render: function () {
+            return <div id='Router' className='leftMapControl'>
+                <div className='controlIco'><i className='fi-page-multiple'></i></div>
+                <div className='controlContent'>
+                    <h4>Roteador</h4>
+                    <div className='panel contained clearfix'>
+                        <div id='RouterLog'>
+                            {this.state.messages.map(function (msg, index) {
+                                return <p key={index}>{msg}</p>;
+                            })}
+                        </div>
+                        <RouterWorkers workers={this.state.workers} switchToRouterMode={this.props.switchToRouterMode} />
+                        <div className='row'>
+                            <div className='text-right'>
+                                <button onClick={this.cancel} className='tiny alert button'>Cancelar</button>
+                                {this.state.workers && this.state.workers.length
+                                    ? <button onClick={this.save} className='tiny success button'>Salvar</button>
+                                    : null}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>;
+        }
+    });
+
+    LeftPanel = React.createClass({
+        componentDidMount: function () {
+            function toggleControl () {
+                $(this).closest('.leftMapControl').children('.controlContent,.controlIco').toggle();
+            }
+            $(this.getDOMNode()).on('click', '.controlContent>h4,.controlIco', toggleControl);
+        },
         render: function () {
             return <nav id='LeftPanel'>
                 <div id='LeftPanelWrapper'>
+
                     { this.props.pending.length
-                        ? <Queue items={this.props.pending} locations={this.props.locations} /> : null }
+                            ? <Queue items={this.props.pending}
+                                    locations={this.props.locations} /> : null }
+                    { this.props.router &&
+                        <RouterController router={this.props.router}
+                                saveRoute={this.props.saveRoute}
+                                cancelRoute={this.props.cancelRoute}
+                                switchToRouterMode={this.props.switchToRouterMode} /> }
                     <Tasks routeTasks={this.props.routeTasks}
                         locations={this.props.locations}
                         day={this.props.day}
@@ -132,6 +304,7 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
                 )
             };
         },
+
         getInitialState: function () {
             return this.parseArgsToState();
         },
@@ -141,7 +314,6 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
             this.setState(this.parseArgsToState(newProps), function () {
                 this.updateDefaultQuery(dayHasChanged);
             }.bind(this));
-
         },
 
         componentDidMount: function () {
@@ -199,20 +371,41 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
 
             this.props.lib.put();
         },
-        startRouter: function (tasks) {
-            if (!Modernizr.webworkers) {
-                alert('Este navegador não suporta as tecnologias necessárias para utilização do roteador. Por favor, atualize seu browser e tente novamente.');
+
+        switchToRouterMode: function (worker, tasks) {
+
+            if (!worker) {
+                this.props.lib.state.mapState = 'tasks';
+                this.props.lib.state.routerWorker = null;
+            } else {
+                this.props.lib.state.mapState = 'router';
+                this.props.lib.state.routerWorker = {wayPoints: tasks};
             }
-            var main = this;
 
-            require(['../lib/router'], function(Router){
+            this.props.lib.put();
+        },
 
-                if (!main.isMounted()){
-                    return;
-                }
+        killRoute: function () {
+            if (this.props.lib.state.mapState === 'router') {
+                this.props.lib.state.mapState = 'tasks';
+                this.props.lib.state.routerWorker = null;
+            }
 
-                var router = new Router(main.state.day, tasks, main.props.lib.data.workers);
-            });
+            this.props.lib.router.stopRouter();
+            delete this.props.lib.router;
+            this.props.lib.put();
+        },
+
+        saveRoute: function (workers) {
+            console.log(workers);
+            this.killRoute();
+        },
+
+        cancelRoute: function () {
+            this.killRoute();
+        },
+        initRouter: function (tasks) {
+            this.props.lib.startRouter(this.state.day, tasks, this);
         },
         render: function () {
             var style = {height: $(window).height() - $('.tab-bar').outerHeight()};
@@ -221,15 +414,20 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
                 { this.props.lib.state.hasGoogleMaps
                     ? <Map queries={this.props.lib.data.queries}
                             setTaskFocus={this.setTaskFocus}
+                            routerWorker={this.props.lib.state.routerWorker}
                             mapState={this.props.lib.state.mapState}
                             setMapState={this.setMapState}
                             selectedTask={this.props.lib.state.selectedTask} />
                     : null
                 }
                 <LeftPanel pending={this.props.lib.data.pending}
-                    routeTasks={this.startRouter}
+                    routeTasks={this.initRouter}
                     queries={this.props.lib.data.queries}
+                    switchToRouterMode={this.switchToRouterMode}
+                    saveRoute={this.saveRoute}
+                    cancelRoute={this.cancelRoute}
                     day={this.state.day}
+                    router={this.props.lib.router}
                     locations={this.state.locations}
                     hasGoogleMaps={this.props.lib.state.hasGoogleMaps}
                     setQueries={this.setQueries}
@@ -325,6 +523,28 @@ define(['../ext/aviator/main', './console.queue', './console.tasks', './console.
 
         }.bind(this));
 
+    };
+
+    Lib.prototype.startRouter = function (day, tasks, Console) {
+
+        if (this.router) {
+            return;
+        }
+
+        if (!Modernizr.webworkers) {
+            alert('Este navegador não suporta as tecnologias necessárias para utilização do roteador. Por favor, atualize seu browser e tente novamente.');
+        }
+
+        require(['../lib/router'], function (Router) {
+
+            if (!Console.isMounted()){
+                return;
+            }
+
+            this.router = new Router(day, tasks, this.data.workers);
+            this.put();
+
+        }.bind(this));
     };
 
     Lib.prototype.setDefaultQuery = function (day, dayHasChanged) {

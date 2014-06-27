@@ -1,12 +1,13 @@
 (function() {
 
-    var tasks, workers, day, dDay,
+    var tasks, workers, day,
         taskDurationByType, console,
         MINUTE = 1000 * 60,
         MAX_CLUSTER_DISTANCE = 5, //km
-        MAX_TRAVEL_DISTANCE = 7,
+        MAX_TRAVEL_DISTANCE = 10,
+        MAX_FIRST_HOP_DISTANCE = 100,
         TIME_SLOT_SIZE = MINUTE * 5, //minutes
-        CAPACITY_THRESHOLD = MINUTE * 30,
+        CAPACITY_THRESHOLD = MINUTE * 45,
         MAX_ERROR = MINUTE * 2; //minutes
 
     console = {
@@ -90,7 +91,7 @@
                 switch (mode) {
                     case 'clusterization':
 
-                        if (other.task.cluster && (other.task.cluster === task.cluster || other.task.cluster.tasks.length > 4)) {
+                        if (other.task.cluster && (other.task.cluster === task.cluster || other.task.cluster.tasks.length > 3)) {
                             return undefined;
                         }
 
@@ -279,32 +280,16 @@
                 {from: '08:00', to: '17:00'},
                 {from: '11:00', to: '20:00'},
                 {from: '14:00', to: '23:00'}
-            ], latSum = 0, lngSum = 0, points = 0, center;
-
-        _.forEach(tasks, function (task) {
-            latSum += task.location.lat;
-            lngSum += task.location.lng;
-            points++;
-        });
-
-        center = {
-            lat: latSum / points,
-            lng: lngSum / points
-        };
+            ], center = {lat: -22.904356, lng: -43.189390};
 
         //mock work shifts
         _.forEach(workers, function (currentWorker) {
             currentWorker.tasks = [];
             currentWorker.color = 'rgb(' + rndClr() + ', ' + rndClr() + ', ' + rndClr() + ')';
 
-            var aux = _.cloneDeep(shifts[Math.floor(Math.random() * shifts.length)]),
-                zeroToTen = _.random(1, 10),
-                signal = Date.now() % 2 === 0 ? -1 : 1;
+            var aux = _.cloneDeep(shifts[Math.floor(Math.random() * shifts.length)]);
 
             currentWorker.startingPoint = center;
-
-            currentWorker.startingPoint.lat += zeroToTen * 0.001 * signal;
-            currentWorker.startingPoint.lng += zeroToTen * 0.001 * signal;
 
             currentWorker.workShift = aux;
             currentWorker.workShift.from = toDt(aux.from);
@@ -337,35 +322,25 @@
 
                 workerIntersection = _.intersection(task.candidateWorkers.map(ftw), otherTask.candidateWorkers.map(ftw));
 
-                task.others[otherTask.id] = {
-                    distance: distance,
-                    task: otherTask,
-                    sharedWorkers: workerIntersection
-                };
-
                 if (workerIntersection.length) {
+
+                    task.others[otherTask.id] = {
+                        distance: distance,
+                        task: otherTask,
+                        sharedWorkers: workerIntersection
+                    };
+
                     task.minDistance = pickMin(task.minDistance, task.others[otherTask.id]);
                     otherTask.minDistance = pickMin(otherTask.minDistance, task.others[otherTask.id]);
+                    total += distance;
                 }
 
-                total += distance;
             });
 
             var len = _.keys(task.others).length;
             task.averageDistance = len ? total / len : 0;
 
         });
-    }
-
-    function addrAbbr (components) {
-        var vals = [];
-
-        _.forEach(components, function(component){
-            if (component.name === 'neighbourhood' || component.name === 'city') {
-                vals.push(component.value);
-            }
-        });
-        return vals.join(', ');
     }
 
     function rndClr(){
@@ -445,10 +420,12 @@
         worker.timeSlots = newWorkerTimeSlots;
         worker.tasks = newWorkerTasks;
         worker.used = newWorkerUsed;
+        _.forEach(tasks, function(task){ task.worker = worker; task.cluster && delete task.cluster; });
+
         return true;
     }
     function taskFits(worker, task){
-        return worker.capacity - (task.duration + worker.used) >= CAPACITY_THRESHOLD;
+        return worker.capacity - (task.duration + worker.used) >= Math.min(worker.capacity * 0.3, CAPACITY_THRESHOLD);
     }
     function mergeClusters (thisCluster, bestMatch, clusters) {
         var mergedCluster = bestMatch.cluster, index;
@@ -467,11 +444,6 @@
         clusters.splice(index, 1);
     }
 
-    var distributionGraph = _.debounce(function (clusters) {
-
-        self.postMessage({type: 'drawGraph', data: makeGraph(clusters)});
-
-    }, 500);
     function allocIterator (clusters) {
 
         function hasClosestWorker () {
@@ -502,7 +474,7 @@
                         theWorker.startingPoint.lat, theWorker.startingPoint.lng
                     );
 
-                    if (worker.distance > MAX_TRAVEL_DISTANCE) {
+                    if (worker.distance > MAX_FIRST_HOP_DISTANCE) {
                         return undefined;
                     }
 
@@ -547,11 +519,9 @@
             closeToSomeWorker = null; closeToSomeOne = null; thisCluster = null;
 
             recalcDistances('distribution');
-            (closeToSomeOne = hasClosestTask()) || (closeToSomeWorker = hasClosestWorker());
+            (closeToSomeWorker = hasClosestWorker()) || (closeToSomeOne = hasClosestTask());
 
-            if (!closeToSomeOne && !closeToSomeWorker) {
-                continue;
-            }
+            if (!closeToSomeOne && !closeToSomeWorker) continue;
 
             if (closeToSomeOne) {
                 thisWorker = closeToSomeOne.minDistance.task.worker;
@@ -560,8 +530,6 @@
             } else {
                 thisWorker = closeToSomeWorker.closestWorker;
             }
-
-            //console.log('chosen worker is ' + thisWorker.name);
 
             thisTask = closeToSomeOne || closeToSomeWorker;
 
@@ -574,16 +542,10 @@
                     if (index >= 0) {
                         thisTask.candidateWorkers.splice(index, 1);
                     }
-                    continue;
+
+                } else {
+                    _.pull(clusters, thisCluster);
                 }
-
-                thisTask.cluster.tasks.forEach(function (task) {
-                    task.worker = thisWorker;
-                    delete task.cluster;
-                });
-
-                thisWorker.tasks = thisWorker.tasks.concat(thisCluster.tasks);
-                _.pull(clusters, thisCluster);
 
             } else {
 
@@ -592,14 +554,9 @@
                     if (index >= 0) {
                         thisTask.candidateWorkers.splice(index, 1);
                     }
-                    continue;
                 }
-
-                thisWorker.tasks.push(thisTask);
-                thisTask.worker = thisWorker;
             }
 
-            distributionGraph(clusters);
 
         } while (closeToSomeOne || closeToSomeWorker);
 
@@ -620,39 +577,9 @@
 
         self.close();
     }
-    function makeGraph (clusters) {
 
-        return {
-            lines: _.map(
-                _.filter(workers, function(w) {return w.tasks.length > 1}),
-                function (item) {
-                    var point = {
-                        color: item.color,
-                        points: _.map(item.tasks, function (task) {
-                            return task.location;
-                        })
-                    };
-
-                    if (item.startingPoint && point.points.length) {
-                        point.points.unshift(item.startingPoint);
-                    }
-
-                    return point;
-                }),
-
-            polygons: _.map(
-                _.filter(clusters, function(c) {return c.tasks.length > 1}),
-                function (item) {
-                    return {
-                        color: item.color,
-                        points: _.map(item.tasks, function (task) {
-                            return task.location;
-                        })
-                    };
-                })
-        };
-    }
     function firstAlloc (clusters) {
+        clusters = clusters || [];
         var oldClusters;
         createTimeSlots();
 
@@ -680,18 +607,13 @@
             ) {
 
                 cluster.worker = theWorker;
-                _.forEach(cluster.tasks, function (t) {
-                    t.worker = cluster.worker;
-                    delete t.cluster;
-                });
             }
         });
         oldClusters = clusters;
 
         clusters = _.filter(clusters, function(c){ return c.worker === undefined; });
 
-        console.log(oldClusters.length + ' clusters reduced to ' + clusters.length);
-        self.postMessage({type: 'drawGraph', data: makeGraph(clusters)});
+        oldClusters.length !== clusters.length && console.log(oldClusters.length + ' clusters reduced to ' + clusters.length);
 
         allocIterator(clusters);
     }
@@ -700,7 +622,7 @@
 
         function findStartingPoint () {
             var min = _.min(tasks, function (task) {
-                if (task.cluster && task.cluster.tasks.length > 4 || !task.minDistance) {
+                if (task.cluster && task.cluster.tasks.length > 3 || !task.minDistance) {
                     return undefined;
                 }
                 return task.minDistance.distance;
@@ -715,9 +637,7 @@
             recalcDistances();
             hasBestMatch = findStartingPoint();
 
-            if (!hasBestMatch) {
-                continue;
-            }
+            if (!hasBestMatch) continue;
 
             if (!hasBestMatch.cluster) {
 
@@ -743,11 +663,7 @@
                 bestMatch.cluster = thisCluster;
                 thisCluster.tasks.push(bestMatch);
 
-            } else {
-
-                mergeClusters(thisCluster, bestMatch, clusters);
-
-            }
+            } else mergeClusters(thisCluster, bestMatch, clusters);
 
         } while (hasBestMatch);
 
@@ -760,10 +676,9 @@
         console.log('Processando argumentos...');
 
         tasks = groupTasksByTarget(data.tasks);
-        if (!tasks.length) {
-            self.close();
-            return;
-        }
+
+        if (tasks.length === 0) return self.close();
+
         workers = data.workers;
         day = data.day;
 
@@ -803,7 +718,9 @@
                 console.log('Iniciando cálculos...');
 
                 prepareArgs();
-                makeClusters();
+                //makeClusters();
+                firstAlloc()
+
                 break;
         }
     });

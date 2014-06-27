@@ -221,7 +221,7 @@ app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter a
                     callback();
                 });
             },
-            //busca ordem pra verificar se é necessário atualizar tabela customers
+            //busca ordem pra verificar se é necessário atualizar coleção clientes
             function (callback) {
                 workOrders.findOne({_id: ObjectID(id)}, function (err, wo) {
 
@@ -236,7 +236,7 @@ app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter a
                     callback(null, wo);
                 });
             },
-            //atualiza customer caso necessário
+            //atualiza cliente caso necessário
             function (workOrder, callback) {
                 if (!workOrder.customer) {
                     return callback(null, null);
@@ -303,8 +303,8 @@ app.express.get('/:org/api/console/typeDuration', app.authorized.can('enter app'
         return res.status(500).send('Tipos inválidos');
     }
 
-    types.forEach(function(type){
-        myTypes[type] = duration[type] || _.sample([15, 30, 45, 60]);
+    types.forEach(function (type) {
+        myTypes[type] = duration[type] || _.sample([30, 45, 60]);
     });
 
     res.json(myTypes);
