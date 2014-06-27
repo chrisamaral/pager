@@ -284,16 +284,23 @@
 
         //mock work shifts
         _.forEach(workers, function (currentWorker) {
+            var aux;
+
             currentWorker.tasks = [];
             currentWorker.color = 'rgb(' + rndClr() + ', ' + rndClr() + ', ' + rndClr() + ')';
 
-            var aux = _.cloneDeep(shifts[Math.floor(Math.random() * shifts.length)]);
+            currentWorker.startingPoint = currentWorker.startingPoint || center;
 
-            currentWorker.startingPoint = center;
 
-            currentWorker.workShift = aux;
-            currentWorker.workShift.from = toDt(aux.from);
-            currentWorker.workShift.to = toDt(aux.to);
+            if (!currentWorker.workShift) {
+                aux = _.cloneDeep(shifts[Math.floor(Math.random() * shifts.length)]);
+                currentWorker.workShift = aux;
+            }
+
+            currentWorker.workShift.from = toDt(currentWorker.workShift.from);
+            currentWorker.workShift.to = toDt(currentWorker.workShift.to);
+
+
         });
 
         _.forEach(tasks, function (task) {

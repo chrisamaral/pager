@@ -3,9 +3,14 @@
 define(function () {
     var Map,
         AttrTable;
-
+    /*
+    scrollStates:
+        noScroll
+        anyScroll
+        bigScroll
+     */
     Map = React.createClass({
-        getInitialState: function(){ return {markers: [], infoW: {}}; },
+        getInitialState: function(){ return {markers: [], infoW: {}, scrollState: 'noScroll'}; },
 
         massTaskMarker: function (tasks) {
 
@@ -23,14 +28,17 @@ define(function () {
                 });
 
                 google.maps.event.addListener(task.marker, 'click', function () {
-                    var elem = $('[data-task="' + task._id + '"]'), leftPanel = document.getElementById('LeftPanel');
-                    if (elem.length) {
-                        elem.closest('.QueryElem').show().closest('.TaskInput').show();
-                        $(leftPanel).animate({
-                            scrollTop: leftPanel.scrollTop + elem.offset().top - $(leftPanel).offset().top - 10
+
+                    var elem = $('[data-task="' + task._id + '"]'), scrollRoot = document.getElementById('ScrollRoot');
+
+                    if (elem.length && elem.is(':visible')) {
+                        $(scrollRoot).animate({
+                            scrollTop: scrollRoot.scrollTop + elem.offset().top - $(scrollRoot).offset().top - 10
                         });
                     }
+
                     this.props.setTaskFocus(task._id);
+
                 }.bind(this));
 
             }, this);
@@ -39,7 +47,7 @@ define(function () {
         },
 
         selectedTaskClick: function (marker) {
-            var infoWindows = this.state.infoW;
+            var infoWindows = this.state.infoW, $content, elem;
 
             function killMe () {
 
@@ -53,20 +61,26 @@ define(function () {
                 return killMe.call(this);
             }
 
-            infoWindows[marker._id] = new google.maps.InfoWindow({
-                content:
-                    $('<div class="consoleInfoWindow">')
-                        .append(React.renderComponentToString(<AttrTable attrs={marker.task.attrs} />))
-                        .append(
-                        $('<p>').append(
-                            $('<a title="Ver todos"><i class="fi-arrow-left"></i></a>')
-                                .click(function () {
-                                    this.props.setTaskFocus(marker._id);
-                                    killMe.call(this);
-                                }.bind(this))
-                        )
-                    )[0]
-            });
+            $content = $('<div class="consoleInfoWindow">');
+            elem = $('[data-task="' + marker.task._id + '"]');
+
+            if (elem.length && elem.is(':visible')) {
+                $content.append('<p>' + marker.task.address.address + '</p>');
+            } else {
+                $content.append(React.renderComponentToString(<AttrTable attrs={marker.task.attrs} />));
+            }
+
+            $content.append(
+                $('<p>').append(
+                    $('<a title="Ver todos"><i class="fi-arrow-left"></i></a>')
+                        .click(function () {
+                            this.props.setTaskFocus(marker._id);
+                            killMe.call(this);
+                        }.bind(this))
+                    )
+            );
+
+            infoWindows[marker._id] = new google.maps.InfoWindow({content: $content[0]});
 
             infoWindows[marker._id].open(pager.console.map, marker.marker);
             this.setState({infoW: infoWindows});
@@ -239,30 +253,72 @@ define(function () {
 
         componentDidMount: function () {
             var mapOptions = {
-                zoom: 8,
-                center: new google.maps.LatLng(-22.848658,-43.300933),
-                zoomControl: false,
-                panControl: false,
-                scaleControl: false,
-                streetViewControl: true,
-                streetViewControlOptions: {
-                    position: google.maps.ControlPosition.RIGHT_BOTTOM
-                }
-            };
+                    zoom: 8,
+                    center: new google.maps.LatLng(-22.848658,-43.300933),
+                    zoomControl: false,
+                    panControl: false,
+                    scaleControl: false,
+                    streetViewControl: true,
+                    streetViewControlOptions: {
+                        position: google.maps.ControlPosition.RIGHT_BOTTOM
+                    }
+                },
+                mapComponent = this,
+                weirdLockOn = false,
+
+                actualHandler = function (e) {
+                    if (!mapComponent.isMounted()) return unBind();
+                    if (weirdLockOn) return;
+
+                    var currentState = 'noScroll', target = (e && e.currentTarget) || document.getElementById('ScrollRoot');
+
+                    if (target.scrollHeight > document.body.scrollHeight) currentState = 'anyScroll';
+                    if (target.scrollTop > $('#Console').position().top) currentState = 'bigScroll';
+
+                    if (mapComponent.state.scrollState !== currentState) {
+                        weirdLockOn = true;
+                        mapComponent.setState({scrollState: currentState}, function() {weirdLockOn = false;});
+                    }
+                },
+
+                scrollHandler = _.throttle(actualHandler, 100);
+
+            $('#ScrollRoot').on('scroll resize', scrollHandler);
+
+            function unBind() {
+                $('#ScrollRoot').off('scroll resize', scrollHandler);
+            }
 
             pager.console = pager.console || {};
-            pager.console.map = new google.maps.Map(this.getDOMNode(), mapOptions);
+            pager.console.map = new google.maps.Map(this.refs.mapContainer.getDOMNode(), mapOptions);
 
             setTimeout(function () {
                 this.updateMapView();
             }.bind(this), 1000);
+
+            actualHandler();
         },
+
         componentWillReceiveProps: function (newProps) {
             this.updateMapView(newProps);
         },
-        render: function () {
 
-            return <div id='ConsoleMainMap'></div>;
+        render: function () {
+            var s = {
+                top: this.state.scrollState === 'bigScroll' ? 0 : $('#Console').position().top,
+                width: '',
+                height: this.state.scrollState === 'bigScroll'
+                    ? $(window).height()
+                    : this.props.height
+            };
+
+            if (this.state.scrollState !== 'noScroll') {
+                s.width = $('#ScrollRoot>.inner-wrap').width();
+            }
+
+            return <div id='ConsoleMainMap' style={s}>
+                <div ref='mapContainer'></div>
+            </div>;
         }
     });
     return Map;

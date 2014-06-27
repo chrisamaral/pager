@@ -215,12 +215,14 @@ app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter a
 
     app.mongo.collection('work_order', function (err, workOrders) {
         async.waterfall([
+
             //atualiza ordem
             function (callback) {
                 workOrders.update({_id: ObjectID(id)}, {$set: {location: location}}, function () {
                     callback();
                 });
             },
+
             //busca ordem pra verificar se é necessário atualizar coleção clientes
             function (callback) {
                 workOrders.findOne({_id: ObjectID(id)}, function (err, wo) {
@@ -308,4 +310,14 @@ app.express.get('/:org/api/console/typeDuration', app.authorized.can('enter app'
     });
 
     res.json(myTypes);
+});
+app.express.get('/:org/api/console/routerConfigOptions', app.authorized.can('enter app'), function (req, res) {
+    res.json({
+        points: [{address: 'Central, Rio de Janeiro', location: {lat: -22.904356, lng: -43.189390}}],
+        workShifts: [
+            {from: '08:00', to: '17:00'},
+            {from: '11:00', to: '20:00'},
+            {from: '14:00', to: '23:00'}
+        ]
+    });
 });

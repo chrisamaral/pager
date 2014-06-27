@@ -12,6 +12,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         RouterController,
         RouterWorkers,
         RouterWorker,
+        RouterCfg,
         RightPanel,
         Console,
         onResize,
@@ -116,7 +117,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
             this.props.workers.forEach(function (worker) {
                 if (worker._id === id && worker.drawDirections()) {
 
-                    this.props.switchToRouterMode(worker._id,
+                    this.props.toggleRouterMode(worker._id,
                         worker.tasks.map(
                             function (task) {
 
@@ -172,7 +173,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
                 } else {
                     worker._id !== id && worker.cleanDirections();
-                    worker._id === id && this.props.switchToRouterMode(null);
+                    worker._id === id && this.props.toggleRouterMode(null);
                 }
             }.bind(this));
 
@@ -239,7 +240,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                                 return <p key={index}>{msg}</p>;
                             })}
                         </div>
-                        <RouterWorkers workers={this.state.workers} switchToRouterMode={this.props.switchToRouterMode} />
+                        <RouterWorkers workers={this.state.workers} toggleRouterMode={this.props.toggleRouterMode} />
                         <div className='row'>
                             <div className='text-right'>
                                 <button onClick={this.cancel} className='tiny alert button'>Cancelar</button>
@@ -258,6 +259,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         componentDidMount: function () {
             function toggleControl () {
                 $(this).closest('.leftMapControl').children('.controlContent,.controlIco').toggle();
+                $('#ScrollRoot').trigger('resize');
             }
             $(this.getDOMNode()).on('click', '.controlContent>h4,.controlIco', toggleControl);
         },
@@ -272,7 +274,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                         <RouterController router={this.props.router}
                                 saveRoute={this.props.saveRoute}
                                 cancelRoute={this.props.cancelRoute}
-                                switchToRouterMode={this.props.switchToRouterMode} /> }
+                                toggleRouterMode={this.props.toggleRouterMode} /> }
                     <Tasks routeTasks={this.props.routeTasks}
                         locations={this.props.locations}
                         day={this.props.day}
@@ -287,8 +289,30 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
     });
 
     RightPanel = React.createClass({
+        componentDidUpdate: function () {
+
+        },
         render: function () {
-            return <main id='RightPanel'></main>;
+            return <main id='RightPanel' style={{width: $('#Console').width() - $('#LeftPanel').width()}}>
+                {this.props.routerLoader &&
+                    <div>
+                        <h4>Configurações de Roteamento</h4>
+                        <div className='panel'>
+                            <RouterCfg workers={
+                                    _.map(this.props.workers,
+                                        function (worker) {
+                                            return {
+                                                _id: worker._id,
+                                                name: worker.name,
+                                                types: worker.types
+                                            };
+                                        }
+                                    )
+                                } onSet={this.props.routerLoader} />
+                        </div>
+                    </div>
+                }
+            </main>;
         }
     });
 
@@ -319,9 +343,11 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         componentDidMount: function () {
             this.updateDefaultQuery(true);
             this.putArgs();
+
             onResize = _.throttle(function () {
                 this.forceUpdate();
             }.bind(this), 300);
+
             $(window).resize(onResize);
         },
 
@@ -372,7 +398,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
             this.props.lib.put();
         },
 
-        switchToRouterMode: function (worker, tasks) {
+        toggleRouterMode: function (worker, tasks) {
 
             if (!worker) {
                 this.props.lib.state.mapState = 'tasks';
@@ -404,11 +430,13 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         cancelRoute: function () {
             this.killRoute();
         },
+
         initRouter: function (tasks) {
             this.props.lib.startRouter(this.state.day, tasks, this);
         },
+
         render: function () {
-            var style = {height: $(window).height() - $('.tab-bar').outerHeight()};
+            var h = $(window).height() - $('.tab-bar').outerHeight(), style = {'min-height': h};
 
             return <div id='Console' style={style}>
                 { this.props.lib.state.hasGoogleMaps
@@ -416,6 +444,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                             setTaskFocus={this.setTaskFocus}
                             routerWorker={this.props.lib.state.routerWorker}
                             mapState={this.props.lib.state.mapState}
+                            height={h}
                             setMapState={this.setMapState}
                             selectedTask={this.props.lib.state.selectedTask} />
                     : null
@@ -423,7 +452,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                 <LeftPanel pending={this.props.lib.data.pending}
                     routeTasks={this.initRouter}
                     queries={this.props.lib.data.queries}
-                    switchToRouterMode={this.switchToRouterMode}
+                    toggleRouterMode={this.toggleRouterMode}
                     saveRoute={this.saveRoute}
                     cancelRoute={this.cancelRoute}
                     day={this.state.day}
@@ -435,6 +464,9 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                     setTaskFocus={this.setTaskFocus} />
 
                 <RightPanel workers={this.props.lib.data.workers}
+                    router={this.props.lib.router}
+                    totalWidth={$(window).width()}
+                    routerLoader={this.props.lib.routerLoader}
                     hasGoogleMaps={this.props.lib.state.hasGoogleMaps} />
             </div>;
         }
@@ -532,19 +564,30 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         }
 
         if (!Modernizr.webworkers) {
-            alert('Este navegador não suporta as tecnologias necessárias para utilização do roteador. Por favor, atualize seu browser e tente novamente.');
+            alert('Este navegador não suporta as tecnologias necessárias para utilização do roteador. '+
+                'Por favor, atualize seu browser e tente novamente.');
         }
 
-        require(['../lib/router'], function (Router) {
+        var me = this;
 
-            if (!Console.isMounted()){
-                return;
-            }
+        require(['../lib/router', './console.router.cfg'], function (Router, RCfg) {
 
-            this.router = new Router(day, tasks, this.data.workers);
-            this.put();
+            RouterCfg = RCfg;
 
-        }.bind(this));
+            if (!Console.isMounted()) return;
+
+            me.routerLoader =  function (workers) {
+                delete me.routerLoader;
+
+                if (workers && workers.length) {
+                    me.router = new Router(day, tasks, workers);
+                }
+
+                me.put();
+            };
+
+            me.put();
+        });
     };
 
     Lib.prototype.setDefaultQuery = function (day, dayHasChanged) {

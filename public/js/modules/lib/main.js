@@ -74,7 +74,7 @@ define(['../helpers/utils'], function (utils) {
         render: function () {
             var App = this.props.app;
             return (
-                React.DOM.div( {'data-offcanvas':true, className:"off-canvas-wrap"}, 
+                React.DOM.div( {id:"ScrollRoot", 'data-offcanvas':true, className:"off-canvas-wrap"}, 
                     React.DOM.div( {className:"inner-wrap"}, 
                         React.DOM.nav( {id:"TopBar", className:"tab-bar"}, 
                             React.DOM.section( {className:"middle tab-bar-section"}, 

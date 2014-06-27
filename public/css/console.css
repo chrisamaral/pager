@@ -3,8 +3,7 @@ label>strong{
 }
 .panel{
     padding: 3px;
-    margin: 0 3px;
-    margin-bottom: 0.5em;
+    margin: 0 3px 0.5em 3px;
     background-color: white;
 }
 .panel.contained{
@@ -17,30 +16,29 @@ label>strong{
 #Console{
     position: relative;
     display: block;
-    overflow-y: auto;
     width: 100%;
     color: #404040;
 }
 #LeftPanel{
     display: block; position: absolute;
     left: 0; top: 0;
-    
     height: auto;
-    max-height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-
     width: auto;
-
-    padding: 5px 0;
+    z-index: 1;
 }
 
 #RightPanel{
     display: block; position: absolute;
     right: 0; top: 0;
     width: 70%;
-    padding: 5px;
+    padding: 1em;
+    background-color: white;
 }
+
+#RightPanel:empty{
+    padding: 0;
+}
+
 .leftMapControl{
     width: auto;
 }
@@ -54,22 +52,21 @@ label>strong{
     background-color: #424242;
     color: white;
     font-size: x-large;
-    border-bottom: 1px solid rgb(250, 250, 250);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }
+
 .leftMapControl>.controlIco:hover{
-    color: rgb(220,220,220);
+    color: rgb(255, 237, 89);
 }
-.leftMapControl:first-child>.controlIco{
-    border-top-right-radius: 0.3em;
-}
+
 .leftMapControl:last-child>.controlIco{
     border-bottom-right-radius: 0.3em;
     border-bottom-style: none;
 }
 .controlContent{
     max-width: 300px;
-    min-width: 270px;
     width: auto;
+    box-shadow: 2px 3px 3px rgba(0,0,0,0.3);
 }
 .controlContent>h4, .controlContent>.panel{
     margin: 0;
@@ -211,9 +208,13 @@ label>strong{
     box-shadow: 1px 2px 2px rgba(0,0,0,0.2);
 }
 #ConsoleMainMap{
-    display: block; position: relative;
+    display: block; position: fixed;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
+}
+#ConsoleMainMap>div{
+    width: 100%; height: 100%;
 }
 .consoleInfoWindow>p{
     text-align: right;
@@ -231,4 +232,15 @@ label>strong{
     text-indent: 5px;
     font-size: smaller;
     color: white;
+}
+.wCfgX{
+    margin-right: 0.7em;
+    color: rgb(40, 40, 40);
+}
+
+.workersCfg{
+    margin-top: 1em;
+}
+.cfgForm{
+    margin-top: 1em;
 }

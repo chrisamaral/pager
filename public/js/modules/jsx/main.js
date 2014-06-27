@@ -74,7 +74,7 @@ define(['../helpers/utils'], function (utils) {
         render: function () {
             var App = this.props.app;
             return (
-                <div data-offcanvas className="off-canvas-wrap">
+                <div id='ScrollRoot' data-offcanvas className="off-canvas-wrap">
                     <div className="inner-wrap">
                         <nav id="TopBar" className="tab-bar">
                             <section className="middle tab-bar-section">
