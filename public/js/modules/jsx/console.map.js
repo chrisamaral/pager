@@ -9,6 +9,14 @@ define(function () {
         anyScroll
         bigScroll
      */
+
+    function zeroInfoWindows(infoWindows) {
+        _.forEach(infoWindows, function (i) { i.close(); });
+        for (var i in infoWindows) {
+            if (infoWindows.hasOwnProperty(i)) delete infoWindows[i];
+        }
+    }
+
     Map = React.createClass({
         getInitialState: function(){ return {markers: [], infoW: {}, scrollState: 'noScroll'}; },
 
@@ -182,13 +190,7 @@ define(function () {
 
                             pager.console.map.panTo(aux);
 
-                            _.forEach(infoWindows, function (i) {
-                                i.close();
-                            });
-
-                            for (var i in infoWindows) {
-                                if (infoWindows.hasOwnProperty(i)) delete infoWindows[i];
-                            }
+                            zeroInfoWindows(infoWindows);
 
                             this.selectedTaskClick(selected);
 
@@ -202,8 +204,7 @@ define(function () {
                 case 'router':
                     newMarkers = this.filterTasks(props);
 
-                    _.forEach(infoWindows, function (i) {i.close();});
-                    infoWindows = {};
+                    zeroInfoWindows(infoWindows);
 
                     newMarkers = props.routerWorker.wayPoints.map(function (wayPoint) {
 
@@ -248,6 +249,7 @@ define(function () {
                     });
                     break;
             }
+            
             this.setState({markers: newMarkers, infoW: infoWindows});
         },
 
@@ -270,7 +272,13 @@ define(function () {
                     if (!mapComponent.isMounted()) return unBind();
                     if (weirdLockOn) return;
 
-                    var currentState = 'noScroll', target = (e && e.currentTarget) || document.getElementById('ScrollRoot');
+                    var currentState = 'noScroll', target;
+                    
+                    if (e && e.currentTarget) {
+                        target = e.currentTarget;
+                    } else {
+                        target = document.getElementById('ScrollRoot')
+                    }
 
                     if (target.scrollHeight > document.body.scrollHeight) currentState = 'anyScroll';
                     if (target.scrollTop > $('#Console').position().top) currentState = 'bigScroll';
@@ -321,5 +329,6 @@ define(function () {
             </div>;
         }
     });
+
     return Map;
 });
