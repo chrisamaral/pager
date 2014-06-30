@@ -18,7 +18,7 @@ define(function () {
                         </a>{this.props.worker.name}
                     </div>
                     <div className='small-3 columns'>
-                        <select className='pointSelector' data-worker={this.props.worker._id}>
+                        <select className='pointSelector' data-collection='points' data-field='startingPoint' data-worker={this.props.worker._id}>
                             {
                                 this.props.options.points.map(function (option, index) {
                                     return <option key={index} value={index}>{option.address}</option>;
@@ -27,7 +27,7 @@ define(function () {
                         </select>
                     </div>
                     <div className='small-3 columns'>
-                        <select className='shiftSelector' data-worker={this.props.worker._id}>
+                        <select className='shiftSelector' data-collection='workShifts' data-field='workShift' data-worker={this.props.worker._id}>
                             {
                                 this.props.options.workShifts.map(function (option, index) {
                                     return <option key={index} value={index}>
@@ -55,17 +55,17 @@ define(function () {
 
                 if (!worker) return true;
 
-                key = $(this).is('.pointSelector') ? 'workShift' : 'startingPoint';
-                option = key === 'workShift' ? 'workShifts' : 'points';
-                val = me.props.options[option][$(this).val()];
+                key = $(this).data('field');
+                option = $(this).data('collection');
+                val = _.cloneDeep(me.props.options[option][$(this).val()]);
 
                 worker[key] = key === 'startingPoint' ? val.location : val;
 
             });
-            debugger;
+
             this.props.submitWorkers(workers);
         },
-        cancel: function () {
+        cancel: function (e) {
             e.preventDefault();
             this.props.submitWorkers(null);
         },
@@ -86,7 +86,7 @@ define(function () {
 
                     <div className='row'>
                         <div className='small-12 columns text-right'>
-                            <button className='alert button'>Cancelar</button>
+                            <button className='alert button' onClick={this.cancel}>Cancelar</button>
                             <button className='success button'>Salvar</button>
                         </div>
                     </div>

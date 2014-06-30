@@ -29,14 +29,14 @@ define(function(){
         },
         render: function(){
             return <div className='panel'>
-                <ul className="clearing-thumbs oksized-thumbs" data-clearing>
+                <ul className="clearing-thumbs small-block-grid-2 medium-block-grid-3 large-block-grid-4" data-clearing>
                     {this.props.pics.map(function(p, index){
                         var pic = p && p.src ? p : {src: p};
-                        return <li className='panel radio' key={index}>
+                        return <li key={index}>
                             <a href={pic.src}>
                                 {pic.descr
-                                    ? <img data-caption={pic.descr} src={pic.src} />
-                                    : <img src={pic.src} />
+                                    ? <img className='th' data-caption={pic.descr} src={pic.src} />
+                                    : <img className='th' src={pic.src} />
                                 }
                             </a>
                         </li>;

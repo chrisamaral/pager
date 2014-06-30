@@ -64,8 +64,7 @@ label>strong{
     border-bottom-style: none;
 }
 .controlContent{
-    max-width: 300px;
-    width: auto;
+    width: 300px;
     box-shadow: 2px 3px 3px rgba(0,0,0,0.3);
 }
 .controlContent>h4, .controlContent>.panel{
@@ -163,18 +162,11 @@ label>strong{
 .important-attr>td:first-child{
     font-weight: bold;
 }
+
 .important-attr>td:last-child{
     font-style: italic;
 }
-.oksized-thumbs{
-    display: flex;
-    align-items: flex-start;
-    /*flex-direction: row;*/
-}
-.oksized-thumbs>li{
-    width: 50px;
-    margin: 2px;
-}
+
 .queryInfoDropDownTable{
     width: 100%;
 }

@@ -29,14 +29,14 @@ define(function(){
         },
         render: function(){
             return React.DOM.div( {className:"panel"}, 
-                React.DOM.ul( {className:"clearing-thumbs oksized-thumbs", 'data-clearing':true}, 
+                React.DOM.ul( {className:"clearing-thumbs small-block-grid-2 medium-block-grid-3 large-block-grid-4", 'data-clearing':true}, 
                     this.props.pics.map(function(p, index){
                         var pic = p && p.src ? p : {src: p};
-                        return React.DOM.li( {className:"panel radio", key:index}, 
+                        return React.DOM.li( {key:index}, 
                             React.DOM.a( {href:pic.src}, 
                                 pic.descr
-                                    ? React.DOM.img( {'data-caption':pic.descr, src:pic.src} )
-                                    : React.DOM.img( {src:pic.src} )
+                                    ? React.DOM.img( {className:"th", 'data-caption':pic.descr, src:pic.src} )
+                                    : React.DOM.img( {className:"th", src:pic.src} )
                                 
                             )
                         );

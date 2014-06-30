@@ -289,8 +289,10 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
     });
 
     RightPanel = React.createClass({displayName: 'RightPanel',
-        componentDidUpdate: function () {
-
+        componentDidMount: function () {
+            $('#ScrollRoot').on('resize', _.throttle(function(){
+                this.forceUpdate();
+            }.bind(this), 100));
         },
         render: function () {
             return React.DOM.main( {id:"RightPanel", style:{width: $('#Console').width() - $('#LeftPanel').width()}}, 

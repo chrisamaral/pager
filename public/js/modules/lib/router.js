@@ -181,19 +181,13 @@ define(['../ext/strftime'], function (strftime) {
 
         require.ensure(deps, function (require) {
 
-            var modal, async = require('../ext/async');
+            var async = require('../ext/async');
 
             BpTspSolver = BpTspSolver || require('../ext/BpTspSolver');
 
-            modal = $('<div class="reveal-modal" data-reveal>')
-                .append('<h2>Painel do Roteador</h2>')
-                .attr('id', 'R-' + router.id)
-                .appendTo('body');
-
-            modal.foundation('reveal');
-            //modal.foundation('reveal', 'open');
-
-            tsp = tsp || new BpTspSolver(pager.console.map, modal[0]);
+            tsp = tsp || new BpTspSolver(pager.console.map, null, function ($this, error) {
+                alert('Ocorreu um erro e o Roteamento foi abortado. Você pode tentar novamente. "' + error + '"');
+            });
 
             async.eachSeries(workers,
                 router.workerRouteOptimizer.bind(router),

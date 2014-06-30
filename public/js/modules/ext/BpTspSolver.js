@@ -69,10 +69,13 @@ define(function () {
 
     var onSolveCallback = function () {
     };
+    
     var onProgressCallback = null;
+
     var originalOnFatalErrorCallback = function (tsp, errMsg) {
         throw "Request failed: " + errMsg;
     };
+
     var onFatalErrorCallback = originalOnFatalErrorCallback;
     var doNotContinue = false;
     var onLoadListener = null;
@@ -771,8 +774,10 @@ define(function () {
         gebDirectionsResult = fakeDirResult;
         gebDirectionsResult.routes = directionsResultRoutes;
 
-        if (onFatalErrorListener)
+        if (onFatalErrorListener) {
             google.maps.event.removeListener(onFatalErrorListener);
+        }
+
         onFatalErrorListener = google.maps.event.addListener(gebDirectionsService, 'error', onFatalErrorCallback);
 
         if (typeof onSolveCallback == 'function') {
