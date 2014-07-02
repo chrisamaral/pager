@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Sao_Paulo');
 chdir(realpath(dirname(__FILE__)));
 $build = file_get_contents('../build.json');
 $l = '../server/build/lazy.cache.load.js';
@@ -56,7 +57,7 @@ $static = str_replace('../public', '', $static);
 
 $manifest = fopen("../public/pager.manifest", 'w');
 fwrite($manifest, "CACHE MANIFEST
-#{$time}
+# BuildTime: ".date('Y-m-d H:i:s', $time)."
 
 NETWORK:
 *

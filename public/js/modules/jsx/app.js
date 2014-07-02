@@ -1,7 +1,6 @@
 /** @jsx React.DOM */
-require.ensure(['../ext/aviator/main'], function(require){
-    var Aviator = require('../ext/aviator/main'),
-        AppRouteTarget,
+require(['../ext/aviator/main'], function(Aviator){
+    var AppRouteTarget,
         AppContainer,
         CachedViews = {},
         Views = {};
