@@ -1,5 +1,5 @@
 CACHE MANIFEST
-#1403304740
+#1404261592
 
 NETWORK:
 *
@@ -33,6 +33,7 @@ CACHE:
 /js/build/lib/console.js
 /js/build/lib/console.queue.js
 /js/build/lib/main.js
+/js/build/lib/console.router.cfg.js
 /js/build/lib/router.js
 /js/build/helpers/utils.js
 /css/foundation-icons/foundation-icons.woff

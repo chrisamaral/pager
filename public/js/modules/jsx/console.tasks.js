@@ -146,14 +146,6 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             }
             menu.foundation();
         },
-        componentDidMount: function () {
-            this.renderDropdown();
-        },
-        componentWillReceiveProps: function (newProps) {
-            if (newProps.task.location && !this.state.hasLocation) {
-                this.renderDropdown(newProps);
-            }
-        },
         componentWillUnmount: function () {
             $('#' + this.state.id + 'Menu').remove();
         },
@@ -167,18 +159,32 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         mapFocusOnMe: function () {
             this.props.setTaskFocus(this.props.task._id);
         },
+        spawnDropDown: function (e) {
+            var menuBt = $(e.currentTarget),
+                hasD = menuBt.attr('data-dropdown');
+            
+            if (hasD) return;
+
+            menuBt.attr('data-dropdown', this.state.id + 'Menu');
+
+            this.renderDropdown();
+            menuBt.foundation().trigger('click');
+        },
         render: function () {
+            
             var AttrTable = pager.components.AttrTable, classes = React.addons.classSet({
                 queryTask: true,
                 selectedTask: this.props.selectedTask === this.props.task._id
             });
+
             return <div className={classes} data-task={this.props.task._id}>
                 <span className='icos'>
                     { this.props.task.location && <a className='radius ico fi-target-two' onClick={this.mapFocusOnMe} title='Selecionar'></a> }
-                    <a className='radius ico fi-list' title='Menu' data-dropdown={this.state.id + 'Menu'}></a>
+                    <a className='radius ico fi-list' ref='menuBt' title='Menu' onClick={this.spawnDropDown}></a>
                 </span>
                 <AttrTable attrs={this.props.task.attrs} />
             </div>;
+
         }
     });
     LookupProgress = React.createClass({
@@ -417,14 +423,16 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             return (
                 <div className='TaskInput panel contained'>
                     <form onSubmit={this.createFilter}>
-                        <div>
-                            <label>Filtrar por
-                                <select name='type' ref='filterType'>
-                                    {_.map(filterName, function(name, key){
-                                        return <option key={key} value={key}>{name}</option>;
-                                    })}
-                                </select>
-                            </label>
+                        <div className='row'>
+                            <div className='large-12 columns'>
+                                <label>Filtrar por
+                                    <select name='type' ref='filterType'>
+                                        {_.map(filterName, function(name, key){
+                                            return <option key={key} value={key}>{name}</option>;
+                                        })}
+                                    </select>
+                                </label>
+                            </div>
                         </div>
                         <div className='row'>
                             <div className='large-12 columns text-right'>

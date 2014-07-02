@@ -27,16 +27,19 @@ define(['../ext/strftime'], function (strftime) {
 
             }.bind(this));
 
-        var promise = this.deferred.promise(), that = this;
-
-        promise.stopRouter = function () {
+        var promise = this.deferred.promise();
+        
+        this.stopRouter = function () {
             console.groupEnd();
             console.log('Stopping Router...');
             dead = true;
         };
+
+        promise.stopRouter = this.stopRouter;
         this.amIDead = function () {
             return dead;
         };
+
         return promise;
 
     }
@@ -61,9 +64,9 @@ define(['../ext/strftime'], function (strftime) {
         // The first point added is the starting location.
         // The last point added is the final destination (in the case of A - Z mode)
         console.group(worker.name);
-        tsp.addWaypoint(new google.maps.LatLng(worker.startingPoint.lat, worker.startingPoint.lng),
+        tsp.addWaypoint(new google.maps.LatLng(worker.startPoint.lat, worker.startPoint.lng),
             function () {
-                console.log('startingPoint', worker.startingPoint);
+                console.log('startPoint', worker.startPoint);
             });
 
         _.forEach(worker.tasks, function (task) {
@@ -85,7 +88,7 @@ define(['../ext/strftime'], function (strftime) {
                 order = tsp.getOrder(),
                 durations = tsp.getDurations(),
                 temp = worker.tasks.concat(),
-                skipFirst = !!worker.startingPoint,
+                skipFirst = !!worker.startPoint,
                 skipLast = !(!worker.endPoint && worker.endPoint === null),
                 aux,
                 sumTime = 0,
@@ -185,8 +188,11 @@ define(['../ext/strftime'], function (strftime) {
 
             BpTspSolver = BpTspSolver || require('../ext/BpTspSolver');
 
-            tsp = tsp || new BpTspSolver(pager.console.map, null, function ($this, error) {
-                alert('Ocorreu um erro e o Roteamento foi abortado. Você pode tentar novamente. "' + error + '"');
+            tsp = tsp || new BpTspSolver(pager.console.map, null, function () {
+                alert('Ops... Ocorreu um erro e o Roteamento foi abortado.');
+                console.log(arguments);
+                router.stopRouter();
+                router.deferred.reject();
             });
 
             async.eachSeries(workers,

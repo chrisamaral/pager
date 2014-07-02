@@ -9,16 +9,19 @@ define(function () {
     */
 
     WorkerCfg = React.createClass({displayName: 'WorkerCfg',
+        killMe: function () {
+            this.props.removeUser(this.props.index);
+        },
         render: function () {
             return (
                 React.DOM.div( {className:"row"}, 
                     React.DOM.div( {className:"small-6 columns"}, 
-                        React.DOM.a( {title:"Descartar", className:"wCfgX"}, 
+                        React.DOM.a( {title:"Descartar", className:"wCfgX", onClick:this.killMe}, 
                             React.DOM.i( {className:"fi-x"})
                         ),this.props.worker.name
                     ),
                     React.DOM.div( {className:"small-3 columns"}, 
-                        React.DOM.select( {className:"pointSelector", 'data-collection':"points", 'data-field':"startingPoint", 'data-worker':this.props.worker._id}, 
+                        React.DOM.select( {className:"pointSelector", 'data-collection':"points", 'data-field':"startPoint", 'data-worker':this.props.worker._id}, 
                             
                                 this.props.options.points.map(function (option, index) {
                                     return React.DOM.option( {key:index, value:index}, option.address);
@@ -59,7 +62,7 @@ define(function () {
                 option = $(this).data('collection');
                 val = _.cloneDeep(me.props.options[option][$(this).val()]);
 
-                worker[key] = key === 'startingPoint' ? val.location : val;
+                worker[key] = key === 'startPoint' ? val.location : val;
 
             });
 
@@ -69,6 +72,7 @@ define(function () {
             e.preventDefault();
             this.props.submitWorkers(null);
         },
+        
         render: function () {
             return React.DOM.form( {onSubmit:this.handleSubmit}, 
                 React.DOM.div( {className:"cfgForm"}, 
@@ -79,15 +83,15 @@ define(function () {
                     ),
 
                     React.DOM.div( {className:"workersCfg"}, 
-                        this.props.workers.map(function (worker) {
-                            return WorkerCfg( {worker:worker, key:worker._id, options:this.props.options} );
+                        this.props.workers.map(function (worker, index) {
+                            return WorkerCfg( {index:index, worker:worker, removeUser:this.props.removeUser, key:worker._id, options:this.props.options} );
                         }.bind(this))
                     ),
 
                     React.DOM.div( {className:"row"}, 
                         React.DOM.div( {className:"small-12 columns text-right"}, 
-                            React.DOM.button( {className:"alert button", onClick:this.cancel}, "Cancelar"),
-                            React.DOM.button( {className:"success button"}, "Salvar")
+                            React.DOM.button( {className:"small alert button", onClick:this.cancel}, "Cancelar"),
+                            React.DOM.button( {className:"small success button"}, "Salvar")
                         )
                     )
                 )
@@ -97,7 +101,7 @@ define(function () {
 
     RouterCfg = React.createClass({displayName: 'RouterCfg',
         getInitialState: function () {
-            return {options: null};
+            return {options: null, workers: this.props.workers};
         },
         componentDidMount: function () {
             $.get(pager.urls.ajax + 'console/routerConfigOptions')
@@ -109,11 +113,18 @@ define(function () {
         componentDidUpdate: function () {
             //$('#ScrollRoot').trigger('resize');
         },
-
+        killUserAt: function (index) {
+            
+            var w = this.state.workers;
+            w.splice(index, 1);
+            this.setState({workers: w}, function () {
+                $('#ScrollRoot').trigger('resize');
+            });
+        },
         render: function () {
             return (React.DOM.div(null, 
                 this.state.options
-                    ? CfgForm( {options:this.state.options, workers:this.props.workers, submitWorkers:this.props.onSet} )
+                    ? CfgForm( {options:this.state.options, removeUser:this.killUserAt, workers:this.state.workers, submitWorkers:this.props.onSet} )
                     : React.DOM.p(null, React.DOM.i(null, "Carregando Opções..."))
                 
             ));

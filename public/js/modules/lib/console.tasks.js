@@ -146,14 +146,6 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             }
             menu.foundation();
         },
-        componentDidMount: function () {
-            this.renderDropdown();
-        },
-        componentWillReceiveProps: function (newProps) {
-            if (newProps.task.location && !this.state.hasLocation) {
-                this.renderDropdown(newProps);
-            }
-        },
         componentWillUnmount: function () {
             $('#' + this.state.id + 'Menu').remove();
         },
@@ -167,18 +159,32 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
         mapFocusOnMe: function () {
             this.props.setTaskFocus(this.props.task._id);
         },
+        spawnDropDown: function (e) {
+            var menuBt = $(e.currentTarget),
+                hasD = menuBt.attr('data-dropdown');
+            
+            if (hasD) return;
+
+            menuBt.attr('data-dropdown', this.state.id + 'Menu');
+
+            this.renderDropdown();
+            menuBt.foundation().trigger('click');
+        },
         render: function () {
+            
             var AttrTable = pager.components.AttrTable, classes = React.addons.classSet({
                 queryTask: true,
                 selectedTask: this.props.selectedTask === this.props.task._id
             });
+
             return React.DOM.div( {className:classes, 'data-task':this.props.task._id}, 
                 React.DOM.span( {className:"icos"}, 
                      this.props.task.location && React.DOM.a( {className:"radius ico fi-target-two", onClick:this.mapFocusOnMe, title:"Selecionar"}), 
-                    React.DOM.a( {className:"radius ico fi-list", title:"Menu", 'data-dropdown':this.state.id + 'Menu'})
+                    React.DOM.a( {className:"radius ico fi-list", ref:"menuBt", title:"Menu", onClick:this.spawnDropDown})
                 ),
                 AttrTable( {attrs:this.props.task.attrs} )
             );
+
         }
     });
     LookupProgress = React.createClass({displayName: 'LookupProgress',
@@ -417,12 +423,14 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             return (
                 React.DOM.div( {className:"TaskInput panel contained"}, 
                     React.DOM.form( {onSubmit:this.createFilter}, 
-                        React.DOM.div(null, 
-                            React.DOM.label(null, "Filtrar por",
-                                React.DOM.select( {name:"type", ref:"filterType"}, 
-                                    _.map(filterName, function(name, key){
-                                        return React.DOM.option( {key:key, value:key}, name);
-                                    })
+                        React.DOM.div( {className:"row"}, 
+                            React.DOM.div( {className:"large-12 columns"}, 
+                                React.DOM.label(null, "Filtrar por",
+                                    React.DOM.select( {name:"type", ref:"filterType"}, 
+                                        _.map(filterName, function(name, key){
+                                            return React.DOM.option( {key:key, value:key}, name);
+                                        })
+                                    )
                                 )
                             )
                         ),

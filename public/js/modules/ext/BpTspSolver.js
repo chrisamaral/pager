@@ -24,8 +24,8 @@ define(function () {
     var gebDirectionsService;
     var gebGeocoder;      // The geocoder for addresses
     var maxTspSize = 100;  // A limit on the size of the problem, mostly to save Google servers from undue load.
-    var maxTspBF = 0;     // Max size for brute force, may seem conservative, but ma
-    var maxTspDynamic = 15;     // Max size for brute force, may seem conservative, but many browsers have limitations on run-time.
+    var maxTspBF = 3;     // Max size for brute force, may seem conservative,
+    var maxTspDynamic = 15;     // but many browsers have limitations on run-time.
     var maxSize = 10;     // Max number of waypoints in one Google driving directions request.
     var maxTripSentry = 2000000000; // Approx. 63 years., this long a route should not be reached...
     var avoidHighways = false; // Whether to avoid highways. False by default.
@@ -655,7 +655,7 @@ define(function () {
                     travelMode: travelMode },
                 function (directionsResult, directionsStatus) {
                     if (directionsStatus == google.maps.DirectionsStatus.OK) {
-                        requestLimitWait = 1000;
+                        requestLimitWait = 1100;
                         //alert("Request completed!");
                         // Save legs, distances and durations
                         fakeDirResult = directionsResult;
@@ -678,6 +678,7 @@ define(function () {
                     } else {
                         var errorMsg = DIR_STATUS_MSG[directionsStatus];
                         var doNotContinue = true;
+                        onFatalErrorCallback(errorMsg);
                         throw "Request failed: " + errorMsg;
                     }
                 });
@@ -1134,11 +1135,10 @@ define(function () {
         if (!this.isReady()) {
             setTimeout(function () {
                 tsp.solveRoundTrip(callback)
-            }, 20);
+            }, 1100);
             return;
         }
-        if (typeof callback == 'function')
-            onSolveCallback = callback;
+        if (typeof callback == 'function') onSolveCallback = callback;
 
         directions(0);
     };
@@ -1151,12 +1151,11 @@ define(function () {
         if (!this.isReady()) {
             setTimeout(function () {
                 tsp.solveAtoZ(callback)
-            }, 20);
+            }, 1100);
             return;
         }
 
-        if (typeof callback == 'function')
-            onSolveCallback = callback;
+        if (typeof callback == 'function') onSolveCallback = callback;
 
         directions(1);
     };

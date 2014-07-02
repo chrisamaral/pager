@@ -3,12 +3,6 @@
 define(function () {
     var Map,
         AttrTable;
-    /*
-    scrollStates:
-        noScroll
-        anyScroll
-        bigScroll
-     */
 
     function zeroInfoWindows(infoWindows) {
         _.forEach(infoWindows, function (i) { i.close(); });
@@ -18,7 +12,7 @@ define(function () {
     }
 
     Map = React.createClass({displayName: 'Map',
-        getInitialState: function(){ return {markers: [], infoW: {}, scrollState: 'noScroll'}; },
+        getInitialState: function(){ return {markers: [], infoW: {}}; },
 
         massTaskMarker: function (tasks) {
 
@@ -266,27 +260,36 @@ define(function () {
                     }
                 },
                 mapComponent = this,
-                weirdLockOn = false,
 
                 actualHandler = function (e) {
                     if (!mapComponent.isMounted()) return unBind();
-                    if (weirdLockOn) return;
 
-                    var currentState = 'noScroll', target;
+                    var target, winHeight, s, offset;
                     
                     if (e && e.currentTarget) {
                         target = e.currentTarget;
                     } else {
-                        target = document.getElementById('ScrollRoot')
+                        target = document.getElementById('ScrollRoot');
+                    }
+                    
+                    winHeight = $(window).height();
+                    offset = Math.max(0, $('#Console').position().top - target.scrollTop);
+
+                    s = {
+                        top: target.scrollTop
+                            ? offset
+                            : $('#Console').position().top,
+                        width: '',
+                        height: target.scrollTop
+                            ? winHeight - offset
+                            : mapComponent.props.height
+                    };
+
+                    if (target.scrollHeight > document.body.scrollHeight) {
+                        s.width = $('#ScrollRoot>.inner-wrap').width();
                     }
 
-                    if (target.scrollHeight > document.body.scrollHeight) currentState = 'anyScroll';
-                    if (target.scrollTop > $('#Console').position().top) currentState = 'bigScroll';
-
-                    if (mapComponent.state.scrollState !== currentState) {
-                        weirdLockOn = true;
-                        mapComponent.setState({scrollState: currentState}, function() {weirdLockOn = false;});
-                    }
+                    $(mapComponent.getDOMNode()).css(s);
                 },
 
                 scrollHandler = _.throttle(actualHandler, 100);
@@ -297,6 +300,7 @@ define(function () {
                 $('#ScrollRoot').off('scroll resize', scrollHandler);
             }
 
+            actualHandler();
             pager.console = pager.console || {};
             pager.console.map = new google.maps.Map(this.refs.mapContainer.getDOMNode(), mapOptions);
 
@@ -304,7 +308,7 @@ define(function () {
                 this.updateMapView();
             }.bind(this), 1000);
 
-            actualHandler();
+            
         },
 
         componentWillReceiveProps: function (newProps) {
@@ -312,19 +316,7 @@ define(function () {
         },
 
         render: function () {
-            var s = {
-                top: this.state.scrollState === 'bigScroll' ? 0 : $('#Console').position().top,
-                width: '',
-                height: this.state.scrollState === 'bigScroll'
-                    ? $(window).height()
-                    : this.props.height
-            };
-
-            if (this.state.scrollState !== 'noScroll') {
-                s.width = $('#ScrollRoot>.inner-wrap').width();
-            }
-
-            return React.DOM.div( {id:"ConsoleMainMap", style:s}, 
+            return React.DOM.div( {id:"ConsoleMainMap"}, 
                 React.DOM.div( {ref:"mapContainer"})
             );
         }

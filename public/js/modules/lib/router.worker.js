@@ -289,7 +289,7 @@
             currentWorker.tasks = [];
             currentWorker.color = 'rgb(' + rndClr() + ', ' + rndClr() + ', ' + rndClr() + ')';
 
-            currentWorker.startingPoint = currentWorker.startingPoint || center;
+            currentWorker.startPoint = currentWorker.startPoint || center;
 
 
             if (!currentWorker.workShift) {
@@ -478,7 +478,7 @@
 
                     worker.distance = getDistanceFromLatLonInKm(
                         task.location.lat, task.location.lng,
-                        theWorker.startingPoint.lat, theWorker.startingPoint.lng
+                        theWorker.startPoint.lat, theWorker.startPoint.lng
                     );
 
                     if (worker.distance > MAX_FIRST_HOP_DISTANCE) {
@@ -627,7 +627,7 @@
 
     function makeClusters () {
 
-        function findStartingPoint () {
+        function findstartPoint () {
             var min = _.min(tasks, function (task) {
                 if (task.cluster && task.cluster.tasks.length > 3 || !task.minDistance) {
                     return undefined;
@@ -642,7 +642,7 @@
         do {
 
             recalcDistances();
-            hasBestMatch = findStartingPoint();
+            hasBestMatch = findstartPoint();
 
             if (!hasBestMatch) continue;
 
@@ -696,7 +696,7 @@
             data: _.uniq(
                 _.flatten(
                     _.map(tasks,
-                        function(t){
+                        function (t) {
                             return t.types;
                         }
                     )

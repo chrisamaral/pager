@@ -321,3 +321,87 @@ app.express.get('/:org/api/console/routerConfigOptions', app.authorized.can('ent
         ]
     });
 });
+
+function autoDate (val) {
+    if (!_.isString(val)) return val;
+    if (!val.match(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/)) return val;
+    return new Date(val);
+}
+
+function datefy(x){
+    if (!_.isPlainObject(x) && !_.isArray(x)) return autoDate(x);
+    
+    _.forEach(x, function(elem, index){
+        x[index] = datefy(elem);
+    });
+
+    return x;
+}
+
+function saveSchedule (worker, callback) {
+    
+    this.collection.find({worker: worker.worker, day: this.day}).count(function (err, c) {
+        
+        if (err) return callback(err);
+        if (c > 0) return callback();
+        
+        worker = datefy(worker);
+        worker.day = this.day;
+        worker.org = this.org;
+
+        this.collection.insert(worker, function (err, info) {
+            
+            if (err) return callback(err);
+
+            callback();
+
+        });
+    }.bind(this));
+}
+
+app.express.post('/:org/api/console/schedules/:day', app.authorized.can('enter app'), function (req, res) {
+    
+    var schedules = JSON.parse(req.body.schedules);
+    
+    if (!_.isArray(schedules) || !schedules.length) return res.send(204);
+
+    app.mongo.collection('schedule',
+        function (err, scheduleCollection) {
+
+            if (err) return res.send(500);
+
+            async.each(schedules,
+                
+                saveSchedule.bind({
+                    collection: scheduleCollection, 
+                    day: req.params.day, 
+                    org: req.params.org
+                }),
+
+                function (err) {
+
+                    if (err) return res.send(500);
+
+                    res.send(204);
+                }
+            );
+
+        }
+    );
+});
+
+app.express.get('/:org/api/console/schedules/:day', app.authorized.can('enter app'), function (req, res) {
+    app.mongo.collection('schedule',
+        function (err, scheduleCollection) {
+
+            if (err) return res.send(500);
+
+            scheduleCollection
+                .find({day: req.params.day, org: req.params.org})
+                .toArray(function (err, schedules) {
+                    if (err) return res.send(500);
+                    res.json(schedules);
+                });
+        }
+    );
+});

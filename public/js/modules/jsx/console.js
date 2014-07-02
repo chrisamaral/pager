@@ -194,11 +194,13 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         getInitialState: function () {
             return {
                 messages: [],
-                workers: []
+                workers: [],
+                day: this.props.router._day
             };
         },
 
         componentDidMount: function() {
+
             this.props.router.progress(function (type, data) {
                 if (!this.isMounted()) return;
 
@@ -216,18 +218,24 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                 this.setState({workers: workers});
             }.bind(this));
 
+            this.props.router.fail(function () {
+                if (!this.isMounted()) return;
+
+                this.props.cancelRoute();
+            }.bind(this));
+
         },
         cancel: function () {
-            this.state.workers.forEach(function(worker){
+            this.state.workers.forEach(function (worker) {
                 worker.cleanDirections();
             });
             this.props.cancelRoute();
         },
         save: function () {
-            this.state.workers.forEach(function(worker){
+            this.state.workers.forEach(function (worker) {
                 worker.cleanDirections();
             });
-            this.props.saveRoute(this.state.workers);
+            this.props.saveRoute(this.state.workers, this.state.day);
         },
         render: function () {
             return <div id='Router' className='leftMapControl'>
@@ -424,8 +432,49 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
             this.props.lib.put();
         },
 
-        saveRoute: function (workers) {
-            console.log(workers);
+        saveRoute: function (workers, day) {
+            
+            function mountTask (task) {
+                
+                var new_t = {
+                    address: task.address,
+                    location: task.location,
+                    directions: task.directions,
+                    duration: task.duration,
+                    schedule: task.schedule
+                };
+
+                task.ref && task.target && (new_t[task.ref] = task.target);
+                
+                new_t.tasks = _.map(task.tasks, function (t) {
+                    return {
+                        task: t._id,
+                        attrs: t.attrs,
+                        type: t.type
+                    };
+                });
+
+                return new_t;
+            }
+
+            function mountWorker (worker) {
+                            
+                var new_w = {
+                        worker: worker._id,
+                        name: worker.name,
+                        workShift: worker.workShift,
+                        tasks: _.map(worker.tasks, mountTask)
+                    };
+
+                worker.startPoint && (new_w.startPoint = worker.startPoint);
+                worker.endPoint && (new_w.endPoint = worker.endPoint);
+
+                return new_w;
+            }
+
+            var ws = _.map(workers, mountWorker);
+            $.post(pager.urls.ajax + 'console/schedules/' + day, {schedules: JSON.stringify(ws)});
+
             this.killRoute();
         },
 
@@ -583,6 +632,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
                 if (workers && workers.length) {
                     me.router = new Router(day, tasks, workers);
+                    me.router._day = day;
                 }
 
                 me.put();
