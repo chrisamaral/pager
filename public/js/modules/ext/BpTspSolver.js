@@ -24,7 +24,7 @@ define(function () {
     var gebDirectionsService;
     var gebGeocoder;      // The geocoder for addresses
     var maxTspSize = 100;  // A limit on the size of the problem, mostly to save Google servers from undue load.
-    var maxTspBF = 3;     // Max size for brute force, may seem conservative,
+    var maxTspBF = 1; // Max size for brute force, may seem conservative,
     var maxTspDynamic = 15;     // but many browsers have limitations on run-time.
     var maxSize = 10;     // Max number of waypoints in one Google driving directions request.
     var maxTripSentry = 2000000000; // Approx. 63 years., this long a route should not be reached...

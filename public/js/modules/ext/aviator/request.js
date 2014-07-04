@@ -1,19 +1,19 @@
-define(['./helpers'], function(helpers){
+define(['./helpers'], function(helpers) {
     var each = helpers.each,
         merge = helpers.merge,
         isArray = helpers.isArray;
 
     /**
-     @class Request
-     @constructor
-     **/
-    var Request = function (options) {
-        this.namedParams  = {};
-        this.queryParams  = {};
-        this.params       = {};
+@class Request
+@constructor
+**/
+    var Request = function(options) {
+        this.namedParams = {};
+        this.queryParams = {};
+        this.params = {};
 
-        this.uri          = options.uri;
-        this.queryString  = options.queryString;
+        this.uri = options.uri;
+        this.queryString = options.queryString;
         this.matchedRoute = options.matchedRoute;
 
         this._extractNamedParamsFromURI();
@@ -23,21 +23,21 @@ define(['./helpers'], function(helpers){
 
     Request.prototype = {
         /**
-         @method _extractNamedParamsFromURI
-         @private
-         **/
-        _extractNamedParamsFromURI: function () {
+  @method _extractNamedParamsFromURI
+  @private
+  **/
+        _extractNamedParamsFromURI: function() {
             var uriParts = this.uri.split('/'),
                 routeParts = this.matchedRoute.split('/'),
                 params = {};
 
-            each(routeParts, function (part, i) {
+            each(routeParts, function(part, i) {
                 var key;
 
                 if (part.indexOf(':') === 0) {
                     key = part.replace(':', '');
 
-                    params[key] = decodeURIComponent( uriParts[i] );
+                    params[key] = decodeURIComponent(uriParts[i]);
                 }
             });
 
@@ -45,60 +45,58 @@ define(['./helpers'], function(helpers){
         },
 
         /**
-         Splits the query string by '&'. Splits each part by '='.
-         Passes the key and value for each part to _applyQueryParam
+  Splits the query string by '&'. Splits each part by '='.
+  Passes the key and value for each part to _applyQueryParam
 
-         @method _extractQueryParamsFromQueryString
-         @private
-         **/
-        _extractQueryParamsFromQueryString: function () {
+  @method _extractQueryParamsFromQueryString
+  @private
+  **/
+        _extractQueryParamsFromQueryString: function() {
             var parts;
 
             if (!this.queryString) return;
 
-            parts = this.queryString.replace('?','').split('&');
+            parts = this.queryString.replace('?', '').split('&');
 
-            each(parts, function (part) {
-                var key = decodeURIComponent( part.split('=')[0] ),
-                    val = decodeURIComponent( part.split('=')[1] );
+            each(parts, function(part) {
+                var key = decodeURIComponent(part.split('=')[0]),
+                    val = decodeURIComponent(part.split('=')[1]);
 
-                if ( part.indexOf( '=' ) === -1 ) return;
-                this._applyQueryParam( key, val );
+                if (part.indexOf('=') === -1) return;
+                this._applyQueryParam(key, val);
 
             }, this);
 
         },
 
         /**
-         Update the queryParams property with a new key and value.
-         Values for keys with the [] notation are put into arrays
-         or pushed into an existing array for that key.
+  Update the queryParams property with a new key and value.
+  Values for keys with the [] notation are put into arrays
+  or pushed into an existing array for that key.
 
-         @method _applyQueryParam
-         @param {String} key
-         @param {String} val
-         **/
-        _applyQueryParam: function (key, val) {
-            if ( key.indexOf( '[]' ) !== -1 ) {
-                key = key.replace( '[]', '' );
+  @method _applyQueryParam
+  @param {String} key
+  @param {String} val
+  **/
+        _applyQueryParam: function(key, val) {
+            if (key.indexOf('[]') !== -1) {
+                key = key.replace('[]', '');
 
                 if (isArray(this.queryParams[key])) {
                     this.queryParams[key].push(val);
-                }
-                else {
+                } else {
                     this.queryParams[key] = [val];
                 }
-            }
-            else {
+            } else {
                 this.queryParams[key] = val;
             }
         },
 
         /**
-         @method _mergeParams
-         @private
-         **/
-        _mergeParams: function () {
+  @method _mergeParams
+  @private
+  **/
+        _mergeParams: function() {
             this.params = merge(this.namedParams, this.queryParams);
         }
     };

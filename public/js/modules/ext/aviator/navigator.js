@@ -1,28 +1,29 @@
 define(['./helpers', './request', './route'], function(helpers, Request, Route) {
+
     // helpers
-    var each      = helpers.each,
-        addEvent  = helpers.addEvent,
-        isArray   = helpers.isArray;
+    var each = helpers.each,
+        addEvent = helpers.addEvent,
+        isArray = helpers.isArray;
 
     /**
-     @class Navigator
-     @constructor
-     @private
-     **/
-    var Navigator = function () {
-        this._routes  = null;
-        this._exits   = [];
-        this._silent  = false;
+@class Navigator
+@constructor
+@private
+**/
+    var Navigator = function() {
+        this._routes = null;
+        this._exits = [];
+        this._silent = false;
         this._dispatchingStarted = false;
     };
 
     Navigator.prototype = {
 
         /**
-         @method setup
-         @param {Object} options
-         **/
-        setup: function (options) {
+  @method setup
+  @param {Object} options
+  **/
+        setup: function(options) {
             options = options || {};
 
             for (var k in options) {
@@ -35,30 +36,30 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method setRoutes
-         @param {Object} routes a configuration of routes and targets
-         **/
-        setRoutes: function (routes) {
+  @method setRoutes
+  @param {Object} routes a configuration of routes and targets
+  **/
+        setRoutes: function(routes) {
             this._routes = routes;
         },
 
         /**
-         @method createRouteForURI
-         @param {String} uri
-         @return {Request}
-         **/
-        createRouteForURI: function (uri) {
+  @method createRouteForURI
+  @param {String} uri
+  @return {Request}
+  **/
+        createRouteForURI: function(uri) {
             return new Route(this._routes, uri);
         },
 
         /**
-         @method createRequest
-         @param {String} uri
-         @param {String|Null} queryString
-         @param {String} matchedRoute
-         @return {Request}
-         **/
-        createRequest: function (uri, queryString, matchedRoute) {
+  @method createRequest
+  @param {String} uri
+  @param {String|Null} queryString
+  @param {String} matchedRoute
+  @return {Request}
+  **/
+        createRequest: function(uri, queryString, matchedRoute) {
             this._request = new Request({
                 uri: uri,
                 queryString: queryString,
@@ -69,69 +70,65 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method getCurrentRequest
-         @return {Request}
-         **/
-        getCurrentRequest: function () {
+  @method getCurrentRequest
+  @return {Request}
+  **/
+        getCurrentRequest: function() {
             return this._request;
         },
 
         /**
-         @method getCurrentPathname
-         @return {String}
-         **/
-        getCurrentPathname: function () {
+  @method getCurrentPathname
+  @return {String}
+  **/
+        getCurrentPathname: function() {
             if (this.pushStateEnabled) {
                 return this._removeURIRoot(location.pathname);
-            }
-            else {
+            } else {
                 return location.hash.replace('#', '').split('?')[0];
             }
         },
 
         /**
-         @method getCurrentURI
-         @return {String}
-         **/
-        getCurrentURI: function () {
+  @method getCurrentURI
+  @return {String}
+  **/
+        getCurrentURI: function() {
             if (this.pushStateEnabled) {
                 return this._removeURIRoot(location.pathname) + location.search;
-            }
-            else {
+            } else {
                 return location.hash.replace('#', '');
             }
         },
 
         /**
-         @method getQueryString
-         @return {String|Null}
-         **/
-        getQueryString: function () {
+  @method getQueryString
+  @return {String|Null}
+  **/
+        getQueryString: function() {
             var uri, queryString;
 
             if (this.pushStateEnabled) {
                 return location.search || null;
-            }
-            else {
+            } else {
                 queryString = this.getCurrentURI().split('?')[1];
 
                 if (queryString) {
                     return '?' + queryString;
-                }
-                else {
+                } else {
                     return null;
                 }
             }
         },
 
         /**
-         @method dispatch
-         **/
-        dispatch: function () {
-            var uri         = this.getCurrentPathname(),
-                route       = this.createRouteForURI(uri),
+  @method dispatch
+  **/
+        dispatch: function() {
+            var uri = this.getCurrentPathname(),
+                route = this.createRouteForURI(uri),
                 queryString = this.getQueryString(),
-                request     = this.createRequest(uri, queryString, route.matchedRoute);
+                request = this.createRequest(uri, queryString, route.matchedRoute);
 
             this._invokeExits(request);
 
@@ -148,9 +145,9 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method onURIChange
-         **/
-        onURIChange: function () {
+  @method onURIChange
+  **/
+        onURIChange: function() {
             if (!this._silent) {
                 this.dispatch();
             }
@@ -159,10 +156,10 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method onPopState
-         @param {Event}
-         **/
-        onPopState: function (ev) {
+  @method onPopState
+  @param {Event}
+  **/
+        onPopState: function(ev) {
             // Some browsers fire 'popstate' on the initial page load with a null state
             // object. We always want manual control over the initial page dispatch, so
             // prevent any popStates from changing the url until we have started
@@ -173,10 +170,10 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method onClick
-         @param {Event} ev
-         **/
-        onClick: function (ev) {
+  @method onClick
+  @param {Event} ev
+  **/
+        onClick: function(ev) {
             var target = ev.target,
                 matchesSelector = this._matchesSelector(target),
                 pathname,
@@ -201,7 +198,7 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
 
             // Some browsers drop the leading slash
             // from an `a` tag's href location.
-            if ( pathname.charAt(0) !== '/' ) pathname = '/' + pathname;
+            if (pathname.charAt(0) !== '/') pathname = '/' + pathname;
 
             uri = pathname.replace(this.root, '');
 
@@ -209,15 +206,20 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method navigate
-         @param {String} uri
-         @param {Object} [options]
-         **/
-        navigate: function (uri, options) {
+  @method navigate
+  @param {String} uri
+  @param {Object} [options]
+  **/
+        navigate: function(uri, options) {
             options = options || {};
 
-            var namedParams = options.namedParams,
-                queryParams = options.queryParams;
+            var request = this.getCurrentRequest();
+            var namedParams = options.namedParams;
+            var queryParams = options.queryParams;
+
+            if (!namedParams && request) {
+                namedParams = request.namedParams;
+            }
 
             // halt any previous action invocations
             this._actions = [];
@@ -245,37 +247,34 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
 
                 if (options.replace) {
                     history.replaceState('navigate', '', uri);
-                }
-                else {
+                } else {
                     history.pushState('navigate', '', uri);
                 }
 
                 this.onURIChange();
-            }
-            else {
+            } else {
                 if (options.replace) location.replace('#' + uri);
                 else location.hash = uri;
             }
         },
 
         /**
-         @method refresh
-         **/
-        refresh: function () {
+  @method refresh
+  **/
+        refresh: function() {
             this.dispatch();
         },
 
         /**
-         @method _attachEvents
-         @protected
-         **/
-        _attachEvents: function () {
+  @method _attachEvents
+  @protected
+  **/
+        _attachEvents: function() {
             var pushStateEnabled = this.pushStateEnabled;
 
             if (pushStateEnabled) {
                 addEvent(window, 'popstate', this.onPopState, this);
-            }
-            else {
+            } else {
                 addEvent(window, 'hashchange', this.onURIChange, this);
             }
 
@@ -283,17 +282,17 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method _matchesSelector
-         @param {DOMNode} node
-         @protected
-         **/
-        _matchesSelector: function (node) {
+  @method _matchesSelector
+  @param {DOMNode} node
+  @protected
+  **/
+        _matchesSelector: function(node) {
             var nodeList = document.querySelectorAll(this.linkSelector),
                 contains = false,
                 i;
 
-            for ( i = 0; i < nodeList.length; i++ ) {
-                if (!contains) contains = ( node === nodeList[i] );
+            for (i = 0; i < nodeList.length; i++) {
+                if (!contains) contains = (node === nodeList[i]);
                 else break;
             }
 
@@ -301,16 +300,16 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         pop of any exits function and invoke them
+  pop of any exits function and invoke them
 
-         @method _invokeExits
-         @param {Request} request
-         @protected
-         **/
-        _invokeExits: function (request) {
+  @method _invokeExits
+  @param {Request} request
+  @protected
+  **/
+        _invokeExits: function(request) {
             var exit, target, method;
 
-            while(this._exits.length) {
+            while (this._exits.length) {
                 exit = this._exits.pop();
                 target = exit.target;
                 method = exit.method;
@@ -324,14 +323,14 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         invoke all actions with request and options
+  invoke all actions with request and options
 
-         @method _invokeActions
-         @param {Request} request
-         @param {Object} options
-         @protected
-         **/
-        _invokeActions: function (request, options) {
+  @method _invokeActions
+  @param {Request} request
+  @param {Object} options
+  @protected
+  **/
+        _invokeActions: function(request, options) {
             var action, target, method;
 
             while (this._actions.length) {
@@ -348,22 +347,22 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
         },
 
         /**
-         @method _removeURIRoot
-         @param {String} uri '/partners/s/foo-bar'
-         @return {String} uri '/s/foo-bar'
-         **/
-        _removeURIRoot: function (uri) {
+  @method _removeURIRoot
+  @param {String} uri '/partners/s/foo-bar'
+  @return {String} uri '/s/foo-bar'
+  **/
+        _removeURIRoot: function(uri) {
             var rootRegex = new RegExp('^' + this.root);
 
             return uri.replace(rootRegex, '');
         },
 
         /**
-         @method serializeQueryParams
-         @param {Object} queryParams
-         @return {String} queryString "?foo=bar&baz[]=boo&baz=[]oob"
-         **/
-        serializeQueryParams: function (queryParams) {
+  @method serializeQueryParams
+  @param {Object} queryParams
+  @return {String} queryString "?foo=bar&baz[]=boo&baz=[]oob"
+  **/
+        serializeQueryParams: function(queryParams) {
             var queryString = [],
                 val;
 
@@ -372,11 +371,10 @@ define(['./helpers', './request', './route'], function(helpers, Request, Route) 
                     val = queryParams[key];
 
                     if (isArray(val)) {
-                        each(val, function (item) {
+                        each(val, function(item) {
                             queryString.push(encodeURIComponent(key) + '[]=' + encodeURIComponent(item));
                         });
-                    }
-                    else {
+                    } else {
                         queryString.push(encodeURIComponent(key) + '=' + encodeURIComponent(val));
                     }
                 }

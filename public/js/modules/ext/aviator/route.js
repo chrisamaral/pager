@@ -1,23 +1,23 @@
-define(['./helpers'], function(helpers){
+define(['./helpers'], function(helpers) {
     var merge = helpers.merge,
         isString = helpers.isString,
         isPlainObject = helpers.isPlainObject;
 
     /**
-     Contains the properties for a route
-     After attempting to match a uri to the Routes map
+    Contains the properties for a route
+    After attempting to match a uri to the Routes map
 
-     @class Route
-     @constructor
-     @private
-     **/
-    var Route = function (routes, uri) {
-        this.uri          = uri;
+    @class Route
+    @constructor
+    @private
+    **/
+    var Route = function(routes, uri) {
+        this.uri = uri;
         this.matchedRoute = '';
-        this.targets      = [];
-        this.actions      = [];
-        this.exits        = [];
-        this.options      = {};
+        this.targets = [];
+        this.actions = [];
+        this.exits = [];
+        this.options = {};
 
         this.match(routes);
 
@@ -27,13 +27,13 @@ define(['./helpers'], function(helpers){
     Route.prototype = {
 
         /**
-         Matches the uri from the routes map.
+          Matches the uri from the routes map.
 
-         @method match
-         @param {String} routeLevel
-         @return {Object}
-         **/
-        match: function (routeLevel) {
+          @method match
+          @param {String} routeLevel
+          @return {Object}
+        **/
+        match: function(routeLevel) {
             var value, action, target;
 
             if (routeLevel.target) {
@@ -64,8 +64,7 @@ define(['./helpers'], function(helpers){
                             if (!this.isNamedParam(key) || !action.method) {
                                 if (isString(value)) {
                                     action.method = value;
-                                }
-                                else {
+                                } else {
                                     action.method = value.method;
 
                                     if (value.exit) {
@@ -83,8 +82,7 @@ define(['./helpers'], function(helpers){
                                 // Adding the action
                                 this.actions.push(action);
                             }
-                        }
-                        else if (value.hasOwnProperty('options')) {
+                        } else if (value.hasOwnProperty('options')) {
                             this.mergeOptions(value.options);
                         }
 
@@ -98,50 +96,48 @@ define(['./helpers'], function(helpers){
         },
 
         /**
-         @method mergeOptions
-         @param {Object} options
-         **/
-        mergeOptions: function (options) {
+  @method mergeOptions
+  @param {Object} options
+  **/
+        mergeOptions: function(options) {
             this.options = merge(this.options, options);
         },
 
         /**
-         appends the matched fragment to the matched route
+  appends the matched fragment to the matched route
 
-         @method updateMatchedRoute
-         @param {String} fragment
-         **/
-        updateMatchedRoute: function (fragment) {
+  @method updateMatchedRoute
+  @param {String} fragment
+  **/
+        updateMatchedRoute: function(fragment) {
             if (fragment !== '/' && fragment !== '/*') {
                 this.matchedRoute += fragment;
             }
         },
 
         /**
-         removes matched fragments from the beginning of the uri
+  removes matched fragments from the beginning of the uri
 
-         @method removeFragmentFromURI
-         @param {String} fragment
-         **/
-        removeFragmentFromURI: function (fragment) {
+  @method removeFragmentFromURI
+  @param {String} fragment
+  **/
+        removeFragmentFromURI: function(fragment) {
             var uri = this.uri,
                 uriParts, subFrags;
 
             if (fragment !== '/' && fragment !== '/*') {
                 if (this.includesNamedParam(fragment)) {
                     uriParts = uri.split('/'),
-                        subFrags = fragment.split('/');
+                    subFrags = fragment.split('/');
 
-                    subFrags.forEach(function (f, i) {
+                    subFrags.forEach(function(f, i) {
                         if (f.indexOf(':') === 0) {
                             uri = uri.replace('/' + uriParts[i], '');
-                        }
-                        else if (f) {
+                        } else if (f) {
                             uri = uri.replace('/' + f, '');
                         }
                     });
-                }
-                else {
+                } else {
                     uri = uri.replace(fragment, '');
                 }
             }
@@ -150,11 +146,11 @@ define(['./helpers'], function(helpers){
         },
 
         /**
-         @method isFragmentInURI
-         @param {Any} fragment
-         @return {Boolean}
-         **/
-        isFragmentInURI: function (fragment) {
+  @method isFragmentInURI
+  @param {Any} fragment
+  @return {Boolean}
+  **/
+        isFragmentInURI: function(fragment) {
             var uri = this.uri,
                 uriParts, subFrags;
 
@@ -162,71 +158,70 @@ define(['./helpers'], function(helpers){
                 return fragment === '/' || fragment === '/*';
             }
 
-            if ( fragment === '/' ) {
+            if (fragment === '/') {
                 return false;
-            }
-            else if ( fragment === '/*' ) {
+            } else if (fragment === '/*') {
                 return true;
             }
             // includes vs is named param
             else if (this.includesNamedParam(fragment)) {
                 uriParts = uri.split('/'),
-                    subFrags = fragment.split('/');
+                subFrags = fragment.split('/');
 
                 if (subFrags.length === 2) {
                     return true;
                 }
 
-                return subFrags.map(function (f, i) {
+                return subFrags.map(function(f, i) {
                     if (f.indexOf(':') === 0) {
                         return true;
-                    }
-                    else {
+                    } else {
                         return uriParts[i].indexOf(f) !== -1;
                     }
-                }).reduce(function (a, b) { return a && b; });
-            }
-            else {
+                }).reduce(function(a, b) {
+                    return a && b;
+                });
+            } else {
                 return uri.indexOf(fragment) === 0;
             }
         },
 
         /**
-         @method includesNamedParam
-         @param {String} fragment
-         @return {Boolean}
-         **/
-        includesNamedParam: function (fragment) {
+  @method includesNamedParam
+  @param {String} fragment
+  @return {Boolean}
+  **/
+        includesNamedParam: function(fragment) {
             return fragment.indexOf('/:') !== -1;
         },
 
         /**
-         @method isFragment
-         @param {Any} key
-         @return {Boolean}
-         **/
-        isFragment: function (key) {
+  @method isFragment
+  @param {Any} key
+  @return {Boolean}
+  **/
+        isFragment: function(key) {
             return key.indexOf('/') === 0;
         },
 
         /**
-         @method isActionDescriptor
-         @param {Any} val
-         @return {Boolean}
-         **/
-        isActionDescriptor: function (val) {
+  @method isActionDescriptor
+  @param {Any} val
+  @return {Boolean}
+  **/
+        isActionDescriptor: function(val) {
             return isString(val) || isPlainObject(val) && val.method;
         },
 
         /**
-         @method isNamedParam
-         @param {String} fragment
-         @return {Boolean}
-         **/
-        isNamedParam: function (fragment) {
+  @method isNamedParam
+  @param {String} fragment
+  @return {Boolean}
+  **/
+        isNamedParam: function(fragment) {
             return fragment.indexOf('/:') === 0;
         }
     };
-
+    
     return Route;
 });

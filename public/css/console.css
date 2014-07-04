@@ -49,7 +49,7 @@ label>strong{
     width: 2em;
     text-align: center;
     line-height: 2em;
-    background-color: #424242;
+    background-color: #333;
     color: white;
     font-size: x-large;
     border-bottom: 1px solid rgba(255, 255, 255, 0.4);
@@ -77,7 +77,7 @@ label>strong{
     color: white;
     line-height: 1.7em;
     margin: 0;
-    background-color: #424242;
+    background-color: #333;
 }
 
 .controlContent>.panel{
@@ -214,7 +214,7 @@ label>strong{
 }
 #RouterLog{
     background-color: rgb(10,10,10);
-    border: 1px solid #424242;
+    border: 1px solid #333;
     margin: 3px 0;
     padding: 5px;
 }
@@ -235,4 +235,45 @@ label>strong{
 }
 .cfgForm{
     margin-top: 1em;
+}
+.scheduleLabels{
+    display: block; position: absolute;
+    top: 0; left: 0.5em;
+    z-index: 1;
+}
+.scheduleLabels>.label{
+    box-shadow: 1px 2px 2px rgba(0,0,0,0.2);
+}
+.scheduleRow{
+    position: relative;
+    padding: 0.5em 0;
+}
+#Schedule{
+    width: 100%;
+    overflow-x: auto;
+}
+#ScheduleContainer{
+    min-height: 100px;
+}
+.scheduleTimeLine{
+    font-size: x-large;
+    padding: 3px 3px;
+    height: 2.2em;
+}
+.scheduleTimeLine>div{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.scheduleTask{
+    position: absolute;
+
+    
+    border: 1px solid rgb(200,200,200);
+    
+    margin-right: 3px;
+
+    height: 100%;
+    background-color: rgb(240,240,240);
+    
 }

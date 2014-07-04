@@ -76,7 +76,6 @@ require(['../ext/aviator/main'], function(Aviator){
             '/console': {
                 target: AppHandler('console'),
                 '/': 'init',
-                '/:day': 'setArgs',
                 '/:day/:locations': 'setArgs'
             }
         }

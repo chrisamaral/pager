@@ -14,7 +14,10 @@ var app = require('../base.js')(),
 app.sessionStore = new RedisStore();
 app.express = express();
 app.express.use(express.static(pub_dir));
-app.express.use(bodyParser());
+
+app.express.use(bodyParser.urlencoded({limit: '5mb'}));
+app.express.use(bodyParser.json({limit: '5mb'}));
+
 app.express.use(cookieParser());
 app.express.use(connetFlash());
 app.express.set('view engine', 'jade');
@@ -122,9 +125,11 @@ authLib(function () {
                         return res.send(404);
                     }
                 } else {
+
                     if (err) {
                         return res.status(500).render('errors/500');
                     }
+
                     if (!rows[0]) {
                         return res.redirect('/');
                     }
@@ -191,7 +196,13 @@ authLib(function () {
     app.express.use(function (err, req, res, next) {
 
         if (err && err instanceof app.authorized.UnauthorizedError === false) {
-            return res.status(500).render('errors/500');
+            
+            console.log(err);
+
+            return 
+                req.isAPICall 
+                    ? res.send(500)
+                    : res.status(500).render('errors/500');
         }
 
         if (req.isAPICall) {

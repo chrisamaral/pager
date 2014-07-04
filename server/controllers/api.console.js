@@ -276,22 +276,33 @@ app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter a
 });
 
 
-app.express.get('/:org/api/console/workers',  app.authorized.can('enter app'), function (req, res) {
+app.express.get('/:org/api/console/workers/:day',  app.authorized.can('enter app'), function (req, res) {
+    
+    //@TODO: filtrar `day`
+
     app.mongo.collection('worker', function (err, workerCollection) {
         if (err) {
             console.log(err);
             return res.send(500);
         }
-        workerCollection.find({
-            org: req.params.org,
-            'types.0': {$exists: true}
-        }).toArray(function (err, types) {
-            if (err) {
-                console.log(err);
-                return res.send(500);
-            }
-            res.json(types);
-        });
+        workerCollection.find({org: req.params.org})
+            .toArray(function (err, ws) {
+                if (err) {
+                    console.log(err);
+                    return res.send(500);
+                }
+                res.json(
+                    _.map(ws,
+                        function (worker) {
+                            return {
+                                _id: worker._id,
+                                name: worker.name,
+                                types: worker.types
+                            };
+                        }
+                    )
+                );
+            });
     });
 });
 
@@ -322,6 +333,8 @@ app.express.get('/:org/api/console/routerConfigOptions', app.authorized.can('ent
     });
 });
 
+(function(){
+
 function autoDate (val) {
     if (!_.isString(val)) return val;
     if (!val.match(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/)) return val;
@@ -340,37 +353,28 @@ function datefy(x){
 
 function saveSchedule (worker, callback) {
     
-    this.collection.find({worker: worker.worker, day: this.day}).count(function (err, c) {
-        
-        if (err) return callback(err);
-        if (c > 0) return callback();
-        
-        worker = datefy(worker);
-        worker.day = this.day;
-        worker.org = this.org;
+    worker = datefy(worker);
+    worker.day = this.day;
+    worker.org = this.org;
 
-        this.collection.insert(worker, function (err, info) {
-            
-            if (err) return callback(err);
-
-            callback();
-
-        });
-    }.bind(this));
+    this.collection.update(
+        {worker: worker.worker, org: this.org, day: this.day},
+            worker, {upsert: true, multi: false, safe: true}, callback);
 }
 
-app.express.post('/:org/api/console/schedules/:day', app.authorized.can('enter app'), function (req, res) {
-    
-    var schedules = JSON.parse(req.body.schedules);
-    
-    if (!_.isArray(schedules) || !schedules.length) return res.send(204);
+app.express.post('/:org/api/console/schedule/:day', app.authorized.can('enter app'), function (req, res) {
+
+    var schedule = req.body;
 
     app.mongo.collection('schedule',
         function (err, scheduleCollection) {
 
-            if (err) return res.send(500);
+            if (err) {
+                console.log(err);
+                return res.send(500);
+            }
 
-            async.each(schedules,
+            async.each(schedule,
                 
                 saveSchedule.bind({
                     collection: scheduleCollection, 
@@ -380,7 +384,10 @@ app.express.post('/:org/api/console/schedules/:day', app.authorized.can('enter a
 
                 function (err) {
 
-                    if (err) return res.send(500);
+                    if (err) {
+                        console.log(err);
+                        return res.send(500);
+                    }
 
                     res.send(204);
                 }
@@ -390,7 +397,9 @@ app.express.post('/:org/api/console/schedules/:day', app.authorized.can('enter a
     );
 });
 
-app.express.get('/:org/api/console/schedules/:day', app.authorized.can('enter app'), function (req, res) {
+}());
+
+app.express.get('/:org/api/console/schedule/:day', app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('schedule',
         function (err, scheduleCollection) {
 
@@ -398,9 +407,9 @@ app.express.get('/:org/api/console/schedules/:day', app.authorized.can('enter ap
 
             scheduleCollection
                 .find({day: req.params.day, org: req.params.org})
-                .toArray(function (err, schedules) {
+                .toArray(function (err, schedule) {
                     if (err) return res.send(500);
-                    res.json(schedules);
+                    res.json(schedule);
                 });
         }
     );

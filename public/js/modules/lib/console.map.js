@@ -99,7 +99,7 @@ define(function () {
             var newMarkers = [],
                 oldMarkers = this.state.markers;
 
-            props.mapState !== 'router' && props.queries.forEach(function (query) {
+            props.mapState !== pager.constant.console.map.ROUTER_PROJECTION && props.queries.forEach(function (query) {
                 query.tasks.forEach(function (task) {
 
                     if (!task.location) {
@@ -121,8 +121,8 @@ define(function () {
 
                     if (old && old.marker) {
 
-                        if ((props.mapState === 'tasks' && !old.hasSelectedMarker) ||
-                            (props.mapState === 'task' && old.hasSelectedMarker && old._id === props.selectedTask)
+                        if ((props.mapState === pager.constant.console.map.AVAILABLE_TASKS && !old.hasSelectedMarker) ||
+                            (props.mapState === pager.constant.console.map.SELECTED_TASK && old.hasSelectedMarker && old._id === props.selectedTask)
                         ) {
                             marker.marker = old.marker;
                         } else {
@@ -162,11 +162,11 @@ define(function () {
             console.log('update map view');
 
             switch (props.mapState) {
-                case 'tasks':
+                case pager.constant.console.map.AVAILABLE_TASKS:
                     newMarkers = this.filterTasks(props);
                     newMarkers = this.massTaskMarker(newMarkers);
                     break;
-                case 'task':
+                case pager.constant.console.map.SELECTED_TASK:
                     newMarkers = this.filterTasks(props);
                     selected = _.find(newMarkers, {_id: props.selectedTask});
                     if (selected) {
@@ -195,7 +195,7 @@ define(function () {
                     }
 
                     break;
-                case 'router':
+                case pager.constant.console.map.ROUTER_PROJECTION:
                     newMarkers = this.filterTasks(props);
 
                     zeroInfoWindows(infoWindows);

@@ -1,21 +1,23 @@
 /** @jsx React.DOM */
 define([
     '../ext/aviator/main',
+    './component.DateInput',
     './console.queue',
     './console.tasks',
     './console.map',
+    './console.schedule',
     '../helpers/utils.js',
     '../ext/strftime'
 ],
-function (Aviator, Queue, Tasks, Map, utils, strftime) {
-    var LeftPanel,
+function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime) {
+    var ConsoleOpts,
+        LeftPanel,
         RouterController,
         RouterWorkers,
         RouterWorker,
         RouterCfg,
         RightPanel,
         Console,
-        onResize,
         UserLink,
         AttrTable,
         AttrItem,
@@ -102,6 +104,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
     RouterWorker = React.createClass({
         drawMe: function () {
+            if (!this.props.worker.tasks.length) return;
             this.props.drawWorkerDirections(this.props.worker._id);
         },
         render: function () {
@@ -115,68 +118,70 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         drawWorkerDirections: function (id) {
 
             this.props.workers.forEach(function (worker) {
-                if (worker._id === id && worker.drawDirections()) {
+                
+                if (!(worker._id === id && worker.drawDirections())) {
 
-                    this.props.toggleRouterMode(worker._id,
-                        worker.tasks.map(
-                            function (task) {
-
-                                if (!task.schedule) return;
-
-                                var attrs = [
-                                    {relevance: 3, value: worker.name},
-                                    {descr: 'Tipos', value: _.uniq(task.types).join(', ')},
-                                    {
-                                        descr: 'Deslocamento',
-                                        value: strftime('%H:%M', task.directions.schedule.ini) + ' < ' +
-                                            task.directions.duration.text + ' - ' + task.directions.distance.text +
-                                            ' > ' + strftime('%H:%M', task.directions.schedule.end)
-                                    },
-                                    {
-                                        descr: 'Execução',
-                                        value: strftime('%H:%M', task.schedule.ini) + ' < ' +
-                                                 Math.floor(task.duration/1000/60) + 'min' + ' > ' +
-                                                    strftime('%H:%M', task.schedule.end)
-                                    },
-                                    {descr: 'Duração', value: Math.floor(task.duration/1000/60) + 'min'}
-                                ], ids = _.map(task.tasks, '_id');
-
-                                if (task.schedule.from && task.schedule.to) {
-                                    !_.isDate(task.schedule.from) && (task.schedule.from = new Date(task.schedule.from));
-                                    !_.isDate(task.schedule.to) && (task.schedule.to = new Date(task.schedule.to));
-
-                                    attrs.push({descr: 'Agenda', value: strftime('%d/%m/%Y', task.schedule.from)});
-
-                                    attrs.push({
-                                        descr: 'Turno',
-                                        value: strftime('%H:%M', task.schedule.from)
-                                            + ' <> ' + strftime('%H:%M', task.schedule.to)
-                                    });
-                                }
-
-                                ids.length && attrs.push({descr: 'ID', value: ids.join(', ')});
-
-                                if (task.target) {
-                                    attrs.push({descr: 'Cliente', value: task.target.name, relevance: 2});
-                                }
-
-                                attrs.push({value: task.address.address});
-                                return {
-                                    id: 'wRTask-' + task.id,
-                                    worker: worker.name,
-                                    location: task.location,
-                                    attrs: attrs
-                                };
-                            }
-                        )
-                    );
-
-                } else {
                     worker._id !== id && worker.cleanDirections();
                     worker._id === id && this.props.toggleRouterMode(null);
-                }
-            }.bind(this));
+                    return;
 
+                }
+
+                this.props.toggleRouterMode(
+                    worker._id, worker.tasks.map(
+                        function (task) {
+
+                            if (!task.schedule) return;
+
+                            var attrs = [
+                                {relevance: 3, value: worker.name},
+                                {descr: 'Tipos', value: _.uniq(task.types).join(', ')},
+                                {
+                                    descr: 'Deslocamento',
+                                    value: strftime('%H:%M', task.directions.schedule.ini) + ' < ' +
+                                        task.directions.duration.text + ' - ' + task.directions.distance.text +
+                                        ' > ' + strftime('%H:%M', task.directions.schedule.end)
+                                },
+                                {
+                                    descr: 'Execução',
+                                    value: strftime('%H:%M', task.schedule.ini) + ' < ' +
+                                             Math.floor(task.duration/1000/60) + 'min' + ' > ' +
+                                                strftime('%H:%M', task.schedule.end)
+                                },
+                                {descr: 'Duração', value: Math.floor(task.duration/1000/60) + 'min'}
+                            ], ids = _.map(task.tasks, '_id');
+
+                            if (task.schedule.from && task.schedule.to) {
+                                !_.isDate(task.schedule.from) && (task.schedule.from = new Date(task.schedule.from));
+                                !_.isDate(task.schedule.to) && (task.schedule.to = new Date(task.schedule.to));
+
+                                attrs.push({descr: 'Agenda', value: strftime('%d/%m/%Y', task.schedule.from)});
+
+                                attrs.push({
+                                    descr: 'Turno',
+                                    value: strftime('%H:%M', task.schedule.from)
+                                        + ' <> ' + strftime('%H:%M', task.schedule.to)
+                                });
+                            }
+
+                            ids.length && attrs.push({descr: 'ID', value: ids.join(', ')});
+
+                            if (task.target) {
+                                attrs.push({descr: 'Cliente', value: task.target.name, relevance: 2});
+                            }
+
+                            attrs.push({value: task.address.address});
+
+                            return {
+                                id: 'wRTask-' + task.id,
+                                worker: worker.name,
+                                location: task.location,
+                                attrs: attrs
+                            };
+                        }
+                    )
+                );
+            }.bind(this));
         },
 
         render: function () {
@@ -243,12 +248,17 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                 <div className='controlContent'>
                     <h4>Roteador</h4>
                     <div className='panel contained clearfix'>
-                        <div id='RouterLog'>
-                            {this.state.messages.map(function (msg, index) {
-                                return <p key={index}>{msg}</p>;
-                            })}
-                        </div>
+                        
+                        { !this.state.workers.length &&
+                            <div id='RouterLog'>
+                                {this.state.messages.map(function (msg, index) {
+                                    return <p key={index}>{msg}</p>;
+                                })}
+                            </div>
+                        }
+
                         <RouterWorkers workers={this.state.workers} toggleRouterMode={this.props.toggleRouterMode} />
+
                         <div className='row'>
                             <div className='text-right'>
                                 <button onClick={this.cancel} className='tiny alert button'>Cancelar</button>
@@ -257,9 +267,49 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                                     : null}
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>;
+        }
+    });
+
+    ConsoleOpts = React.createClass({
+        handleSubmit: function (e) {
+            e.preventDefault();
+            
+            var s = {day: this.refs.dayInput.getDOMNode().value, 
+                        org: pager.org.id, locations: this.props.locations};
+
+            Aviator.navigate('/:org/console/:day/:locations', {namedParams: s});
+        },
+        render: function () {
+            return (
+                <div id='ConsoleOpts' className='leftMapControl'>
+                    <div className='controlIco'>
+                        <i className='fi-widget'></i>
+                    </div>
+                    <div className='controlContent'>
+                        <h4>Opções da agenda</h4>
+                        <div className='panel contained'>
+                            <form onSubmit={this.handleSubmit}>
+                                <div className='row'>
+                                    <div className='large-12 columns'>
+                                        <label>Dia
+                                            <DateInput ref='dayInput' date={this.props.day} inputName='day' />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className='row'>
+                                    <div className='large-12 columns text-right'>
+                                        <button className='tiny success button'>Ok</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
         }
     });
 
@@ -274,11 +324,13 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         render: function () {
             return <nav id='LeftPanel'>
                 <div id='LeftPanelWrapper'>
-
                     { this.props.pending.length
                             ? <Queue items={this.props.pending}
                                     locations={this.props.locations} /> : null }
-                    { this.props.router &&
+                    
+                    <ConsoleOpts day={this.props.day} locations={this.props.locations} />
+
+                    { this.props.router &&    
                         <RouterController router={this.props.router}
                                 saveRoute={this.props.saveRoute}
                                 cancelRoute={this.props.cancelRoute}
@@ -295,38 +347,47 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
             </nav>;
         }
     });
+    
+    function emptyA(A){
+        while(A.length > 0) A.pop();
+    }
 
     RightPanel = React.createClass({
         componentDidMount: function () {
-            $('#ScrollRoot').on('resize', _.throttle(function(){
-                this.forceUpdate();
-            }.bind(this), 100));
+            
+            var handler = _.throttle(
+                function () {
+                    
+                    if (!this.isMounted()) return $('#ScrollRoot').off('resize', handler);
+                    
+                    this.forceUpdate();
+
+                }.bind(this),
+            100);
+
+            $('#ScrollRoot').on('resize', handler);
+
         },
         render: function () {
-            return <main id='RightPanel' style={{width: $('#Console').width() - $('#LeftPanel').width()}}>
+            var myWidth = $('#Console').width() - $('#LeftPanel').width();
+
+            return <main id='RightPanel' style={{width: myWidth}}>
+                { this.props.schedule.length 
+                    ?  <Schedule width={myWidth} schedule={this.props.schedule} /> : null }
                 {this.props.routerLoader &&
                     <div>
                         <h4>Configurações de Roteamento</h4>
                         <div className='panel'>
-                            <RouterCfg workers={
-                                    _.map(this.props.workers,
-                                        function (worker) {
-                                            return {
-                                                _id: worker._id,
-                                                name: worker.name,
-                                                types: worker.types
-                                            };
-                                        }
-                                    )
-                                } onSet={this.props.routerLoader} />
+                            <RouterCfg day={this.props.routerLoader._day} onSet={this.props.routerLoader} />
                         </div>
                     </div>
                 }
             </main>;
         }
     });
-
+    
     Console = React.createClass({
+
         parseArgsToState: function (props) {
             props = props || this.props;
             return {
@@ -344,34 +405,80 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         },
 
         componentWillReceiveProps: function (newProps) {
-            var dayHasChanged = this.props.args.day !== this.state.day;
+
+            var dayHasChanged = newProps.args.day !== this.state.day;
+
             this.setState(this.parseArgsToState(newProps), function () {
+
+
+                if (dayHasChanged) {
+                    emptyA(newProps.lib.data.schedule);
+                    this.updateSchedule();
+                }
+
                 this.updateDefaultQuery(dayHasChanged);
+                
             }.bind(this));
+
+        },
+        
+        offCanvasMenuOpen: function () {
+            $('#ScrollRoot').scrollTop(0).css('overflow-y', 'scroll');
+            $('#appContainer').css('overflow-y', 'hidden');
+        },
+        offCanvasMenuClose: function () {
+            $('#ScrollRoot, #appContainer').css('overflow-y', '');
         },
 
         componentDidMount: function () {
             this.updateDefaultQuery(true);
             this.putArgs();
 
-            onResize = _.throttle(function () {
+            
+            var onResize = _.throttle(function () {
+                
+                if(!this.isMounted) return $(window).off('resize', onResize);
                 this.forceUpdate();
+
+                //$('#ScrollRoot').trigger('resize');
+
             }.bind(this), 300);
 
-            $(window).resize(onResize);
+            $(window).on('resize', onResize);
+
+            this.componentWillUnmount.__interval = setInterval(this.updateSchedule, 
+                pager.constant.console.WHOLE_SCHEDULE_UPDATE_INTERVAL);
+            this.updateSchedule();
+
+            $(document).on('open.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuOpen);
+            $(document).on('close.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuClose);
+
+        },
+
+        updateSchedule: function () {
+            
+            if (!this.isMounted()) return;
+
+            $.get(pager.urls.ajax + 'console/schedule/' + this.state.day)
+                .done(function (result) {
+                    if (!this.isMounted()) return;
+                    this.props.lib.set('schedule', result);
+                }.bind(this));
         },
 
         componentWillUnmount: function () {
-            $(window).off('resize', onResize);
+            clearInterval(this.componentWillUnmount.__interval);
+
+            $(document).off('open.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuOpen);
+            $(document).off('close.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuClose);
         },
-
+        
         putArgs: function () {
-            var pieces = [pager.org.id, 'console', this.state.day], uri;
+            var pieces = [pager.org.id, 'console', this.state.day, this.state.locations], uri;
 
-            if (this.state.locations.length) {
-                pieces.push(this.state.locations);
-            }
+            
             uri = '/' + pieces.join('/');
+
             if (uri !== Aviator.getCurrentURI()) {
                 Aviator.navigate(uri);
             }
@@ -387,13 +494,14 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
         setTaskFocus: function (taskId) {
 
-            if (this.props.lib.state.selectedTask === taskId && this.props.lib.state.mapState === 'task') {
+            if (this.props.lib.state.selectedTask === taskId 
+                    && this.props.lib.state.mapState === pager.constant.console.map.SELECTED_TASK) {
                 this.props.lib.state.selectedTask = null;
-                this.props.lib.state.mapState = 'tasks';
+                this.props.lib.state.mapState = pager.constant.console.map.AVAILABLE_TASKS;
                 return this.props.lib.put();
             }
 
-            this.props.lib.state.mapState = 'task';
+            this.props.lib.state.mapState = pager.constant.console.map.SELECTED_TASK;
             this.props.lib.state.selectedTask = taskId;
             this.props.lib.put();
         },
@@ -401,7 +509,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         setMapState: function (state) {
             this.props.lib.state.mapState = state;
 
-            if (state !== 'task') {
+            if (state !== pager.constant.console.map.SELECTED_TASK) {
                 this.props.lib.state.selectedTask = undefined;
             }
 
@@ -411,10 +519,10 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         toggleRouterMode: function (worker, tasks) {
 
             if (!worker) {
-                this.props.lib.state.mapState = 'tasks';
+                this.props.lib.state.mapState = pager.constant.console.map.AVAILABLE_TASKS;
                 this.props.lib.state.routerWorker = null;
             } else {
-                this.props.lib.state.mapState = 'router';
+                this.props.lib.state.mapState = pager.constant.console.map.ROUTER_PROJECTION;
                 this.props.lib.state.routerWorker = {wayPoints: tasks};
             }
 
@@ -422,8 +530,8 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         },
 
         killRoute: function () {
-            if (this.props.lib.state.mapState === 'router') {
-                this.props.lib.state.mapState = 'tasks';
+            if (this.props.lib.state.mapState === pager.constant.console.map.ROUTER_PROJECTION) {
+                this.props.lib.state.mapState = pager.constant.console.map.AVAILABLE_TASKS;
                 this.props.lib.state.routerWorker = null;
             }
 
@@ -473,8 +581,15 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
             }
 
             var ws = _.map(workers, mountWorker);
-            $.post(pager.urls.ajax + 'console/schedules/' + day, {schedules: JSON.stringify(ws)});
+            
+            $.ajax({
+                type: 'POST',
+                url: pager.urls.ajax + 'console/schedule/' + day,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(ws)
+            });
 
+            this.updateSchedule();
             this.killRoute();
         },
 
@@ -514,8 +629,9 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                     selectedTask={this.props.lib.state.selectedTask}
                     setTaskFocus={this.setTaskFocus} />
 
-                <RightPanel workers={this.props.lib.data.workers}
-                    router={this.props.lib.router}
+                <RightPanel router={this.props.lib.router}
+                    schedule={this.props.lib.data.schedule}
+                    day={this.state.day}
                     totalWidth={$(window).width()}
                     routerLoader={this.props.lib.routerLoader}
                     hasGoogleMaps={this.props.lib.state.hasGoogleMaps} />
@@ -529,18 +645,10 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
         this.state = {
             hasGoogleMaps: false,
-            mapState: 'tasks'
+            mapState: pager.constant.console.map.AVAILABLE_TASKS
         };
 
         this.rootComponent = null;
-
-        /* mapStates:
-            tasks > mostrar todas ordens pendentes => ao clicar em uma: abre `task`
-            task > mostra apenas uma ordem, incluindo
-                    informações que ajudem o operador a tomar alguma decisão,
-                    exemplo: qual técnico está mais próximo
-            workers > mostrar posição de todos técnicos
-        */
     }
 
     Lib.prototype.put = function () {
@@ -555,7 +663,6 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                     })
                 )
             );
-            localStorage.setItem('pager.' + pager.org.id + '.console.workers', JSON.stringify(this.data.workers));
         }
 
         this.rootComponent.setProps({lib: this});
@@ -567,7 +674,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         if (collection === 'queries') {
 
             items = items.filter(function(item, index){
-                return item.name === 'Agenda' || (item.tasks && item.tasks.length);
+                return item.name === 'Agenda' || item.tasks;
             }).map(function(item){
                 item.id = item.id || 'query-' + Math.random().toString(36).substr(2);
                 return item;
@@ -627,7 +734,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
             if (!Console.isMounted()) return;
 
-            me.routerLoader =  function (workers) {
+            me.routerLoader = function (workers) {
                 delete me.routerLoader;
 
                 if (workers && workers.length) {
@@ -637,16 +744,15 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
 
                 me.put();
             };
-
+            
+            me.routerLoader._day = day;
             me.put();
         });
     };
 
     Lib.prototype.setDefaultQuery = function (day, dayHasChanged) {
 
-        if (pager.isDev) {
-            return;
-        }
+        //if (pager.isDev) return;
 
         var d = {
                 id: 'query-' + Math.random().toString(36).substr(2),
@@ -690,13 +796,6 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         }.bind(this));
     };
 
-    Lib.prototype.fetchWorkers = function () {
-        $.get(pager.urls.ajax + 'console/workers')
-            .done(function (workers) {
-                this.set('workers', workers);
-            }.bind(this));
-    };
-
     Lib.prototype.fetchPendingOrders = function () {
         $.get('/json/console.pending.json')
             .done(function (result) {
@@ -718,7 +817,7 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
         this.data = {
             pending: [],
             queries: [],
-            workers: []
+            schedule: []
         };
 
         if (Modernizr.localstorage) {
@@ -732,16 +831,9 @@ function (Aviator, Queue, Tasks, Map, utils, strftime) {
                 ? this.data.queries.concat(aux)
                 : this.data.queries;
 
-            try {
-                this.data.workers = JSON.parse(localStorage.getItem('pager.' + pager.org.id + '.console.workers'));
-            } catch (xxx) {
-                console.log(xxx);
-            }
-
         }
 
         this.fetchQueries();
-        this.fetchWorkers();
         this.rootComponent = rootElem;
 
         callback(this);

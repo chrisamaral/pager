@@ -1,6 +1,9 @@
 /** @jsx React.DOM */
 
-define(['../helpers/utils'], function (utils) {
+define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
+    
+    pager.constant = consts;
+
     var zIndexAltered = false, Root, PageList, uri = location.pathname.split('/');
 
     if (!uri[1]) {
@@ -70,6 +73,13 @@ define(['../helpers/utils'], function (utils) {
     Root = React.createClass({displayName: 'Root',
         componentDidMount: function () {
             $(document).foundation();
+            $('#ScrollRoot').scroll(
+                _.throttle(
+                    function(){
+                        $('.f-dropdown.open').removeClass('open');
+                    }, 300
+                )
+            );
         },
         render: function () {
             var App = this.props.app;

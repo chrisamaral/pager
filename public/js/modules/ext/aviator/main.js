@@ -1,112 +1,112 @@
-define(['./navigator'], function(Navigator){
+define(['./navigator'], function(Navigator) {
     return {
 
         /**
-         @property pushStateEnabled
-         @type {Boolean}
-         @default true if the browser supports pushState
-         **/
+        @property pushStateEnabled
+        @type {Boolean}
+        @default true if the browser supports pushState
+        **/
         pushStateEnabled: ('pushState' in window.history),
 
         /**
-         @property linkSelector
-         @type {String}
-         @default 'a.navigate'
-         **/
+        @property linkSelector
+        @type {String}
+        @default 'a.navigate'
+        **/
         linkSelector: 'a.navigate',
 
         /**
-         the root of the uri from which routing will append to
+        the root of the uri from which routing will append to
 
-         @property root
-         @type {String}
-         @default ''
-         **/
+        @property root
+        @type {String}
+        @default ''
+        **/
         root: '',
 
         /**
-         @property _navigator
-         @type {Navigator}
+        @property _navigator
+        @type {Navigator}
 
-         @private
-         **/
+        @private
+        **/
         _navigator: new Navigator(),
 
         /**
-         @method setRoutes
-         @param {Object} routes
-         **/
-        setRoutes: function (routes) {
+        @method setRoutes
+        @param {Object} routes
+        **/
+        setRoutes: function(routes) {
             this._navigator.setRoutes(routes);
         },
 
         /**
-         dispatches routes to targets and sets up event handlers
+        dispatches routes to targets and sets up event handlers
 
-         @method dispatch
-         **/
-        dispatch: function () {
+        @method dispatch
+        **/
+        dispatch: function() {
             var navigator = this._navigator;
 
             navigator.setup({
                 pushStateEnabled: this.pushStateEnabled,
-                linkSelector:     this.linkSelector,
-                root:             this.root
+                linkSelector: this.linkSelector,
+                root: this.root
             });
 
             navigator.dispatch();
         },
 
         /**
-         @method navigate
-         @param {String} uri to navigate to
-         @param {Object} [options]
-         **/
-        navigate: function (uri, options) {
+        @method navigate
+        @param {String} uri to navigate to
+        @param {Object} [options]
+        **/
+        navigate: function(uri, options) {
             this._navigator.navigate(uri, options);
         },
 
 
         /**
-         @method serializeQueryParams
-         @param {Object} queryParams
-         @return {String} queryString "?foo=bar&baz[]=boo&baz=[]oob"
-         **/
-        serializeQueryParams: function (queryParams) {
+        @method serializeQueryParams
+        @param {Object} queryParams
+        @return {String} queryString "?foo=bar&baz[]=boo&baz=[]oob"
+        **/
+        serializeQueryParams: function(queryParams) {
             return this._navigator.serializeQueryParams(queryParams);
         },
 
         /**
-         @method getCurrentRequest
-         @return {String}
-         **/
-        getCurrentRequest: function () {
+        @method getCurrentRequest
+        @return {String}
+        **/
+        getCurrentRequest: function() {
             return this._navigator.getCurrentRequest();
         },
 
         /**
-         @method getCurrentURI
-         @return {String}
-         **/
-        getCurrentURI: function () {
+        @method getCurrentURI
+        @return {String}
+        **/
+        getCurrentURI: function() {
             return this._navigator.getCurrentURI();
         },
 
         /**
-         @method refresh
-         **/
-        refresh: function () {
+        @method refresh
+        **/
+        refresh: function() {
             this._navigator.refresh();
         },
 
         /**
-         @method rewriteRouteTo
-         @param {String} newRoute
-         @return {Object}
-         **/
-        rewriteRouteTo: function (newRoute) {
+        @method rewriteRouteTo
+        @param {String} newRoute
+        @return {Object}
+        **/
+        rewriteRouteTo: function(newRoute) {
             var target = {
-                rewrite: function (request) {
+                rewrite: function(request) {
                     Aviator.navigate(newRoute, {
                         namedParams: request.namedParams,
                         replace: true
@@ -119,6 +119,5 @@ define(['./navigator'], function(Navigator){
                 '/': 'rewrite'
             };
         }
-
     };
 });

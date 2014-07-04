@@ -100,19 +100,31 @@ define(function () {
     });
 
     RouterCfg = React.createClass({displayName: 'RouterCfg',
+        
         getInitialState: function () {
-            return {options: null, workers: this.props.workers};
+            return {options: null, workers: null};
         },
+
         componentDidMount: function () {
             $.get(pager.urls.ajax + 'console/routerConfigOptions')
                 .done(function (opts) {
                     this.setState({options: opts});
                 }.bind(this));
+
+            $.get(pager.urls.ajax + 'console/workers/' + this.props.day)
+                .done(function (workers) {
+                    this.setState({workers: workers});
+                }.bind(this));
+
             $('#ScrollRoot').trigger('resize');
         },
-        componentDidUpdate: function () {
-            //$('#ScrollRoot').trigger('resize');
-        },
+        
+        /*
+            componentDidUpdate: function () {
+                $('#ScrollRoot').trigger('resize');
+            },
+        */
+
         killUserAt: function (index) {
             
             var w = this.state.workers;
@@ -121,9 +133,10 @@ define(function () {
                 $('#ScrollRoot').trigger('resize');
             });
         },
+        
         render: function () {
             return (React.DOM.div(null, 
-                this.state.options
+                this.state.options && this.state.workers
                     ? CfgForm( {options:this.state.options, removeUser:this.killUserAt, workers:this.state.workers, submitWorkers:this.props.onSet} )
                     : React.DOM.p(null, React.DOM.i(null, "Carregando Opções..."))
                 

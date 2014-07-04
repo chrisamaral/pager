@@ -578,9 +578,7 @@
             delete task.averageDistance;
         });
 
-        self.postMessage({type: 'endOfTheLine', data: _.filter(workers, function (w) {
-            return w.tasks.length;
-        })});
+        self.postMessage({type: 'endOfTheLine', data: workers});
 
         self.close();
     }

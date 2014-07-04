@@ -9,7 +9,7 @@ define(['../ext/strftime'], function (strftime) {
         $.when(
                 $.get(pager.build.moduleRoot + '/lib/router.worker.js'),
 
-                $.get(pager.build.moduleRoot + '/ext/crypto.sha1.min.js')
+                $.get(pager.build.moduleRoot + '/ext/crypto.sha1.js')
 
             ).done(function (worker, crypto) {
                 //Each argument is an array with the following structure: [ data, statusText, jqXHR ]
@@ -114,7 +114,7 @@ define(['../ext/strftime'], function (strftime) {
                     duration: aux.duration,
                     schedule: {ini: new Date(), end: new Date()}
                 };
-
+                
                 currTask.directions.schedule.ini.setTime(worker.workShift.from.getTime() + sumTime);
 
                 sumTime += aux.duration.value * 1000;
