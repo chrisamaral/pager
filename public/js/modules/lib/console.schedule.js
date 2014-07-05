@@ -1,15 +1,15 @@
 /** @jsx React.DOM */
 define(['../helpers/utils', '../ext/strftime'], function (utils, strftime) {
     var ScheduleView, ScheduleRow, ScheduleTimeLine, ScheduleTask;
-    
+
     ScheduleTask = React.createClass({displayName: 'ScheduleTask',
         render: function () {
             var w, myIni, leftPos;
-            
-            w = (this.props.task.duration + ( this.props.task.directions.duration.value * 1000)) * this.props.microSecondWidth;
+
+            w = (this.props.task.duration + (this.props.task.directions.duration.value * 1000)) * this.props.microSecondWidth;
             myIni = new Date(this.props.task.directions.schedule.ini);
             leftPos = (myIni.getTime() - this.props.timelineBoundaries.ini.getTime()) * this.props.microSecondWidth;
-            
+
             leftPos += this.props.index * 3;
 
             return React.DOM.div( {className:"scheduleTask", style:{width:  w + 'px', left: leftPos + 'px'}}
@@ -55,14 +55,18 @@ define(['../helpers/utils', '../ext/strftime'], function (utils, strftime) {
         getInitialState: function () {
             return {microSecondWidth: null};
         },
-        calcDimensions: function () {
+        calcDimensions: function (props) {
+
             if (!this.isMounted()) return ;
+
+            props = props || this.props;
+
             var containerWidth = $(this.refs.container.getDOMNode()).width(),
                 timelineBoundaries = {ini: Infinity, end: -Infinity},
                 maxLength = -Infinity, calcWidth,
                 microSecondWidth;
 
-            _.forEach(this.props.schedule, function (s) {
+            _.forEach(props.schedule, function (s) {
                 
                 maxLength = Math.max(s.tasks.length, maxLength);
 
@@ -70,22 +74,23 @@ define(['../helpers/utils', '../ext/strftime'], function (utils, strftime) {
                     
                     var a = new Date(t.directions.schedule.ini), z = new Date(t.schedule.end);
                     
-                    a < timelineBoundaries.ini && (timelineBoundaries.ini = a);
-                    z > timelineBoundaries.end && (timelineBoundaries.end = z);
+                    if (a < timelineBoundaries.ini) timelineBoundaries.ini = a;
+                    if (z > timelineBoundaries.end) timelineBoundaries.end = z;
 
                 });
             });
 
-            microSecondWidth = (containerWidth - (5 * maxLength)) / (timelineBoundaries.end.getTime() - timelineBoundaries.ini.getTime());
-            //calcWidth = (timelineBoundaries.end.getTime() - timelineBoundaries.ini.getTime()) * microSecondWidth + (5 * maxLength);
+            microSecondWidth = (containerWidth - (5 * maxLength)) /
+                                    (timelineBoundaries.end.getTime() - timelineBoundaries.ini.getTime());
+            
             this.setState({microSecondWidth: microSecondWidth, timelineBoundaries: timelineBoundaries});
+
         },
-        
-        componentDidUpdate: function () {  
-            setTimeout(this.calcDimensions, 300);
+        componentWillReceiveProps: function (newProps) {
+            this.calcDimensions(newProps);
         },
         componentDidMount: function () {
-            setTimeout(this.calcDimensions, 300);
+            this.calcDimensions();
         },
 
         render: function () {
