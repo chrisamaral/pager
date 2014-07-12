@@ -209,7 +209,6 @@ app.express
                                 }
 
                                 customer = customers[0];
-                                delete customer._id;
                                 callback(null, customer);
                             });
                         });
@@ -300,6 +299,7 @@ app.express
                             }
 
                             aux.customer = {
+                                _id: customer._id,
                                 sys_id: customer.sys_id,
                                 name: customer.name,
                                 type: customer.type,

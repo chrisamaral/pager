@@ -13,14 +13,9 @@ require(['../ext/aviator/main'], function(Aviator){
 
                 this.initialized = true;
                 var run = function (View) {
-                    View.librarian.init(pager.rootElem, function (TargetLib) {
-
-                        pager.rootElem.setProps({
-                            args: req.params,
-                            view: View.component,
-                            lib: TargetLib
-                        });
-
+                    pager.rootElem.setProps({
+                        args: req.params,
+                        view: View
                     });
                 };
                 if (CachedViews[app]) {
@@ -49,7 +44,7 @@ require(['../ext/aviator/main'], function(Aviator){
         render: function () {
             var TargetView = this.props.view || null;
             return  React.DOM.div( {id:"appContainer"}, 
-                 TargetView && TargetView( {args:this.props.args, lib:this.props.lib} ) 
+                 TargetView && TargetView( {args:this.props.args} ) 
             );
         }
     });

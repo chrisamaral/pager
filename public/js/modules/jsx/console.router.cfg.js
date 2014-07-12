@@ -116,21 +116,15 @@ define(function () {
                     this.setState({workers: workers});
                 }.bind(this));
 
-            $('#ScrollRoot').trigger('resize');
+            $('#Console').trigger('resize');
         },
-        
-        /*
-            componentDidUpdate: function () {
-                $('#ScrollRoot').trigger('resize');
-            },
-        */
 
         killUserAt: function (index) {
             
             var w = this.state.workers;
             w.splice(index, 1);
             this.setState({workers: w}, function () {
-                $('#ScrollRoot').trigger('resize');
+                $('#Console').trigger('resize');
             });
         },
         

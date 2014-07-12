@@ -16,7 +16,9 @@
             self.postMessage({type: 'progressLog', data: args});
         }
     };
-
+    function notify (msg) {
+        self.postMessage({type: 'logMessage', data: msg});
+    }
     function roundNumber (number, digits) {
         var multiple = Math.pow(10, digits);
         var rndedNum = Math.round(number * multiple) / multiple;
@@ -145,15 +147,15 @@
             var inCollection,
                 newTask,
                 itIsAMe = function (me) {
-                    return me.sys_id === currentTask.sys_id || me._id === currentTask._id;
+                    return me._id === currentTask._id || me._id === currentTask._id;
                 },
-                id = '' + CryptoJS.SHA1((currentTask.target ? currentTask.target.sys_id : '') + currentTask.address.address.toLowerCase()),
-                inCollection = _.find(grouped, {id: id});
+                fakedID = '' + CryptoJS.SHA1((currentTask.target ? currentTask.target._id : '') + currentTask.address.address.toLowerCase()),
+                inCollection = _.find(grouped, {addressPlusTargetIDSHA1: fakedID});
 
             if (!inCollection) {
 
                 newTask = {
-                    id: id,
+                    addressPlusTargetIDSHA1: fakedID,
                     ref: currentTask.ref,
                     address: currentTask.address,
                     target: currentTask.target,
@@ -161,21 +163,14 @@
                     tasks: [currentTask]
                 };
 
-                if (currentTask.schedule) {
-                    newTask.schedule = currentTask.schedule;
-                }
-
-                if (currentTask.location) {
-                    newTask.location = currentTask.location;
-                }
+                if (currentTask.schedule) newTask.schedule = currentTask.schedule;
+                if (currentTask.location) newTask.location = currentTask.location;
 
                 grouped.push(newTask);
 
             } else {
 
-                if (_.any(inCollection.tasks, itIsAMe)) {
-                    return;
-                }
+                if (_.any(inCollection.tasks, itIsAMe)) return;
 
                 inCollection.tasks.push(currentTask);
                 inCollection.types.push(currentTask.type);
@@ -280,7 +275,7 @@
                 {from: '08:00', to: '17:00'},
                 {from: '11:00', to: '20:00'},
                 {from: '14:00', to: '23:00'}
-            ], center = {lat: -22.904356, lng: -43.189390};
+            ];
 
         //mock work shifts
         _.forEach(workers, function (currentWorker) {
@@ -289,9 +284,6 @@
             currentWorker.tasks = [];
             currentWorker.color = 'rgb(' + rndClr() + ', ' + rndClr() + ', ' + rndClr() + ')';
 
-            currentWorker.startPoint = currentWorker.startPoint || center;
-
-
             if (!currentWorker.workShift) {
                 aux = _.cloneDeep(shifts[Math.floor(Math.random() * shifts.length)]);
                 currentWorker.workShift = aux;
@@ -299,7 +291,6 @@
 
             currentWorker.workShift.from = toDt(currentWorker.workShift.from);
             currentWorker.workShift.to = toDt(currentWorker.workShift.to);
-
 
         });
 
@@ -313,7 +304,7 @@
 
             _.forEach(tasks, function (otherTask) {
 
-                if (otherTask.id === task.id) {
+                if (otherTask.addressPlusTargetIDSHA1 === task.addressPlusTargetIDSHA1) {
                     return;
                 }
 
@@ -331,14 +322,14 @@
 
                 if (workerIntersection.length) {
 
-                    task.others[otherTask.id] = {
+                    task.others[otherTask.addressPlusTargetIDSHA1] = {
                         distance: distance,
                         task: otherTask,
                         sharedWorkers: workerIntersection
                     };
 
-                    task.minDistance = pickMin(task.minDistance, task.others[otherTask.id]);
-                    otherTask.minDistance = pickMin(otherTask.minDistance, task.others[otherTask.id]);
+                    task.minDistance = pickMin(task.minDistance, task.others[otherTask.addressPlusTargetIDSHA1]);
+                    otherTask.minDistance = pickMin(otherTask.minDistance, task.others[otherTask.addressPlusTargetIDSHA1]);
                     total += distance;
                 }
 
@@ -452,7 +443,7 @@
     }
 
     function allocIterator (clusters) {
-
+        notify('Separando atividades...');
         function hasClosestWorker () {
             var min = _.min(tasks, function (task) {
 
@@ -720,11 +711,11 @@
                     });
                     task.duration = _.max(durations) * MINUTE;
                 });
-                console.log('Iniciando cálculos...');
-
+                notify('Processando agenda...');
                 prepareArgs();
+                notify('Iniciando cálculos...');
                 //makeClusters();
-                firstAlloc()
+                firstAlloc();
 
                 break;
         }

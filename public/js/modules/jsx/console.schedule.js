@@ -25,7 +25,7 @@ define(['../helpers/utils', '../ext/strftime'], function (utils, strftime) {
                     {
                         this.props.tasks.map(function (task, index) {
                             return <ScheduleTask 
-                                        key={task.task} task={task} index={index}
+                                        key={task.addressPlusTargetIDSHA1} task={task} index={index}
                                         microSecondWidth={this.props.microSecondWidth} 
                                         timelineBoundaries={this.props.timelineBoundaries} />;
                         }.bind(this))
@@ -40,7 +40,7 @@ define(['../helpers/utils', '../ext/strftime'], function (utils, strftime) {
             return <div className='scheduleRow'>
                 
                 <div className='scheduleLabels'>
-                    <span className='success label'>{this.props.schedule.name}</span>
+                    <span className='success label'>{this.props.schedule.worker.name}</span>
                 </div>
 
                 <ScheduleTimeLine tasks={this.props.schedule.tasks} 

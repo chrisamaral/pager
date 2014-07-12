@@ -1,3 +1,6 @@
+#ScrollRoot{
+    overflow-y: scroll;
+}
 label>strong{
     margin-bottom: 0.5em;
 }
@@ -21,7 +24,7 @@ label>strong{
 }
 #LeftPanel{
     display: block; position: absolute;
-    left: 0; top: 0;
+    left: 0; top: 5px;
     height: auto;
     width: auto;
     z-index: 1;
@@ -29,27 +32,52 @@ label>strong{
 
 #RightPanel{
     display: block; position: absolute;
-    right: 0; top: 0;
-    width: 70%;
-    padding: 1em;
-    background-color: white;
+    width: auto; right: 0; top: 5px;
+    padding: 0; margin: 0;
 }
-
 #RightPanel:empty{
     padding: 0;
 }
-
+#RightPanelContent{
+    padding: 1em;
+    background-color: white;
+}
 .leftMapControl{
     width: auto;
 }
 
+#ToggleRightPanel{
+    width: auto;
+    line-height: 2em;
+    font-size: x-large;
+}
+#ToggleRightPanel.lonesome{
+    margin: 3em 5px 0 0;
+}
+
+#ToggleRightPanel>i{
+    display: inline-block;
+    cursor: pointer; width: 2em;
+    text-align: center;
+
+    background-color: #3a3a3a; color: white;
+    
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+#ToggleRightPanel.lonesome>i{
+    border-radius: 4px;
+}
+#RightPanelToolbar .button{
+    margin: 0 3px;
+}
 .leftMapControl>.controlIco{
     display: none;
     cursor: pointer;
     width: 2em;
     text-align: center;
     line-height: 2em;
-    background-color: #333;
+    background-color: #3a3a3a;
     color: white;
     font-size: x-large;
     border-bottom: 1px solid rgba(255, 255, 255, 0.4);
@@ -59,6 +87,9 @@ label>strong{
     color: rgb(255, 237, 89);
 }
 
+.leftMapControl:first-child>.controlIco{
+    border-top-right-radius: 0.3em;
+}
 .leftMapControl:last-child>.controlIco{
     border-bottom-right-radius: 0.3em;
     border-bottom-style: none;
@@ -77,7 +108,7 @@ label>strong{
     color: white;
     line-height: 1.7em;
     margin: 0;
-    background-color: #333;
+    background-color: #3a3a3a;
 }
 
 .controlContent>.panel{

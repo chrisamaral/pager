@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# BuildTime: 2014-07-03 23:44:03
+# BuildTime: 2014-07-11 22:44:09
 
 NETWORK:
 *
@@ -32,10 +32,14 @@ CACHE:
 /js/build/lib/task.geocoder.js
 /js/build/lib/console.tasks.js
 /js/build/lib/console.js
+/js/build/lib/console.component.schedule.js
 /js/build/lib/console.queue.js
+/js/build/lib/console.component.router.js
+/js/build/lib/console.component.map.js
 /js/build/lib/main.js
 /js/build/lib/console.router.cfg.js
 /js/build/lib/router.js
+/js/build/lib/console.component.queries.js
 /js/build/helpers/utils.js
 /js/build/helpers/consts.js
 /css/foundation-icons/foundation-icons.woff

@@ -199,10 +199,9 @@ authLib(function () {
             
             console.log(err);
 
-            return 
-                req.isAPICall 
-                    ? res.send(500)
-                    : res.status(500).render('errors/500');
+            return req.isAPICall
+                ? res.send(500)
+                : res.status(500).render('errors/500');
         }
 
         if (req.isAPICall) {

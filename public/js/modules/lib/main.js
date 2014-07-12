@@ -13,6 +13,7 @@ define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
 
     pager.org = {id: uri[1]};
 
+    /*
     setInterval(function() {
 
         if ($('.clearing-blackout').length) {
@@ -24,7 +25,8 @@ define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
         }
 
     }, 1000);
-
+    */
+    
     PageList = React.createClass({displayName: 'PageList',
         render: function () {
 

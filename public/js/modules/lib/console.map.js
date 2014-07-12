@@ -31,7 +31,8 @@ define(function () {
 
                 google.maps.event.addListener(task.marker, 'click', function () {
 
-                    var elem = $('[data-task="' + task._id + '"]'), scrollRoot = document.getElementById('ScrollRoot');
+                    var elem = $('[data-task="' + task._id + '"]'),
+                        scrollRoot = document.getElementById('ScrollRoot');
 
                     if (elem.length && elem.is(':visible')) {
                         $(scrollRoot).animate({
@@ -264,7 +265,7 @@ define(function () {
                 actualHandler = function (e) {
                     if (!mapComponent.isMounted()) return unBind();
 
-                    var target, winHeight, s, offset;
+                    var target, winHeight, s, offset, $console = $('#Console');
                     
                     if (e && e.currentTarget) {
                         target = e.currentTarget;
@@ -273,31 +274,29 @@ define(function () {
                     }
                     
                     winHeight = $(window).height();
-                    offset = Math.max(0, $('#Console').position().top - target.scrollTop);
+                    offset = Math.max(0, $console.position().top - target.scrollTop);
 
                     s = {
                         top: target.scrollTop
                             ? offset
-                            : $('#Console').position().top,
-                        width: '',
+                            : $console.position().top,
+                        width: $console.width(),
                         height: target.scrollTop
                             ? winHeight - offset
                             : mapComponent.props.height
                     };
 
-                    if (target.scrollHeight > document.body.scrollHeight) {
-                        s.width = $('#ScrollRoot>.inner-wrap').width();
-                    }
-
                     $(mapComponent.getDOMNode()).css(s);
                 },
 
-                scrollHandler = _.throttle(actualHandler, 100);
+                viewPortChangeHandler = _.throttle(actualHandler, 100);
 
-            $('#ScrollRoot').on('scroll resize', scrollHandler);
+            $('#ScrollRoot').on('scroll', viewPortChangeHandler);
+            $(window).on('resize', viewPortChangeHandler);
 
             function unBind() {
-                $('#ScrollRoot').off('scroll resize', scrollHandler);
+                $('#ScrollRoot').off('scroll', viewPortChangeHandler);
+                $(window).off('resize', viewPortChangeHandler);
             }
 
             actualHandler();

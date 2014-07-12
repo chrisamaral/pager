@@ -71,12 +71,13 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                 parsed[item.name].push(item.value);
             });
 
-            $.get(pager.urls.ajax + 'console/tasks', parsed)
+            $.get(pager.urls.ajax + 'console/tasks/' + this.props.day, parsed)
                 .done(function (tasks) {
-                    if(!_.isArray(tasks)){
+
+                    if (!_.isArray(tasks)) {
                         return;
                     }
-                    
+
                     this.props.pushQuery(parsed, tasks);
 
                 }.bind(this));
@@ -263,6 +264,7 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             return <progress style={style} value={this.state.lookupProgress} max={100} title={this.state.lookupProgress + '% das ordens foram localizadas'} />;
         }
     });
+
     QueryElem = React.createClass({
 
         getInitialState: function(){
@@ -442,7 +444,8 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
                         </div>
                     </form>
                 {this.state.filters.length
-                    ? <FilterList removeFilter={this.removeFilter} 
+                    ? <FilterList removeFilter={this.removeFilter}
+                            day={this.props.day}
                             filters={this.state.filters} 
                             pushQuery={this.pushQuery} /> : null }
                     <div className='panel sequential contained'>
@@ -486,8 +489,8 @@ define(['../helpers/utils', './component.DateInput'], function (utils, DateInput
             e.preventDefault();
 
             var tasks = [];
-            this.props.queries.forEach(function(query){
-                query.tasks.forEach(function(task){
+            this.props.queries.forEach(function (query) {
+                query.tasks.forEach(function (task) {
                     if (!_.any(task,{sys_id: task.sys_id})) {
                         tasks.push(task);
                     }
