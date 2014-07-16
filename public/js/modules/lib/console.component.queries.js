@@ -79,13 +79,13 @@ define(function(){
 
        syncQueries: function () {
            if (!this.isMounted()) return clearTimeout(this.syncQueries.__timeout);
-           if (this.syncQueries.__locked) return;
+           //if (this.syncQueries.__locked) return;
 
-           this.syncQueries.__locked = true;
+           //this.syncQueries.__locked = true;
 
            this.fetchQueries(this.state.day, function(){
 
-               this.syncQueries.__locked = false;
+               //this.syncQueries.__locked = false;
 
                this.syncQueries.__timeout = setTimeout(this.syncQueries,
                    pager.constant.console.QUERY_UPDATE_INTERVAL);

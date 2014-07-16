@@ -12,7 +12,7 @@ html, body, body > #container, .off-canvas-wrap {
     min-height: 100%;
 }
 
-.off-canvas-list i.the-icon{
+i.the-icon{
     font-size: 1.5em;
     margin-right: 0.5em;
 }

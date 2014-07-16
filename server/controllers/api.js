@@ -32,10 +32,18 @@ app.express.get('/:org/api/pages', app.authorized.can('enter app'), function (re
                         return callback(err);
                     }
                     if (rows.length && rows[0].c > 0) {
-                        pages = pages.concat([{
-                            name: 'Administração',
-                            url: app.baseUrl + '/admin'
-                        }/*, {name: 'Configurações',url: '/settings'}*/]);
+                        pages = pages.concat([
+                            {
+                                id: 'acw_admin',
+                                name: 'Gerência',
+                                url: app.baseUrl + '/admin'
+                            },
+                            {
+                                id: 'pager_admin',
+                                name: 'Administração',
+                                url: '/' + req.params.org + '/admin'
+                            }
+                        ]);
                     }
 
                     callback();
@@ -63,6 +71,8 @@ app.express.get('/:org/api/k', app.authorized.can('enter app'), function (req, r
 });
 
 require('./api.console');
+require('./api.admin');
+
 if (app.ENV === 'development') {
     require('../mock/api.mock');
 }

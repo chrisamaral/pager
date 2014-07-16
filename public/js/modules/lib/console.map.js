@@ -32,11 +32,11 @@ define(function () {
                 google.maps.event.addListener(task.marker, 'click', function () {
 
                     var elem = $('[data-task="' + task._id + '"]'),
-                        scrollRoot = document.getElementById('ScrollRoot');
+                        $body = $(document.body);
 
                     if (elem.length && elem.is(':visible')) {
-                        $(scrollRoot).animate({
-                            scrollTop: scrollRoot.scrollTop + elem.offset().top - $(scrollRoot).offset().top - 10
+                        $body.animate({
+                            scrollTop: $body.scrollTop() + elem.offset().top - $body.offset().top - 10
                         });
                     }
 
@@ -263,45 +263,39 @@ define(function () {
                 mapComponent = this,
 
                 actualHandler = function (e) {
+
                     if (!mapComponent.isMounted()) return unBind();
 
-                    var target, winHeight, s, offset, $console = $('#Console');
-                    
-                    if (e && e.currentTarget) {
-                        target = e.currentTarget;
-                    } else {
-                        target = document.getElementById('ScrollRoot');
-                    }
-                    
-                    winHeight = $(window).height();
-                    offset = Math.max(0, $console.position().top - target.scrollTop);
+                    var new_style,
+                        $body = $('body'),
+                        $console = $('#Console'),
+                        scrollTop = $body.scrollTop(),
+                        consoleTop = $console.position().top;
 
-                    s = {
-                        top: target.scrollTop
-                            ? offset
-                            : $console.position().top,
+                    new_style = {
+
+                        top: Math.max(0, consoleTop - scrollTop),
+
                         width: $console.width(),
-                        height: target.scrollTop
-                            ? winHeight - offset
-                            : mapComponent.props.height
+
+                        height: mapComponent.props.height + Math.min(scrollTop, consoleTop)
+
                     };
 
-                    $(mapComponent.getDOMNode()).css(s);
+                    $(mapComponent.getDOMNode()).css(new_style);
                 },
 
                 viewPortChangeHandler = _.throttle(actualHandler, 100);
 
-            $('#ScrollRoot').on('scroll', viewPortChangeHandler);
-            $(window).on('resize', viewPortChangeHandler);
+            $(window).on('scroll resize', viewPortChangeHandler);
 
             function unBind() {
-                $('#ScrollRoot').off('scroll', viewPortChangeHandler);
-                $(window).off('resize', viewPortChangeHandler);
+                $(window).off('scroll resize', viewPortChangeHandler);
             }
 
             actualHandler();
             pager.console = pager.console || {};
-            pager.console.map = new google.maps.Map(this.refs.mapContainer.getDOMNode(), mapOptions);
+            pager.console.map = new google.maps.Map($('<div>').appendTo(this.getDOMNode())[0], mapOptions);
 
             setTimeout(function () {
                 this.updateMapView();
@@ -315,9 +309,7 @@ define(function () {
         },
 
         render: function () {
-            return React.DOM.div( {id:"ConsoleMainMap"}, 
-                React.DOM.div( {ref:"mapContainer"})
-            );
+            return React.DOM.div( {id:"ConsoleMainMap"});
         }
     });
 

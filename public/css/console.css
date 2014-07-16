@@ -1,4 +1,4 @@
-#ScrollRoot{
+body{
     overflow-y: scroll;
 }
 label>strong{

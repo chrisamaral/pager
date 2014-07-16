@@ -46,6 +46,7 @@ app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter a
                     callback(null, wo);
                 });
             },
+
             //atualiza cliente caso necessário
             function (workOrder, callback) {
                 if (!workOrder.customer) {
@@ -93,7 +94,7 @@ app.express.get('/:org/api/console/workers/:day',  app.authorized.can('enter app
             console.log(err);
             return res.send(500);
         }
-        workerCollection.find({org: req.params.org})
+        workerCollection.find({org: req.params.org, deleted: {$ne: true}})
             .toArray(function (err, ws) {
                 if (err) {
                     console.log(err);

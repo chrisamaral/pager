@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# BuildTime: 2014-07-12 17:19:38
+# BuildTime: 2014-07-15 20:18:20
 
 NETWORK:
 *
@@ -51,3 +51,4 @@ CACHE:
 /css/error.css
 /css/foundation.min.css
 /css/console.css
+/css/admin.css

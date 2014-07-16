@@ -1,7 +1,6 @@
 /** @jsx React.DOM */
 
 define([
-    '../ext/aviator/main',
     './component.DateInput',
     './console.queue',
     './console.tasks',
@@ -14,8 +13,9 @@ define([
     '../lib/console.component.map.js',
     '../lib/console.component.queries.js'
 ],
-function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCompS, cCompR, cCompM, cCompQ) {
-    var ConsoleOpts,
+function (DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCompS, cCompR, cCompM, cCompQ) {
+    var Aviator = pager.Aviator,
+        ConsoleOpts,
         LeftPanel,
         RouterController,
         RouterWorkers,
@@ -586,7 +586,7 @@ function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCom
 
         componentWillReceiveProps: function (newProps) {
 
-            var dayHasChanged = newProps.args.day !== this.state.day;
+            var dayHasChanged = newProps.args.day && newProps.args.day !== this.state.day;
 
             this.setState(this.parseArgsToState(newProps), function () {
 
@@ -594,21 +594,13 @@ function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCom
                 if (dayHasChanged) {
                     emptyA(this.state.schedule);
                     this.updateSchedule();
+                    this.syncQueries();
                 }
 
                 this.updateDefaultQuery(dayHasChanged);
                 
             }.bind(this));
 
-        },
-        
-        offCanvasMenuOpen: function () {
-            $('#ScrollRoot').scrollTop(0).css('overflow-y', 'scroll');
-            $('#appContainer').css('overflow-y', 'hidden');
-        },
-
-        offCanvasMenuClose: function () {
-            $('#ScrollRoot, #appContainer').css('overflow-y', '');
         },
 
         componentDidMount: function () {
@@ -628,9 +620,6 @@ function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCom
             this.updateSchedule(this.syncQueries);
             this.loadGoogleMaps();
 
-            $(document).on('open.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuOpen);
-            $(document).on('close.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuClose);
-
         },
 
 
@@ -638,9 +627,6 @@ function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCom
         componentWillUnmount: function () {
             clearTimeout(this.updateSchedule.__timeout);
             clearTimeout(this.syncQueries.__timeout);
-
-            $(document).off('open.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuOpen);
-            $(document).off('close.fndtn.offcanvas', '[data-offcanvas]', this.offCanvasMenuClose);
         },
         
         putArgs: function () {
@@ -655,7 +641,8 @@ function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCom
         },
 
         render: function () {
-            var h = $(window).height() - $('.tab-bar').outerHeight(), style = {'min-height': h};
+
+            var h = $(window).height() - $('#MainTopBar').outerHeight(), style = {'min-height': h};
 
             return <div id='Console' style={style}>
 
@@ -696,23 +683,6 @@ function (Aviator, DateInput, Queue, Tasks, Map, Schedule, utils, strftime, cCom
         }
 
     }, cCompS, cCompR, cCompM, cCompQ));
-
-    /*
-    function fetchPendingOrders() {
-        $.get('/json/console.pending.json')
-            .done(function (result) {
-                if (_.isString(result)) {
-                    try {
-                        result = JSON.parse(result);
-                    } catch (e) {
-                        console.log(e);
-                        result = [];
-                    }
-                }
-                this.data.pending = result;
-                this.put();
-            }.bind(this));
-    };*/
 
     _.merge(pager.components, {UserLink: UserLink, ObjectLink: ObjectLink, AttrTable: AttrTable});
 

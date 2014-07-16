@@ -1,120 +1,192 @@
 /** @jsx React.DOM */
 
-define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
+define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], function (utils, consts, Aviator) {
     
     pager.constant = consts;
+    var mainComponent;
 
-    var zIndexAltered = false, Root, PageList, uri = location.pathname.split('/');
+    var Root,
+        PageList,
+        uri = location.pathname.split('/');
 
     if (!uri[1]) {
-        $('body').html('<h1>Erro</h1>');
-        return;
+        return $('body').html('<h1>Erro</h1>');
     }
 
     pager.org = {id: uri[1]};
-
-    /*
-    setInterval(function() {
-
-        if ($('.clearing-blackout').length) {
-            $('#TopBar').css('z-index', '-1');
-            zIndexAltered = true;
-        } else if( zIndexAltered ) {
-            $('#TopBar').css('z-index', '');
-            zIndexAltered = false;
-        }
-
-    }, 1000);
-    */
     
     PageList = React.createClass({
         render: function () {
 
             var icons = {
-                    'Administração': 'fi-lock',
-                    'Configurações': 'fi-wrench'
+                    'acw_admin': 'fi-lock',
+                    'pager_admin': 'fi-wrench'
                 },
-                pages = this.props.pages.map(function (page) {
-                    var icon = icons[page.name];
+
+                pagesEnabled = this.props.pagesEnabled.map(function (page) {
+                    var icon = icons[page.id];
 
                     return <li key={page.name}>
                         <a href={page.url}>
-                                {icon && <i className={'the-icon ' + icon}></i>}
-                                {page.name}
+                            {icon ? <i className={'the-icon ' + icon}></i> : null}
+                            {page.name}
                         </a>
                     </li>;
 
                 }), baseUrl = this.props.urls.base;
 
 
-            pages.unshift(<li key={'usr.home'}>
+            pagesEnabled.unshift(<li key={'usr.home'}>
                 <a href={baseUrl + '/home'}>
                     <i className='the-icon fi-home'></i>
                 Início
                 </a>
             </li>);
-            pages.unshift(<li key={'placeholder'}><label>Menu</label></li>);
-            pages.push(<li key='usr'><label>Usuário</label></li>);
-            pages.push(<li key={'usr.settings'}>
+
+            pagesEnabled.unshift(<li key={'placeholder'}><label>Menu</label></li>);
+            pagesEnabled.push(<li key='usr'><label>Usuário</label></li>);
+
+            pagesEnabled.push(<li key={'usr.settings'}>
                 <a href={baseUrl + '/user'}>
                     <i className='the-icon fi-torso'></i>
                 Configurações
                 </a>
             </li>);
-            pages.push(<li key={'usr.logout'}>
+
+            pagesEnabled.push(<li key={'usr.logout'}>
                 <a href={baseUrl + '/logout'}>
                     <i className='the-icon fi-x'></i>
                 Logout
                 </a>
             </li>);
 
-            return <ul className="off-canvas-list">{pages}</ul>;
+            return <ul className="dropdown">{pagesEnabled}</ul>;
         }
     });
 
+    function getAppIDFromURI (uri) {
+        return uri.split('/')[2] || null
+    }
+
     Root = React.createClass({
+
+        getInitialState: function () {
+            return {
+                currentView: null,
+                args: {},
+                pagesEnabled: pager.pagesEnabled,
+                urls: pager.urls
+            };
+        },
+
+        initializeApp: function (req) {
+
+            var view = getAppIDFromURI(req.uri),
+                run = function (View) {
+
+                    mainComponent = View;
+                    this.forceUpdate();
+
+                };
+
+            this.setState({args: req.params, currentView: view});
+
+            require(['./' + view], run.bind(this));
+
+        },
+
+        setAppArgs: function (req) {
+            if (getAppIDFromURI(req.uri) !== this.state.currentView) {
+                return this.initializeApp(req);
+            }
+
+            this.setState({args: req.params});
+        },
+
         componentDidMount: function () {
             $(document).foundation();
-            $('#ScrollRoot').scroll(
-                _.throttle(
-                    function(){
-                        $('.f-dropdown.open').removeClass('open');
-                    }, 300
-                )
-            );
+
+            var AppRouteTarget = {
+
+                goToMainPage: function (req) {
+                    var mainPage = pager.user.home || 'console';
+                    Aviator.navigate((req.uri + '/').replace('//', '/') + mainPage);
+                },
+
+                setupLayout: function () {
+                    //nothing so far
+                    //pager.rootElem.setProps({app: AppContainer});
+                }
+
+            };
+
+            Aviator.setRoutes({
+                target: AppRouteTarget,
+                '/*': 'setupLayout',
+                '/:org': {
+                    '/': 'goToMainPage',
+                    '/console': {
+                        target: this,
+                        '/': 'initializeApp',
+                        '/:day/:locations': 'setAppArgs'
+                    },
+                    '/admin': {
+                        target: this,
+                        '/': 'initializeApp',
+                        '/:view': 'setAppArgs'
+                    }
+                }
+            });
+            Aviator.dispatch();
+
+            pager.Aviator = Aviator;
+
+            $.get('/' + pager.org.id + '/api/pages')
+                .done(function (myPages) {
+
+                    if (_.isArray(myPages)) {
+                        pager.pagesEnabled = myPages.concat();
+                        this.setState({pagesEnabled: myPages});
+                    }
+
+                    saveAll();
+
+                }.bind(this));
         },
+
         render: function () {
-            var App = this.props.app;
+            var App = mainComponent;
+
             return (
-                <div id='ScrollRoot' data-offcanvas className="off-canvas-wrap">
-                    <div className="inner-wrap">
-                        <nav id="TopBar" className="tab-bar">
-                            <section className="middle tab-bar-section">
-                                <h1 className="title">Pager - Sim Tv</h1>
-                            </section>
-                            <section className="right-small">
-                                <a className="right-off-canvas-toggle menu-icon">
-                                    <span></span>
-                                </a>
-                            </section>
-                        </nav>
-                        <aside className="right-off-canvas-menu">
-                            <PageList urls={this.props.urls} pages={this.props.pages} />
-                        </aside>
-                        <section className="main-section">
-                            { App &&
-                                <App view={this.props.view}
-                                        args={this.props.args}
-                                            lib={this.props.lib} />
-                            }
+                <div>
+                    <nav id='MainTopBar' className="top-bar" data-topbar>
+
+                        <ul className="title-area">
+                            <li className="name">
+                                <h1><a>{'Pager' + (pager.org && pager.org.name ? ' - '  + pager.org.name : '')}</a></h1>
+                            </li>
+                            <li className="toggle-topbar menu-icon">
+                                <a href="#"><span></span></a>
+                            </li>
+                        </ul>
+
+                        <section className="top-bar-section">
+                            <ul className="right">
+                                <li className="has-dropdown">
+                                    <a>Menu</a>
+                                    <PageList urls={this.state.urls} pagesEnabled={this.state.pagesEnabled} />
+                                </li>
+                            </ul>
                         </section>
-                    </div>
+
+                    </nav>
+                    { App && <App args={this.state.args} /> }
                 </div>
             );
         }
     });
 
-    pager.pages = [];
+    pager.pagesEnabled = [];
     pager.components = {};
 
     function loadFromLocalStorage(item) {
@@ -123,13 +195,13 @@ define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
     }
 
     if (Modernizr.localstorage) {
-        ['urls', 'pages', 'org', 'user'].forEach(function (item) {
+        ['urls', 'pagesEnabled', 'org', 'user'].forEach(function (item) {
             loadFromLocalStorage(item);
         });
     }
 
-    function saveAll(){
-        ['urls', 'pages', 'org', 'user', 'org', 'build'].forEach(function (key) {
+    function saveAll () {
+        ['urls', 'pagesEnabled', 'org', 'user', 'org', 'build'].forEach(function (key) {
             var item = pager[key];
             if (item && Modernizr.localstorage) {
                 localStorage.setItem('pager.' + pager.org.id + '.' + key, JSON.stringify(item));
@@ -137,24 +209,9 @@ define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
         });
     }
 
-    function init () {
 
-        pager.rootElem = React.renderComponent(<Root urls={pager.urls} pages={pager.pages} />,
-            document.getElementById('container'));
 
-        $.get('/' + pager.org.id + '/api/pages')
-            .done(function (pages) {
-                if (pages instanceof Array) {
-                    pager.pages = pages.concat();
-                    pager.rootElem.setProps({pages: pager.pages});
-                }
-                saveAll();
-            });
-
-        require.run('./app');
-    }
-
-    $( document ).ajaxError(function( event, jqxhr ) {
+    $(document).ajaxError(function(event, jqxhr) {
 
         if (jqxhr.status === 401) {
 
@@ -175,7 +232,12 @@ define(['../helpers/utils', '../helpers/consts'], function (utils, consts) {
                     pager.urls.ajax = '/' + pager.org.id + '/api/';
                     saveAll();
                 }
-            }).always(init);
+            }).always(function () {
+
+                pager.rootElem = React.renderComponent(<Root />,
+                    document.getElementById('container'));
+
+            });
     }
 
     return pager;

@@ -1,0 +1,25 @@
+#AdminPanel{
+    margin: 1em;
+    background-color: rgb(250,250,250);
+}
+#AdminPanel>.row{
+    max-width: none;
+}
+#InnerComponent {
+    padding: 1em;
+    background-color: white;
+    border: 1px solid rgb(200, 200, 200);
+}
+
+.WorkerHeader{
+    margin: 5px 0;
+    padding: 0 0.5em;
+    line-height: 2.2em;
+    border: 1px solid rgba(200, 200, 200, 0.2);
+}
+.button{
+    margin: 0 3px;
+}
+.actionIco{
+    margin-right: 0.5em;
+}
