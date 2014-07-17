@@ -18,7 +18,11 @@ app.express.get('/:org/api/pages', app.authorized.can('enter app'), function (re
         {name: 'Sair', url: app.baseUrl + '/logout'},
         {name: 'Usuário', url: app.baseUrl + '/user'}
     */
-    var pages = [];
+    var pages = [{
+        id: 'console',
+        name: 'Console',
+        url: '/' + req.params.org + '/console'
+    }];
     async.parallel([
         function (callback) {
             app.mysql.query('SELECT count(*) c ' +

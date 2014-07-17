@@ -26,7 +26,7 @@ define(function () {
             if(!this.props.currentView) this.props.setView(this.props.options[0].id);
         },
         render: function () {
-            return React.DOM.ul( {className:"side-nav"}, 
+            return React.DOM.ul( {id:"AdminSideNav", className:"side-nav"}, 
                 
                     this.props.options.map(function(opt){
                         return SubNavItem( {key:opt.id, option:opt, setView:this.props.setView, currentView:this.props.currentView} );
@@ -51,6 +51,8 @@ define(function () {
 
         setView: function (newVal) {
 
+            if (!this.isMounted() || !newVal) return;
+
             Component = null;
 
             this.setState({
@@ -71,6 +73,9 @@ define(function () {
 
             $.get(pager.urls.ajax + 'admin/options')
                 .done(function (options) {
+
+                    if (!this.isMounted()) return;
+
                     this.setState({options: options});
                 }.bind(this));
 

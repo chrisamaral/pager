@@ -56,3 +56,10 @@ a.ico:hover{
 .f-dropdown{
     z-index: 100;
 }
+progress.ProgressBar{
+    display: block;
+    width: 100%;
+    font-size: x-large;
+    line-height: 2em;
+    margin: 0.5em 0;
+}

@@ -26,14 +26,14 @@ app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter a
 
             //atualiza ordem
             function (callback) {
-                workOrders.update({_id: ObjectID(id)}, {$set: {location: location}}, function () {
+                workOrders.update({_id: new ObjectID(id)}, {$set: {location: location}}, function () {
                     callback();
                 });
             },
 
             //busca ordem pra verificar se é necessário atualizar coleção clientes
             function (callback) {
-                workOrders.findOne({_id: ObjectID(id)}, function (err, wo) {
+                workOrders.findOne({_id: new ObjectID(id)}, function (err, wo) {
 
                     if (err) {
                         return callback(err);

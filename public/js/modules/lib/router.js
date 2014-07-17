@@ -52,125 +52,127 @@ define(['../ext/strftime'], function (strftime) {
     };
 
     Router.prototype.workerRouteOptimizer = function  (worker, callback) {
-        if (this.amIDead()) return;
         var router = this;
-
-        tsp.startOver();
-        // Set your preferences
-        //tsp.setAvoidHighways(true);
-        tsp.setTravelMode(google.maps.DirectionsTravelMode.DRIVING);
-
-        // Add points (by coordinates, or by address).
-        // The first point added is the starting location.
-        // The last point added is the final destination (in the case of A - Z mode)
-        console.group(worker.name);
-        tsp.addWaypoint(new google.maps.LatLng(worker.startPoint.lat, worker.startPoint.lng),
-            function () {
-                console.log('startPoint', worker.startPoint);
-            });
-
-        _.forEach(worker.tasks, function (task) {
-            tsp.addWaypoint(new google.maps.LatLng(task.location.lat, task.location.lng), function () {
-                console.log('new waypoint', task.address.address);
-            });
-        });
-
-        if (worker.endPoint) {
-            tsp.addWaypoint(new google.maps.LatLng(worker.endPoint.lat, worker.endPoint.lng),
-                function () {
-                    console.log('endPoint', worker.endPoint);
-                });
-        }
-
         function onSolved () {
+
             if (router.amIDead()) return;
-            var dir = tsp.getGDirections(),
-                order = tsp.getOrder(),
-                durations = tsp.getDurations(),
-                temp = worker.tasks.concat(),
-                skipFirst = !!worker.startPoint,
-                skipLast = !(!worker.endPoint && worker.endPoint === null),
-                aux,
-                sumTime = 0,
-                currTask;
 
-            worker.tasks = [];
+            var dir, order, originalTasks, skipFirst, skipLast, aux, sumTime = 0, currTask;
 
-            for (var i = skipFirst ? 1 : 0; i < (skipLast ? order.length - 1 : order.length); i++) {
+            if (worker.tasks.length) {
+                dir = tsp.getGDirections();
+                order = tsp.getOrder();
+                originalTasks = worker.tasks.concat();
+                skipFirst = !!worker.startPoint;
+                skipLast = !(!worker.endPoint && worker.endPoint === null);
 
-                currTask = temp[order[i] - (skipFirst ? 1 : 0)];
+                worker.tasks = [];
 
-                (aux = dir.routes[0])
+                for (var i = skipFirst ? 1 : 0; i < (skipLast ? order.length - 1 : order.length); i++) {
+
+                    currTask = originalTasks[order[i] - (skipFirst ? 1 : 0)];
+
+                    (aux = dir.routes[0])
                     && (aux = aux.legs[worker.tasks.length]);
 
-                if (!aux) continue;
+                    if (!aux) continue;
 
-                currTask.directions = {
-                    origin: {
-                        lat: aux.start_location.lat(),
-                        lng: aux.start_location.lng()
-                    },
-                    distance: aux.distance,
-                    duration: aux.duration,
-                    schedule: {ini: new Date(), end: new Date()}
+                    currTask.directions = {
+                        origin: {
+                            lat: aux.start_location.lat(),
+                            lng: aux.start_location.lng()
+                        },
+                        distance: aux.distance,
+                        duration: aux.duration,
+                        schedule: {ini: new Date(), end: new Date()}
+                    };
+
+                    currTask.directions.schedule.ini.setTime(worker.workShift.from.getTime() + sumTime);
+
+                    sumTime += aux.duration.value * 1000;
+                    currTask.directions.schedule.end.setTime(worker.workShift.from.getTime() + sumTime);
+
+                    currTask.schedule = currTask.schedule || {};
+                    currTask.schedule.ini = new Date();
+                    currTask.schedule.end = new Date();
+
+                    currTask.schedule.ini.setTime(worker.workShift.from.getTime() + sumTime);
+
+                    sumTime += currTask.duration;
+                    currTask.schedule.end.setTime(worker.workShift.from.getTime() + sumTime);
+
+                    worker.tasks.push(currTask);
+                }
+
+                originalTasks = null;
+
+                worker.drawDirections = function () {
+
+                    if (worker.directions) {
+                        worker.directions.setMap(null);
+                        delete worker.directions;
+                        return false;
+                    }
+
+                    worker.directions = new google.maps.DirectionsRenderer({
+                        directions: dir,
+                        map: pager.console.map,
+                        polylineOptions: {strokeColor: worker.color},
+                        suppressMarkers: true
+                    });
+
+                    return true;
                 };
-                
-                currTask.directions.schedule.ini.setTime(worker.workShift.from.getTime() + sumTime);
 
-                sumTime += aux.duration.value * 1000;
-                currTask.directions.schedule.end.setTime(worker.workShift.from.getTime() + sumTime);
-
-                currTask.schedule = currTask.schedule || {};
-                currTask.schedule.ini = new Date();
-                currTask.schedule.end = new Date();
-
-                currTask.schedule.ini.setTime(worker.workShift.from.getTime() + sumTime);
-
-                sumTime += currTask.duration;
-                currTask.schedule.end.setTime(worker.workShift.from.getTime() + sumTime);
-
-                worker.tasks.push(currTask);
+                worker.cleanDirections = function () {
+                    if (worker.directions) {
+                        worker.directions.setMap(null);
+                        delete worker.directions;
+                    }
+                };
             }
 
-            temp = null;
-            // If you want the duration matrix that was used to compute the route:
-
             console.groupEnd();
-
-            worker.drawDirections = function () {
-
-                if (worker.directions) {
-                    worker.directions.setMap(null);
-                    delete worker.directions;
-                    return false;
-                }
-
-                worker.directions = new google.maps.DirectionsRenderer({
-                    directions: dir,
-                    map: pager.console.map,
-                    polylineOptions: {strokeColor: worker.color},
-                    suppressMarkers: true
-                });
-
-                return true;
-            };
-
-            worker.cleanDirections = function () {
-                if (worker.directions) {
-                    worker.directions.setMap(null);
-                    delete worker.directions;
-                }
-            };
 
             router.deferred.notify('message', 'Calculada rota de ' + worker.name);
 
             callback();
         }
 
-        if (worker.endPoint || worker.endPoint === null) {
-            tsp.solveAtoZ(onSolved);
+        if (this.amIDead()) return;
+
+        console.group(worker.name);
+        if (worker.tasks.length) {
+
+            tsp.startOver();
+            tsp.setTravelMode(google.maps.DirectionsTravelMode.DRIVING);
+
+            tsp.addWaypoint(new google.maps.LatLng(worker.startPoint.lat, worker.startPoint.lng),
+                function () {
+                    console.log('startPoint', worker.startPoint);
+                });
+
+            _.forEach(worker.tasks, function (task) {
+                tsp.addWaypoint(new google.maps.LatLng(task.location.lat, task.location.lng), function () {
+                    console.log('new waypoint', task.address.address);
+                });
+            });
+
+            if (worker.endPoint) {
+                tsp.addWaypoint(new google.maps.LatLng(worker.endPoint.lat, worker.endPoint.lng),
+                    function () {
+                        console.log('endPoint', worker.endPoint);
+                    });
+            }
+
+            if (worker.endPoint || worker.endPoint === null) {
+                tsp.solveAtoZ(onSolved);
+            } else {
+                tsp.solveRoundTrip(onSolved);
+            }
+
         } else {
-            tsp.solveRoundTrip(onSolved);
+            onSolved();
         }
     };
 

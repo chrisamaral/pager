@@ -1,18 +1,15 @@
-body{
-    overflow-y: scroll;
-}
-label>strong{
+
+#Console label>strong{
     margin-bottom: 0.5em;
 }
-.panel{
+#Console .panel{
     padding: 3px;
-    margin: 0 3px 0.5em 3px;
     background-color: white;
 }
-.panel.contained{
+#Console .panel.contained{
     border: none;
 }
-.panel.sequential{
+#Console .panel.sequential{
     margin: 5px 0;
 }
 
@@ -24,7 +21,7 @@ label>strong{
 }
 #LeftPanel{
     display: block; position: absolute;
-    left: 0; top: 5px;
+    left: 0; top: 0;
     height: auto;
     width: auto;
     z-index: 1;
@@ -32,7 +29,7 @@ label>strong{
 
 #RightPanel{
     display: block; position: absolute;
-    width: auto; right: 0; top: 5px;
+    width: auto; right: 0; top: 0;
     padding: 0; margin: 0;
 }
 #RightPanel:empty{
@@ -86,10 +83,10 @@ label>strong{
 .leftMapControl>.controlIco:hover{
     color: rgb(255, 237, 89);
 }
-
+/*
 .leftMapControl:first-child>.controlIco{
     border-top-right-radius: 0.3em;
-}
+}*/
 .leftMapControl:last-child>.controlIco{
     border-bottom-right-radius: 0.3em;
     border-bottom-style: none;
@@ -298,12 +295,8 @@ label>strong{
 }
 .scheduleTask{
     position: absolute;
-
-    
     border: 1px solid rgb(200,200,200);
-    
     margin-right: 3px;
-
     height: 100%;
     background-color: rgb(240,240,240);
     

@@ -1,6 +1,7 @@
 define(function(){
    return {
        updateDefaultQuery: function (dayHasChanged) {
+
            var qs = this.state.queries,
                d = {
                    id: 'query-' + Math.random().toString(36).substr(2),
@@ -24,7 +25,7 @@ define(function(){
                qs.unshift(d);
            }
 
-           this.setState({queries: qs});
+           this.setState({queries: qs}, this.syncQueries);
        },
        setQueries: function (items) {
 
@@ -52,13 +53,19 @@ define(function(){
 
            this.setState({queries: items});
        },
-       fetchQuery: function (query, index) {
+       fetchQuery: function (query) {
+
            return $.get(pager.urls.ajax + 'console/tasks/' + this.state.day, query.query).done(
                function (tasks) {
+
                    if (!_.isArray(tasks)) return;
 
-                   var qs = this.state.queries;
-                   qs[index].tasks = tasks;
+                   var qs = this.state.queries,
+                       $query = _.find(qs, {id: query.id}) || _.find(qs, {name: query.name});
+
+                   if (!$query) return;
+
+                   $query.tasks = tasks;
 
                    this.setState({queries: qs});
                }.bind(this)
@@ -66,26 +73,26 @@ define(function(){
        },
 
        fetchQueries: function (callback) {
-           var promises = [];
+           var promises = [], aux;
 
-           this.state.queries.forEach(function (query, index) {
+           this.state.queries.forEach(function (query) {
 
-               promises.push(this.fetchQuery(query, index));
+               promises.push(this.fetchQuery(query));
 
            }.bind(this));
 
-           $.when.apply($, promises).always(callback ? callback : function(){});
+           aux = $.when.apply($, promises);
+
+           if (_.isFunction(callback)) aux.always(callback);
        },
 
        syncQueries: function () {
-           if (!this.isMounted()) return clearTimeout(this.syncQueries.__timeout);
-           //if (this.syncQueries.__locked) return;
 
-           //this.syncQueries.__locked = true;
+           clearTimeout(this.syncQueries.__timeout)
 
-           this.fetchQueries(this.state.day, function(){
+           if (!this.isMounted()) return;
 
-               //this.syncQueries.__locked = false;
+           this.fetchQueries(function () {
 
                this.syncQueries.__timeout = setTimeout(this.syncQueries,
                    pager.constant.console.QUERY_UPDATE_INTERVAL);

@@ -1,5 +1,5 @@
 /** @jsx React.DOM */
-define(['../helpers/utils', './component.DateInput'], function (utils, DateInput) {
+define(['./component.DateInput'], function (DateInput) {
     var Tasks,
         TaskInput,
         FilterList,

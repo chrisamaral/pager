@@ -16,24 +16,29 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
     pager.org = {id: uri[1]};
     
     PageList = React.createClass({displayName: 'PageList',
+        navigateTo: function (e) {
+            e.preventDefault();
+            pager.Aviator.navigate($(e.currentTarget).attr('href'));
+        },
         render: function () {
 
             var icons = {
                     'acw_admin': 'fi-lock',
-                    'pager_admin': 'fi-wrench'
+                    'pager_admin': 'fi-wrench',
+                    'console': 'fi-map'
                 },
 
                 pagesEnabled = this.props.pagesEnabled.map(function (page) {
                     var icon = icons[page.id];
 
                     return React.DOM.li( {key:page.name}, 
-                        React.DOM.a( {href:page.url}, 
+                        React.DOM.a( {onClick:this.navigateTo, href:page.url}, 
                             icon ? React.DOM.i( {className:'the-icon ' + icon}) : null,
                             page.name
                         )
                     );
 
-                }), baseUrl = this.props.urls.base;
+                }.bind(this)), baseUrl = this.props.urls.base;
 
 
             pagesEnabled.unshift(React.DOM.li( {key:'usr.home'}, 

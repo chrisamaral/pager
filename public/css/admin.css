@@ -17,9 +17,16 @@
     line-height: 2.2em;
     border: 1px solid rgba(200, 200, 200, 0.2);
 }
-.button{
+.AdmWBtRow .button{
     margin: 0 3px;
 }
 .actionIco{
     margin-right: 0.5em;
+}
+#AdminSideNav a{
+    color: rgb(70,70,70);
+}
+#AdminSideNav .active>a{
+    font-weight: bold;
+    color: rgb(40,40,40);
 }

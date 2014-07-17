@@ -11,7 +11,8 @@ function workOrderFormat (order) {
         address: order.address,
         creation: order.creation,
         type: order.type,
-        attrs: []
+        attrs: order.attrs && _.isArray(order.attrs)
+                    ? order.attrs : []
     }, target;
 
 

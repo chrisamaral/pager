@@ -42,9 +42,11 @@ define(function () {
             this.props.saveWorker(new_worker)
 
                 .always(function () {
+                    if (!this.isMounted()) return;
                     this.setState({locked: false});
                 }.bind(this))
                 .done(function () {
+                    if (!this.isMounted()) return;
                     if (!this.props.worker._id) {
                         this.refs.sys_id.getDOMNode().value = this.props.worker.sys_id;
                         this.refs.name.getDOMNode().value = this.props.worker.name;
@@ -52,6 +54,7 @@ define(function () {
                     }
                 }.bind(this))
                 .fail(function () {
+                    if (!this.isMounted()) return;
                     $(this.getDOMNode()).prepend(
                         React.renderComponentToStaticMarkup(React.DOM.div( {'data-alert':true, className:"radius alert alert-box"}, 
                             "Erro, não foi possível salvar.",
@@ -66,7 +69,7 @@ define(function () {
         },
         render: function () {
             return React.DOM.div( {className:"panel"}, 
-                React.DOM.form(null, 
+                React.DOM.form( {onSubmit:this.handleSubmit}, 
                     React.DOM.div( {className:"row"}, 
                         React.DOM.div( {className:"small-4 large-3 columns"}, 
                             React.DOM.label(null, "Código",
@@ -91,9 +94,9 @@ define(function () {
                         React.DOM.div( {className:"large-12 columns text-right"}, 
                             !this.state.locked
                                 ?
-                                    React.DOM.div(null, 
+                                    React.DOM.div( {className:"AdmWBtRow"}, 
 
-                                        React.DOM.button( {onClick:this.handleSubmit, className:"small buton success"}, "Salvar"),
+                                        React.DOM.button( {className:"small buton success"}, "Salvar"),
                                         this.props.deleteWorker
                                             ? React.DOM.button( {onClick:this.delete, className:"small button alert"}, "Remover")
                                             : null
@@ -101,7 +104,7 @@ define(function () {
 
                                     )
 
-                                : React.DOM.strong(null, "Salvando...")
+                                : React.DOM.strong(null, "Carregando...")
                             
                         )
                     )
@@ -185,6 +188,7 @@ define(function () {
                         type: 'DELETE',
                         url: pager.urls.ajax + 'admin/worker/' + workerID
                     }).done(function () {
+                        if (!this.isMounted()) return;
                         var workers = this.state.workers;
                         _.remove(workers, {_id: workerID});
                         this.setState({workers: workers});
@@ -200,6 +204,7 @@ define(function () {
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify({worker: worker})
                     }).done(function () {
+                        if (!this.isMounted()) return;
                         if (worker._id) {
                             var ws = this.state.workers,
                                 w = _.find(ws, {_id: worker._id});
@@ -217,10 +222,12 @@ define(function () {
         },
 
         setWorkers: function (ws) {
+            if (!this.isMounted()) return;
             this.setState({workers: ws});
         },
 
         setUsers: function (us) {
+            if (!this.isMounted()) return;
             this.setState({users: us});
         },
 

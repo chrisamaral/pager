@@ -1,7 +1,7 @@
 define(function() {
     return {
         updateSchedule: function (callback) {
-            
+
             if (!this.isMounted()) return;
 
             clearTimeout(this.updateSchedule.__timeout);

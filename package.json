@@ -27,6 +27,8 @@
         "strftime": "*",
         "connect-redis": "*",
         "redis": "*",
-        "mongodb": "*"
+        "mongodb": "*",
+        "multiparty": "*",
+        "ya-csv": "*"
     }
 }

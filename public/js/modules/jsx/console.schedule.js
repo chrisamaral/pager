@@ -1,5 +1,5 @@
 /** @jsx React.DOM */
-define(['../helpers/utils', '../ext/strftime'], function (utils, strftime) {
+define(['../ext/strftime'], function (strftime) {
     var ScheduleView, ScheduleRow, ScheduleTimeLine, ScheduleTask;
 
     ScheduleTask = React.createClass({
