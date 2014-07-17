@@ -17,8 +17,11 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
     
     PageList = React.createClass({displayName: 'PageList',
         navigateTo: function (e) {
-            e.preventDefault();
-            pager.Aviator.navigate($(e.currentTarget).attr('href'));
+            var uri = $(e.currentTarget).attr('href');
+            if (uri.charAt(0) === '/' && uri.substr(0, 2) !== '//') {
+                e.preventDefault();
+                pager.Aviator.navigate(uri);
+            }
         },
         render: function () {
 
