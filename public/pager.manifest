@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# BuildTime: 2014-07-15 20:18:20
+# BuildTime: 2014-07-16 21:25:06
 
 NETWORK:
 *
@@ -27,10 +27,15 @@ CACHE:
 /js/build/lib/console.schedule.js
 /js/build/lib/router.worker.js
 /js/build/lib/console.map.js
-/js/build/lib/app.js
+/js/build/lib/console.rightpanel.js
+/js/build/lib/admin.shifts.js
+/js/build/lib/admin.workers.js
+/js/build/lib/console.leftpanel.js
 /js/build/lib/component.DateInput.js
+/js/build/lib/admin.import.js
 /js/build/lib/task.geocoder.js
 /js/build/lib/console.tasks.js
+/js/build/lib/admin.js
 /js/build/lib/console.js
 /js/build/lib/console.component.schedule.js
 /js/build/lib/console.queue.js

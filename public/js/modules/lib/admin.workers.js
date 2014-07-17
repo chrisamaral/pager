@@ -63,7 +63,7 @@ define(function () {
                     ).foundation()
                 }.bind(this));
         },
-        delete: function (e) {
+        killMe: function (e) {
             e.preventDefault();
             this.props.deleteWorker(this.props.worker._id);
         },
@@ -98,7 +98,7 @@ define(function () {
 
                                         React.DOM.button( {className:"small buton success"}, "Salvar"),
                                         this.props.deleteWorker
-                                            ? React.DOM.button( {onClick:this.delete, className:"small button alert"}, "Remover")
+                                            ? React.DOM.button( {onClick:this.killMe, className:"small button alert"}, "Remover")
                                             : null
                                             
 
