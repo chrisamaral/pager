@@ -113,7 +113,7 @@ function workOrderFormat (order) {
 
             o.attrs.push({
                 descr: 'Agenda',
-                value: strftime('%d/%m/%Y %R', order.schedule.from) + ' <> ' + strftime('%d/%m/%Y %R', order.schedule.to)
+                value: strftime('%d/%m/%Y', order.schedule.date)
             });
 
         }
