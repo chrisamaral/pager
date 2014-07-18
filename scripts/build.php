@@ -1,7 +1,12 @@
 <?php
 date_default_timezone_set('America/Sao_Paulo');
 chdir(realpath(dirname(__FILE__)));
+
+$time = time();
+
 $build = file_get_contents('../build.json');
+$build = str_replace('[moduleROOT]', "/js/v/{$time}", $build);
+
 $l = '../server/build/lazy.cache.load.js';
 
 $lazyCache = file_get_contents($l);
@@ -9,6 +14,8 @@ $lazyCacheMin = shell_exec("closure {$l}");
 
 $inputHtml = file_get_contents('../server/build/index.html');
 $build = json_decode($build, true);
+
+
 foreach (array('development', 'production')  as $env) {
     $output = $build[$env];
     foreach (array('css', 'js') as $type) {
@@ -32,12 +39,21 @@ foreach (array('development', 'production')  as $env) {
     fclose($fp);
 }
 
+chdir('../public/js/v');
 
+$build['production']['moduleRoot'] = "/js/v/{$time}";
+
+exec("ln -sT ../build {$time}");
+chdir('../../../scripts');
+
+$fp = fopen('../build.json', 'w');
+fwrite($fp, json_encode($build, JSON_PRETTY_PRINT));
+fclose($fp);
 
 $static = 
     trim(
         shell_exec(
-            'find ../public/js/build/ -name "*.js"'
+            "find ../public/js/v/{$time}/ -name '*.js'"
         )
     )
     ."\n".
@@ -52,7 +68,7 @@ $static =
             'find ../public/css -type f -name "*.css"'
         )
     );
-$time = time();
+
 $static = str_replace('../public', '', $static);
 
 $manifest = fopen("../public/pager.manifest", 'w');

@@ -27,21 +27,21 @@
         }
     },
     "production": {
-        "moduleRoot": "\/js\/v\/1405646122",
+        "moduleRoot": "\/js\/v\/1405645338",
         "moduleExpiration": 0,
         "pager": {
             "isDev": false
         },
         "js": {
-            "lazyload": "\/js\/v\/1405645640\/ext\/lazyload.js",
+            "lazyload": "\/js\/build\/ext\/lazyload.js",
             "inject": "\/js\/inject.min.js",
-            "base64": "\/js\/v\/1405645640\/ext\/base64.js",
-            "lodash": "\/js\/v\/1405645640\/ext\/lodash.js",
-            "modernizr": "\/js\/v\/1405645640\/ext\/modernizr.js",
-            "pace": "\/js\/v\/1405645640\/ext\/pace.js",
-            "jquery": "\/js\/v\/1405645640\/ext\/jquery.js",
-            "react": "\/js\/v\/1405645640\/ext\/react-with-addons-0.10.0.js",
-            "foundation": "\/js\/v\/1405645640\/ext\/foundation.min.js"
+            "base64": "\/js\/build\/ext\/base64.js",
+            "lodash": "\/js\/build\/ext\/lodash.js",
+            "modernizr": "\/js\/build\/ext\/modernizr.js",
+            "pace": "\/js\/build\/ext\/pace.js",
+            "jquery": "\/js\/build\/ext\/jquery.js",
+            "react": "\/js\/build\/ext\/react-with-addons-0.10.0.js",
+            "foundation": "\/js\/build\/ext\/foundation.min.js"
         }
     }
 }

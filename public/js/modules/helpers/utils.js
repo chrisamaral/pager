@@ -83,9 +83,7 @@ define(['../ext/strftime'], function (strftime) {
                     range.move('character', caretPos);
                     range.select();
                     return true;
-                }
-
-                else {
+                } else {
                     // (el.selectionStart === 0 added for Firefox bug)
                     if (el.selectionStart || el.selectionStart === 0) {
                         el.focus();
@@ -100,6 +98,9 @@ define(['../ext/strftime'], function (strftime) {
                 }
             }
         }, loadAPIKeys: function (callback) {
+
+            if (pager.keys) return callback(pager.keys);
+
             $.get('/' + pager.org.id + '/api/k')
                 .done(function (keys) {
                     if(keys && _.isObject(keys)) {

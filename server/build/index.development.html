@@ -16,9 +16,11 @@
         }
     }
     function setCacher(){
-        var jsLoad = LazyLoad.js, allStuff = '', callbacks = [];
+        var jsLoad = LazyLoad.js;
 
         function ajaxCacheLoad(type, urls, callback) {
+            var callbacks = [];
+
             if (urls instanceof Array === false) {
                 urls = [urls];
             }

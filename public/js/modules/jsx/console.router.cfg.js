@@ -24,7 +24,7 @@ define(function () {
                         <select className='pointSelector' data-collection='points' data-field='startPoint' data-worker={this.props.worker._id}>
                             {
                                 this.props.options.points.map(function (option, index) {
-                                    return <option key={index} value={index}>{option.address}</option>;
+                                    return <option key={index} value={index}>{option.name}</option>;
                                 })
                             }
                         </select>
@@ -33,8 +33,7 @@ define(function () {
                         <select className='shiftSelector' data-collection='workShifts' data-field='workShift' data-worker={this.props.worker._id}>
                             {
                                 this.props.options.workShifts.map(function (option, index) {
-                                    return <option key={index} value={index}>
-                                                {option.from + ' <> ' + option.to}</option>;
+                                    return <option key={index} value={index}>{option.name}</option>;
                                 })
                             }
                         </select>

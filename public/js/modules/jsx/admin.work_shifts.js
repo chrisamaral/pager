@@ -44,7 +44,7 @@ define(function(){
         },
         render: function () {
 
-            return <form onSubmit={this.handleSubmit} action={pager.urls.ajax + 'admin/shift' + (this.props.shift._id ? '/' + this.props.shift._id : '')}>
+            return <form onSubmit={this.handleSubmit} action={pager.urls.ajax + 'admin/work_shift' + (this.props.shift._id ? '/' + this.props.shift._id : '')}>
                 <div className='row'>
                     <div className='small-4 columns'>
                         <input required type='text' ref='nameInput' name='name' defaultValue={this.props.shift.name} />
@@ -86,7 +86,7 @@ define(function(){
             this.reloadShifts();
         },
         reloadShifts: function () {
-            $.get(pager.urls.ajax + 'admin/shifts')
+            $.get(pager.urls.ajax + 'admin/work_shifts')
                 .done(function (s) {
 
                     if (!this.isMounted()) return;

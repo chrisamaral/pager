@@ -10,6 +10,7 @@ require('./api.console.tasks');
 /*
     SET WORK ORDER LOCATION
  */
+
 app.express.post('/:org/api/workOrder/:id/location', app.authorized.can('enter app'), function (req, res) {
 
     if (!req.body || !req.body.lat || !req.body.lng) {
@@ -90,10 +91,12 @@ app.express.get('/:org/api/console/workers/:day',  app.authorized.can('enter app
     //@TODO: filtrar `day`
 
     app.mongo.collection('worker', function (err, workerCollection) {
+
         if (err) {
             console.log(err);
             return res.send(500);
         }
+
         workerCollection.find({org: req.params.org, deleted: {$ne: true}})
             .toArray(function (err, ws) {
                 if (err) {
@@ -133,6 +136,53 @@ app.express.get('/:org/api/console/typeDuration', app.authorized.can('enter app'
 });
 
 app.express.get('/:org/api/console/routerConfigOptions', app.authorized.can('enter app'), function (req, res) {
+    async.parallel({
+        workShifts: function (callback) {
+            app.mongo.collection('work_shift', function (err, workShiftsCollection) {
+
+                if (err) return callback(err);
+
+                workShiftsCollection.find({org: req.params.org}).toArray(function (err, result) {
+
+                    if (err) return callback(err);
+
+                    callback(null, result);
+                });
+            });
+        },
+
+        points: function (callback) {
+            app.mongo.collection('place', function (err, checkPointCollection) {
+                if (err) return callback(err);
+
+                checkPointCollection.find({org: req.params.org, tags: 'origin'}).toArray(function (err, result) {
+
+                    if (err) return callback(err);
+
+                    callback(null, result.map(function (point) {
+                        return {
+                            name: point.name,
+                            address: point.address,
+                            location: {
+                                lng: point.location.coordinates[0],
+                                lat: point.location.coordinates[1]
+                            }
+                        };
+                    }));
+
+                });
+            });
+        }
+
+    }, function (err, results) {
+
+            if (err) {
+                console.log(err);
+                return res.send(500);
+            }
+            res.json(results);
+        });
+    /*
     res.json({
         points: [{address: 'Central, Rio de Janeiro', location: {lat: -22.904356, lng: -43.189390}}],
         workShifts: [
@@ -140,7 +190,7 @@ app.express.get('/:org/api/console/routerConfigOptions', app.authorized.can('ent
             {from: '11:00', to: '20:00'},
             {from: '14:00', to: '23:00'}
         ]
-    });
+    });*/
 });
 
 (function(){

@@ -33,8 +33,15 @@ define(function () {
             var new_worker = {
                 sys_id: this.refs.sys_id.getDOMNode().value,
                 name: this.refs.name.getDOMNode().value,
-                user_id: this.refs.user_id.getDOMNode().value
+                user_id: this.refs.user_id.getDOMNode().value,
+                types: []
             };
+
+            var $form = $(e.currentTarget);
+            $form.find(':checkbox').each(function () {
+                if ($(this).is(':checked')) new_worker.types.push($(this).val());
+            });
+
             if (this.props.worker._id) new_worker._id = this.props.worker._id;
 
             this.setState({locked: true});
@@ -68,44 +75,62 @@ define(function () {
             this.props.deleteWorker(this.props.worker._id);
         },
         render: function () {
+            var thisWorker = this.props.worker;
             return <div className='panel'>
                 <form onSubmit={this.handleSubmit}>
                     <div className='row'>
-                        <div className='small-4 large-3 columns'>
-                            <label>Código
-                                <input type='text' placeholder='###' ref='sys_id' defaultValue={this.props.worker.sys_id} />
-                           </label>
-                        </div>
-                        <div className='small-8 large-9 columns'>
-                            <label>Nome
-                                <input type='text' ref='workerName' required={true} placeholder='Nome' ref='name' defaultValue={this.props.worker.name} />
-                            </label>
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className='large-12 columns'>
-                            <label>Usuário Associado
-                                <UserSelector ref='user_id' selected={this.props.worker.user_id}
-                                    users={this.props.users} selectUser={this.selectUser} />
-                            </label>
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className='large-12 columns text-right'>
+                        <div className='small-8 columns'>
+                            <div className='row'>
+                                <div className='small-4 large-3 columns'>
+                                    <label>Código
+                                        <input type='text' placeholder='0000' ref='sys_id' defaultValue={thisWorker.sys_id} />
+                                    </label>
+                                </div>
+                                <div className='small-8 large-9 columns'>
+                                    <label>Nome
+                                        <input type='text' ref='workerName' required={true} placeholder='Nome' ref='name' defaultValue={thisWorker.name} />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className='row'>
+                                <div className='large-12 columns'>
+                                    <label>Usuário Associado
+                                        <UserSelector ref='user_id' selected={thisWorker.user_id}
+                                        users={this.props.users} selectUser={this.selectUser} />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className='row'>
+                                <div className='large-12 columns text-right'>
                             {!this.state.locked
                                 ?
-                                    <div className='AdmWBtRow'>
+                                <div className='AdmWBtRow'>
 
-                                        <button className='small buton success'>Salvar</button>
+                                    <button className='small buton success'>Salvar</button>
                                         {this.props.deleteWorker
                                             ? <button onClick={this.killMe} className='small button alert'>Remover</button>
                                             : null
                                             }
 
-                                    </div>
+                                </div>
 
                                 : <strong>Carregando...</strong>
-                            }
+                                }
+                                </div>
+                            </div>
+                        </div>
+                        <div className='small-4 columns'>
+                            {this.props.avaibleTypes.map(function (type) {
+                                var $id = thisWorker._id || Math.random().toString(36).substr(2);
+
+                                return <div className='row' key={type}>
+                                    <div className='small-12 columns'>
+                                        <input id={'tagType' + type + $id} type='checkbox' value={type}
+                                            defaultChecked={_.isArray(thisWorker.types) && thisWorker.types.indexOf(type) >= 0}/>
+                                        <label className='textCapitalize' htmlFor={'tagType' + type + $id}>{type}</label>
+                                    </div>
+                                </div>;
+                            })}
                         </div>
                     </div>
                 </form>
@@ -151,7 +176,7 @@ define(function () {
                         <WorkerHeader worker={worker} toggleEditor={this.props.toggleEdit} />
 
                             {worker.editable
-                                ? <EditWorkerForm users={this.props.users} worker={worker}
+                                ? <EditWorkerForm users={this.props.users} worker={worker} avaibleTypes={this.props.avaibleTypes}
                                     saveWorker={this.props.saveWorker} deleteWorker={this.props.deleteWorker} />
                                 : null}
 
@@ -169,7 +194,8 @@ define(function () {
             return {
                 defaultWorker: {name: '', sys_id: '', user_id: ''},
                 workers: [],
-                users: []
+                users: [],
+                avaibleTypes: []
             };
         },
 
@@ -240,18 +266,23 @@ define(function () {
             $.get(pager.urls.ajax + 'admin/workers')
                 .done(this.setWorkers);
         },
+
         componentDidMount: function () {
             this.reloadUsers();
             this.reloadWorkers();
+            $.get(pager.urls.ajax + 'admin/types')
+                .done(function (types) {
+                    this.setState({avaibleTypes: types});
+                }.bind(this));
         },
 
         render: function () {
             return <div>
 
-                <WorkerList workers={this.state.workers} users={this.state.users}
+                <WorkerList avaibleTypes={this.state.avaibleTypes} workers={this.state.workers} users={this.state.users}
                     deleteWorker={this.deleteWorker} toggleEdit={this.toggleEdit} saveWorker={this.saveWorker}  />
 
-                <EditWorkerForm deleteWorker={this.deleteWorker}
+                <EditWorkerForm avaibleTypes={this.state.avaibleTypes}
                     saveWorker={this.saveWorker} worker={this.state.defaultWorker} users={this.state.users} />
             </div>;
         }
