@@ -47,19 +47,66 @@ function workOrderFormat (order) {
 
     }
 
-    if (order.schedule && order.schedule.from && order.schedule.to) {
+    if (order.schedule && order.schedule.date) {
+
+        order.schedule.from = new Date();
+        order.schedule.to = new Date();
+
+        if (order.schedule.shift && _.isArray(order.schedule.shift)) order.schedule.shift = {from: order.schedule.shift[0], to: order.schedule.shift[1]};
+
+        if (order.schedule.shift) {
+
+            order.schedule.from = new Date(
+                order.schedule.date.getFullYear(),
+                order.schedule.date.getMonth(),
+                order.schedule.date.getDate(),
+                parseInt(order.schedule.shift.from.split(':')[0], 10),
+                parseInt(order.schedule.shift.from.split(':')[1], 10),
+                0,0
+            );
+
+            order.schedule.to = new Date(
+                order.schedule.date.getFullYear(),
+                order.schedule.date.getMonth(),
+                order.schedule.date.getDate(),
+                parseInt(order.schedule.shift.to.split(':')[0], 10),
+                parseInt(order.schedule.shift.to.split(':')[1], 10),
+                0,0
+            );
+
+        } else {
+
+            order.schedule.from = new Date(
+                order.schedule.date.getFullYear(),
+                order.schedule.date.getMonth(),
+                order.schedule.date.getDate(),
+                0,
+                0,
+                0,0
+            );
+
+            order.schedule.to = new Date(
+                order.schedule.date.getFullYear(),
+                order.schedule.date.getMonth(),
+                order.schedule.date.getDate(),
+                23,
+                59,
+                59,0
+            );
+        }
+
         o.schedule = {from: order.schedule.from, to: order.schedule.to};
 
         if (order.schedule.shift) {
 
             o.attrs.push({
                 descr: 'Agenda',
-                value: strftime('%d/%m/%Y', order.schedule.from)
+                value: strftime('%d/%m/%Y', order.schedule.date)
             });
 
             o.attrs.push({
                 descr: 'Turno',
-                value: order.schedule.shift.join(' <> ')
+                value: order.schedule.shift.from + ' <> ' + order.schedule.shift.to
             });
 
         } else {
@@ -166,15 +213,15 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
         if (notEmptyArray(query.schedule)) {
             aux = {$or: []};
             query.schedule.forEach(function (schedule) {
-                var ini = new Date(schedule), end = new Date(schedule);
+                var ini = new Date(schedule),
+                    end = new Date(schedule);
 
                 ini.setTime(ini.getTime() + oneDay);
                 ini.setHours(0);
                 end.setTime(ini.getTime() + oneDay);
 
                 aux.$or.push({
-                    'schedule.from': {$lt: end},
-                    'schedule.to': {$gt: ini}
+                    'schedule.date': {$lt: end, $gt: ini}
                 });
             });
             search.$and.push(aux);

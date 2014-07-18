@@ -34,7 +34,7 @@ define(function () {
                 if (this.status === 200 || this.status === 204) {
 
                     $(React.renderComponentToStaticMarkup(
-                        React.DOM.div( {'data-alert':true, className:"alert-box success radius"}, "Upload completo!",
+                        React.DOM.div( {'data-alert':true, className:"alert-box success radius"}, "Upload completo: ", this.responseText,
                             React.DOM.a( {href:"#", className:"close"}, '×')
                         )
                     )).insertAfter($(formComponent.refs.fieldSet.getDOMNode()).find('legend'));

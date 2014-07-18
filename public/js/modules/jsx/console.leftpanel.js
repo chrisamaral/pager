@@ -10,9 +10,14 @@ function (DateInput, Queue, Tasks, strftime) {
             this.props.drawWorkerDirections(this.props.worker._id);
         },
         render: function () {
-            return <li key={this.props.worker._id}>
-                <a onClick={this.drawMe}>{this.props.worker.name}</a>
-            </li>
+            return <tr>
+                <td>{this.props.worker.name}</td>
+                <td>{this.props.worker.tasks ? this.props.worker.tasks.length : '0'}</td>
+                <td>{this.props.worker.tasks && this.props.worker.tasks.length
+                        ? <a className='radius ico fi-map' onClick={this.drawMe}></a>
+                        : null
+                }</td>
+            </tr>
         }
     });
 
@@ -90,11 +95,20 @@ function (DateInput, Queue, Tasks, strftime) {
 
         render: function () {
             return <div id='RouterWorkers'>
-                <ul>
-                    {this.props.workers.map(function (worker) {
-                        return <RouterWorker drawWorkerDirections={this.drawWorkerDirections} key={worker._id} worker={worker} />;
-                    }.bind(this))}
-                </ul>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Visitas</th>
+                            <th>{'##'}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.props.workers.map(function (worker) {
+                            return <RouterWorker drawWorkerDirections={this.drawWorkerDirections} key={worker._id} worker={worker} />;
+                        }.bind(this))}
+                    </tbody>
+                </table>
             </div>;
         }
     });

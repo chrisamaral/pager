@@ -33,3 +33,8 @@
 .textCapitalize{
     text-transform: capitalize;
 }
+.killStatus{
+    font-weight: bold;
+    color: rgb(40,40,40);
+    margin-left: 0.5em;
+}

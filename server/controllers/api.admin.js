@@ -10,10 +10,62 @@ app.express.get('/:org/api/admin/options', app.authorized.can('enter app'), func
         {id: 'import', name: 'Importar'},
         {id: 'shifts', name: 'Turnos da Agenda'},
         {id: 'work_shifts', name: 'Turnos de Trabalho'},
-        {id: 'places', name: 'Pontos Geográficos'}
+        {id: 'places', name: 'Pontos Geográficos'},
+        {id: 'statuses', name: 'Status de Ordem'}
     ]);
 });
+app.express.get('/:org/api/admin/statuses',  app.authorized.can('enter app'), function (req, res) {
+    app.mongo.collection('status', function (err, statusCollection) {
+        if (err) {
+            console.log(err);
+            return res.send(500);
+        }
 
+        statusCollection.find({org: req.params.org}).toArray(function (err, result) {
+            if (err) {
+                console.log(err);
+                return res.send(500);
+            }
+            res.json(result);
+        });
+
+    });
+});
+app.express.post('/:org/api/admin/status/:name/:ref', app.authorized.can('enter app'), function (req, res) {
+
+    req.params.name = req.params.name.toLowerCase().trim();
+    req.params.ref = req.params.ref.toLowerCase().trim();
+
+    app.mongo.collection('status', function (err, statusCollection) {
+        statusCollection.update({org: req.params.org, name: req.params.name},
+            {$set: {name: req.params.name}, $push: {references: req.params.ref}},
+            {upsert: true},
+            function (err, result) {
+                if (err) {
+                    console.log(err);
+                    return res.send(500);
+                }
+                res.send(204);
+            });
+    });
+});
+app.express.delete('/:org/api/admin/status/:name/:ref', app.authorized.can('enter app'), function (req, res) {
+
+    req.params.name = req.params.name.toLowerCase().trim();
+    req.params.ref = req.params.ref.toLowerCase().trim();
+
+    app.mongo.collection('status', function (err, statusCollection) {
+        statusCollection.update({org: req.params.org, name: req.params.name},
+            {$pull: {references: req.params.ref}},
+            function (err, result) {
+                if (err) {
+                    console.log(err);
+                    return res.send(500);
+                }
+                res.send(204);
+            });
+    });
+});
 app.express.get('/:org/api/admin/workers',  app.authorized.can('enter app'), function (req, res) {
 
     app.mongo.collection('worker', function (err, workerCollection) {
@@ -116,41 +168,9 @@ app.express.delete('/:org/api/admin/worker/:id', app.authorized.can('enter app')
         });
     });
 });
+var csvImport = require('./api.admin.csv.import');
 
-app.express.post('/:org/api/admin/work_orders', app.authorized.can('enter app'), function (req, res) {
-
-    console.log('initialize');
-
-    var multiparty = require('multiparty'),
-        form = new multiparty.Form();
-
-    console.log('read form');
-
-    form.parse(req, function (err, formFields, formFiles) {
-        console.log('ok');
-        if (err) {
-            console.log(err);
-            return res.status(500).send('Erro ao processar upload.');
-        }
-
-        if (!formFiles || !formFiles.csv || !formFiles.csv[0]) {
-            return res.status(400).send('Não foi possível ler o arquivo');
-        }
-
-        var tmpFile = formFiles.csv[0].path,
-            csv = require('ya-csv'),
-            reader = csv.createCsvFileReader(tmpFile, {
-                columnsFromHeader: true
-            });
-
-        reader.addListener('data', function (data) {
-            console.log(data);
-        });
-        res.send(204);
-    });
-
-});
-
+app.express.post('/:org/api/admin/work_orders', app.authorized.can('enter app'), csvImport.workOrderCSVUploadHandler);
 
 app.express.get('/:org/api/admin/places', app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('place',

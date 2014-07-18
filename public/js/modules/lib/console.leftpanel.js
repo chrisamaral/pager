@@ -10,8 +10,13 @@ function (DateInput, Queue, Tasks, strftime) {
             this.props.drawWorkerDirections(this.props.worker._id);
         },
         render: function () {
-            return React.DOM.li( {key:this.props.worker._id}, 
-                React.DOM.a( {onClick:this.drawMe}, this.props.worker.name)
+            return React.DOM.tr(null, 
+                React.DOM.td(null, this.props.worker.name),
+                React.DOM.td(null, this.props.worker.tasks ? this.props.worker.tasks.length : '0'),
+                React.DOM.td(null, this.props.worker.tasks && this.props.worker.tasks.length
+                        ? React.DOM.a( {className:"radius ico fi-map", onClick:this.drawMe})
+                        : null
+                )
             )
         }
     });
@@ -90,10 +95,19 @@ function (DateInput, Queue, Tasks, strftime) {
 
         render: function () {
             return React.DOM.div( {id:"RouterWorkers"}, 
-                React.DOM.ul(null, 
-                    this.props.workers.map(function (worker) {
-                        return RouterWorker( {drawWorkerDirections:this.drawWorkerDirections, key:worker._id, worker:worker} );
-                    }.bind(this))
+                React.DOM.table(null, 
+                    React.DOM.thead(null, 
+                        React.DOM.tr(null, 
+                            React.DOM.th(null, "Nome"),
+                            React.DOM.th(null, "Visitas"),
+                            React.DOM.th(null, '##')
+                        )
+                    ),
+                    React.DOM.tbody(null, 
+                        this.props.workers.map(function (worker) {
+                            return RouterWorker( {drawWorkerDirections:this.drawWorkerDirections, key:worker._id, worker:worker} );
+                        }.bind(this))
+                    )
                 )
             );
         }
