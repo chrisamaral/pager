@@ -27,7 +27,7 @@
         }
     },
     "production": {
-        "moduleRoot": "\/js\/v\/1405646122",
+        "moduleRoot": "\/js\/v\/1405647885",
         "moduleExpiration": 0,
         "pager": {
             "isDev": false

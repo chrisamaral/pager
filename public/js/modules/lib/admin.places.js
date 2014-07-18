@@ -69,7 +69,8 @@ define(['../helpers/utils.js'], function (utils) {
                 tags: tags
             }, this.props.place._id);
         },
-        removeMe: function () {
+        removeMe: function (e) {
+            e.preventDefault();
             this.props.removePlace(this.props.place._id);
         },
         render: function () {
@@ -100,7 +101,7 @@ define(['../helpers/utils.js'], function (utils) {
                             React.DOM.div( {className:"row"}, 
                                 React.DOM.div( {className:"small-12 columns text-right"}, 
                                     React.DOM.button( {className:"button success small"}, "Salvar"),
-                                    React.DOM.button( {onClick:this.removeMe, className:"button alert small"}, "Remover")
+                                    React.DOM.a( {onClick:this.removeMe, className:"button alert small"}, "Remover")
                                 )
                             )
                         ),
