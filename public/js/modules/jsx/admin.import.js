@@ -7,7 +7,7 @@ define(function () {
         },
         isValidFile: function (fInput) {
             var file = fInput.files[0];
-            return file && file.type === 'text/csv';
+            return file && file.type.match('csv');
         },
         handleSubmit: function (e) {
             e.preventDefault();
