@@ -15,8 +15,8 @@ app.sessionStore = new RedisStore();
 app.express = express();
 app.express.use(express.static(pub_dir));
 
-app.express.use(bodyParser.urlencoded({limit: '5mb'}));
-app.express.use(bodyParser.json({limit: '5mb'}));
+app.express.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
+app.express.use(bodyParser.json({limit: '5mb', extended: true}));
 
 app.express.use(cookieParser());
 app.express.use(connetFlash());
@@ -24,6 +24,8 @@ app.express.set('view engine', 'jade');
 app.express.set('json spaces', 2);
 
 app.express.use(expressSession({
+    saveUninitialized: true,
+    resave: true,
     secret: 'maiorsegredodomundo',
     key: 'acw.sid',
     cookie: {
