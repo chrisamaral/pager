@@ -17,6 +17,7 @@ function compile_js($path){
 
 $jsFiles =
 	explode("\n", trim(shell_exec('find public/js/modules/ -type f -not -path "*/ext/*" -not -path "*/jsx/*" -not -path "*/.module-cache/*" -name "*.js"')));
+    
 foreach($jsFiles as $path){
     compile_js($path);
 }

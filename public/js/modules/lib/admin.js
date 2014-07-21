@@ -3,7 +3,7 @@ define(function () {
 
     var Aviator = pager.Aviator, Component = null;
 
-    LazyLoad.css("/css/admin.css");
+    LazyLoad.css([pager.build.css.admin]);
 
     var SubNavItem = React.createClass({displayName: 'SubNavItem',
         selectMe: function (e) {

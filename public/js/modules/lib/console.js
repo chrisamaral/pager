@@ -17,7 +17,7 @@ function (LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCom
         AttrItem,
         ObjectLink;
 
-    LazyLoad.css(['/css/console.css']);
+    LazyLoad.css([pager.build.css.console]);
 
     function emptyA(A){
         while(A.length > 0) A.pop();

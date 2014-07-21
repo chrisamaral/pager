@@ -4,7 +4,7 @@ chdir(realpath(dirname(__FILE__)));
 
 $time = time();
 
-$build = file_get_contents('../build.json');
+$build = file_get_contents('../input.build.json');
 $build = str_replace('[moduleROOT]', "/js/v/{$time}", $build);
 
 $l = '../server/build/lazy.cache.load.js';
@@ -15,14 +15,48 @@ $lazyCacheMin = shell_exec("closure {$l}");
 $inputHtml = file_get_contents('../server/build/index.html');
 $build = json_decode($build, true);
 
+//versioning
+//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+    $build['production']['moduleRoot'] = "/js/v/{$time}";
+
+    foreach ($build['production']['js'] as $key => $file) {
+        $build['production']['js'][$key] = str_replace('/js/build/', "/js/v/{$time}/", $file);
+    }
+
+    $cssRoot = "/css/v/{$time}/";
+    
+    exec('rm -R ../public/css/build');
+    mkdir('../public/css-build');
+    exec('cp -R ../public/css/* ../public/css-build');
+    exec('mv ../public/css-build ../public/css/build');
+
+    foreach ($build['development']['css'] as $key => $file) {
+        
+        $renamed = str_replace("/css/", $cssRoot, $file);
+        $noRootFolder = str_replace("/css/", '', $file);
+
+        exec("lessc --clean-css ../public{$file} ../public/css/build/{$noRootFolder}");
+        $build['production']['css'][$key] = $renamed;
+    }
+
+    //exec('rm ../public/js/v/*');
+    //exec('rm ../public/css/v/*');
+
+    chdir('../public/js/v');
+    exec("ln -sT ../build {$time}");
+    chdir('../../../scripts');
+
+    chdir('../public/css/v');
+    exec("ln -sT ../build {$time}");
+    chdir('../../../scripts');
+
+//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 foreach (array('development', 'production')  as $env) {
     $output = $build[$env];
-    foreach (array('css', 'js') as $type) {
-        if (!array_key_exists($type, $output)) {
-            $output[$type] = $build['default'][$type];
-        }
-    }
     
     $outputHtml = str_replace('[ INSERT LAZYLOAD SCRIPT URL HERE ]', $output['js']['lazyload'], $inputHtml);
     $outputHtml = str_replace('[ INSERT BUILD OBJECT HERE ]', json_encode($output), $outputHtml);
@@ -39,15 +73,10 @@ foreach (array('development', 'production')  as $env) {
     fclose($fp);
 }
 
-chdir('../public/js/v');
 
-$build['production']['moduleRoot'] = "/js/v/{$time}";
-
-exec("ln -sT ../build {$time}");
-chdir('../../../scripts');
 
 $fp = fopen('../build.json', 'w');
-fwrite($fp, json_encode($build, JSON_PRETTY_PRINT));
+fwrite($fp, json_encode($build, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 fclose($fp);
 
 $static = 

@@ -27,30 +27,22 @@
         }
     },
     "production": {
-        "moduleRoot": "/js/v/1405980284",
+        "moduleRoot": "/js/v/1405783224",
         "moduleExpiration": 0,
         "pager": {
             "isDev": false
         },
         "js": {
-            "lazyload": "/js/v/1405980284/ext/lazyload.js",
+            "lazyload": "/js/build/ext/lazyload.js",
             "inject": "/js/inject.min.js",
-            "base64": "/js/v/1405980284/ext/base64.js",
-            "lodash": "/js/v/1405980284/ext/lodash.js",
-            "modernizr": "/js/v/1405980284/ext/modernizr.js",
-            "pace": "/js/v/1405980284/ext/pace.js",
-            "jquery": "/js/v/1405980284/ext/jquery.js",
-            "react": "/js/v/1405980284/ext/react-with-addons-0.10.0.js",
-            "foundation": "/js/v/1405980284/ext/foundation.min.js"
+            "base64": "/js/build/ext/base64.js",
+            "lodash": "/js/build/ext/lodash.js",
+            "modernizr": "/js/build/ext/modernizr.js",
+            "pace": "/js/build/ext/pace.js",
+            "jquery": "/js/build/ext/jquery.js",
+            "react": "/js/build/ext/react-with-addons-0.10.0.js",
+            "foundation": "/js/build/ext/foundation.min.js"
         },
-        "css": {
-            "pace": "/css/v/1405980284/pace.css",
-            "normalize": "/css/v/1405980284/normalize.css",
-            "foundation": "/css/v/1405980284/foundation.min.css",
-            "foundationIcons": "/css/v/1405980284/foundation-icons/foundation-icons.css",
-            "main": "/css/v/1405980284/main.css",
-            "admin": "/css/v/1405980284/admin.css",
-            "console": "/css/v/1405980284/console.css"
-        }
+        "css": {}
     }
 }

@@ -1,6 +1,16 @@
 /** @jsx React.DOM */
 
 define(function () {
+
+    function bytesToSize(bytes) {
+        var sizes = ['Bytes', 'KB', 'MB'], i;
+        if (bytes === 0) {
+            return 'n/a';
+        }
+        i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
     var ImportForm = React.createClass({displayName: 'ImportForm',
         getInitialState: function () {
             return {uploadProgress: null};
@@ -8,6 +18,15 @@ define(function () {
         isValidFile: function (fInput) {
             var file = fInput.files[0];
             return file && file.type.indexOf('csv') > -1;
+        },
+        changeFile: function (e) {
+            var fElem = e.currentTarget,
+                file = fElem.files[0],
+                descr = null;
+            if (file) {
+                descr = {name: file.name, type: file.type, size: bytesToSize(file.size)};
+            }
+            this.setState({fileDescr: descr});
         },
         handleSubmit: function (e) {
             e.preventDefault();
@@ -71,12 +90,19 @@ define(function () {
 
                     React.DOM.div( {className:"row"}, 
                         React.DOM.div( {className:"small-10 columns"}, 
-                            React.DOM.input( {type:"file", required:true, ref:"csvFile", name:"csv"} )
+                            React.DOM.input( {type:"file", required:true, ref:"csvFile", onChange:this.changeFile, name:"csv"} )
                         ),
                         React.DOM.div( {className:"small-2 columns"}, 
                             React.DOM.button( {className:"success button postfix", disabled:this.state.uploadProgress !== null}, "Upload")
                         )
-                    )
+                    ),
+                    this.state.fileDescr
+                        ? React.DOM.div( {id:"AdminFileDescriptor"}, 
+                                React.DOM.span( {className:"label secondary"}, this.state.fileDescr.name),
+                                React.DOM.span( {className:"label secondary"}, this.state.fileDescr.type),
+                                React.DOM.span( {className:"label secondary"}, this.state.fileDescr.size)
+                            )
+                        : null
                 )
             );
         }

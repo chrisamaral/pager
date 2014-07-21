@@ -5,14 +5,26 @@
         <meta content="notranslate" name="google">
         <title>PAGER - Painel de Gestão de Equipes e Rotas Inteligentes</title>
         <link rel="shortcut icon" href="/fav.ico">
-        <script src="/js/v/1405645640/ext/lazyload.js"></script>
+        <script src="/js/v/1405980284/ext/lazyload.js"></script>
         <script>
-            (function(){function e(){function b(n,a,g){function l(h,a,c){if("script"===a){a=document.createElement(a);var b=document.getElementsByTagName("script")[0],f;if("undefined"!==typeof pager&&pager.build&&pager.build.js){f=pager.build.js;for(var d in f)if(f.hasOwnProperty(d)&&f[d]===c){a.id="script_"+d;break}}a.text=h;b.parentNode.insertBefore(a,b)}else c=document.head||document.getElementsByTagName("head")[0],d=document.createElement("style"),d.type="text/css",d.styleSheet?d.styleSheet.cssText=h:d.appendChild(document.createTextNode(h)),
+(function(){function e(){function b(n,a,g){function l(h,a,c){if("script"===a){a=document.createElement(a);var b=document.getElementsByTagName("script")[0],f;if("undefined"!==typeof pager&&pager.build&&pager.build.js){f=pager.build.js;for(var d in f)if(f.hasOwnProperty(d)&&f[d]===c){a.id="script_"+d;break}}a.text=h;b.parentNode.insertBefore(a,b)}else c=document.head||document.getElementsByTagName("head")[0],d=document.createElement("style"),d.type="text/css",d.styleSheet?d.styleSheet.cssText=h:d.appendChild(document.createTextNode(h)),
 c.appendChild(d)}function p(){m++;if(m===a.length)return k.forEach(function(a){return a&&a()}),g&&g()}var k=[];!1===a instanceof Array&&(a=[a]);var m=0;if(!a.every(function(a){return"/"===a.substr(0,1)&&"//"!==a.substr(0,2)}))return e.call(LazyLoad,a,g);a.forEach(function(){k.push(null)});a.forEach(function(a,b){var c;c=new XMLHttpRequest;c.onload=function(){4===c.readyState&&(200===c.status?(k[b]=function(){var b=c.responseText;"js"===n?l(b,"script",a):l(b,"style",a)},p()):console.error(c.statusText))};
 c.open("get",a,!0);c.send()})}var e=LazyLoad.js;LazyLoad.js=function(e,a){b("js",e,a)}}var b;try{b="localStorage"in window&&null!==window.localStorage}catch(q){b=!1}b&&e()})();
 
             (function () {
-                var build = JSON.parse('{"moduleRoot":"\/js\/v\/1405722338","moduleExpiration":0,"pager":{"isDev":false},"js":{"lazyload":"\/js\/v\/1405645640\/ext\/lazyload.js","inject":"\/js\/inject.min.js","base64":"\/js\/v\/1405645640\/ext\/base64.js","lodash":"\/js\/v\/1405645640\/ext\/lodash.js","modernizr":"\/js\/v\/1405645640\/ext\/modernizr.js","pace":"\/js\/v\/1405645640\/ext\/pace.js","jquery":"\/js\/v\/1405645640\/ext\/jquery.js","react":"\/js\/v\/1405645640\/ext\/react-with-addons-0.10.0.js","foundation":"\/js\/v\/1405645640\/ext\/foundation.min.js"},"css":{"pace":"\/css\/pace.css","normalize":"\/css\/normalize.css","foundation":"\/css\/foundation.min.css","foundationIcons":"\/css\/foundation-icons\/foundation-icons.css","main":"\/css\/main.css"}}'),
+                var xxTimeout;
+                if (window.applicationCache) {
+                    applicationCache.addEventListener('updateready', function() {
+                        clearTimeout(xxTimeout);
+                        xxTimeout = setTimeout(function () {
+                            if (confirm('O PAGER acabou de receber uma atualização, deseja recarregar agora?')) {
+                                window.location.reload();
+                            }
+                        }, 1000);
+                    });
+                }
+
+                var build = JSON.parse('{"moduleRoot":"\/js\/v\/1405980284","moduleExpiration":0,"pager":{"isDev":false},"js":{"lazyload":"\/js\/v\/1405980284\/ext\/lazyload.js","inject":"\/js\/inject.min.js","base64":"\/js\/v\/1405980284\/ext\/base64.js","lodash":"\/js\/v\/1405980284\/ext\/lodash.js","modernizr":"\/js\/v\/1405980284\/ext\/modernizr.js","pace":"\/js\/v\/1405980284\/ext\/pace.js","jquery":"\/js\/v\/1405980284\/ext\/jquery.js","react":"\/js\/v\/1405980284\/ext\/react-with-addons-0.10.0.js","foundation":"\/js\/v\/1405980284\/ext\/foundation.min.js"},"css":{"pace":"\/css\/v\/1405980284\/pace.css","normalize":"\/css\/v\/1405980284\/normalize.css","foundation":"\/css\/v\/1405980284\/foundation.min.css","foundationIcons":"\/css\/v\/1405980284\/foundation-icons\/foundation-icons.css","main":"\/css\/v\/1405980284\/main.css","admin":"\/css\/v\/1405980284\/admin.css","console":"\/css\/v\/1405980284\/console.css"}}'),
                     jsDeps = [
                         build.js.lodash,
                         build.js.modernizr,
