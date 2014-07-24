@@ -29,7 +29,7 @@ define(function(){
         },
         render: function(){
             return <div className='panel'>
-                <ul className="clearing-thumbs small-block-grid-2 medium-block-grid-3 large-block-grid-4" data-clearing>
+                <ul className="clearing-thumbs medium-block-grid-2 medium-block-grid-3 large-block-grid-4" data-clearing>
                     {this.props.pics.map(function(p, index){
                         var pic = p && p.src ? p : {src: p};
                         return <li key={index}>
@@ -112,7 +112,7 @@ define(function(){
             return <div id='Queue' className='leftMapControl'>
                 <div className='controlIco'><i className='fi-clock'></i></div>
                 <div className='controlContent'>
-                    <h4>Ordens Pendentes</h4>
+                    <h3 className='controlTitle'>Ordens Pendentes</h3>
                     <div className='panel contained activity-feed'>
                         { _.isArray(this.props.items)
                             ? this.props.items.map(function (item) {

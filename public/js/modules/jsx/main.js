@@ -1,7 +1,8 @@
 /** @jsx React.DOM */
 
 define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], function (utils, consts, Aviator) {
-    
+
+    if (Modernizr.touch) React.initializeTouchEvents(true);
     pager.constant = consts;
     var mainComponent;
 
@@ -165,8 +166,8 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
         render: function () {
             var App = mainComponent;
 
-            return (
-                <div>
+            return (<div>
+                <div className='fixed'>
                     <nav id='MainTopBar' className="top-bar" data-topbar>
 
                         <ul className="title-area">
@@ -174,7 +175,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                                 <h1><a>{'Pager' + (pager.org && pager.org.name ? ' - '  + pager.org.name : '')}</a></h1>
                             </li>
                             <li className="toggle-topbar menu-icon">
-                                <a href="#"><span></span></a>
+                                <a href="#"><span>Menu</span></a>
                             </li>
                         </ul>
 
@@ -188,9 +189,9 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                         </section>
 
                     </nav>
-                    { App && <App args={this.state.args} /> }
                 </div>
-            );
+                { App && <App args={this.state.args} /> }
+            </div>);
         }
     });
 

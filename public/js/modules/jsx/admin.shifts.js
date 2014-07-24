@@ -46,26 +46,21 @@ define(function(){
 
             return <form onSubmit={this.handleSubmit} action={pager.urls.ajax + 'admin/shift' + (this.props.shift._id ? '/' + this.props.shift._id : '')}>
                 <div className='row'>
-                    <div className='small-4 columns'>
+                    <div className='medium-4 columns'>
                         <input required type='text' ref='nameInput' name='name' defaultValue={this.props.shift.name} />
                     </div>
-                    <div className='small-3 columns'>
+                    <div className='medium-3 columns'>
                         <input required type='time' ref='fromInput' name='from' defaultValue={this.props.shift.from} />
                     </div>
-                    <div className='small-3 columns'>
+                    <div className='medium-3 columns'>
                         <input required type='time' ref='toInput' name='to' defaultValue={this.props.shift.to} />
                     </div>
-                    <div className='small-1 columns'>
-                        <a onClick={this.handleSubmit} className='button postfix success'>
-                            <i className='fi-save'></i>
-                        </a>
+                    <div className='medium-1 columns'>
+                        <button className='button postfix success fi-save'></button>
                     </div>
-                    <div className='small-1 columns'>
+                    <div className='medium-1 columns'>
                         {this.props.shift._id
-                            ? <a className='button postfix alert' onClick={this.killMe}>
-                                    <i className='fi-x'></i>
-                                </a>
-
+                            ? <button className='fi-x button postfix alert' onClick={this.killMe}></button>
                             : null}
                     </div>
                 </div>
@@ -97,10 +92,10 @@ define(function(){
         render: function () {
             return <div>
                 <div className='row'>
-                    <div className='small-4 columns'>Nome do Turno</div>
-                    <div className='small-3 columns'>Início</div>
-                    <div className='small-3 columns'>Fim</div>
-                    <div className='small-2 columns text-center'>{'#'}</div>
+                    <div className='medium-4 columns'>Nome do Turno</div>
+                    <div className='medium-3 columns'>Início</div>
+                    <div className='medium-3 columns'>Fim</div>
+                    <div className='medium-2 columns text-center'>{'#'}</div>
                 </div><br/>
                 {this.state.shifts.map(function (shift) {
                     return <ShiftEditor key={shift._id} shift={shift} reloadShifts={this.reloadShifts} />

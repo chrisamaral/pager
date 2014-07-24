@@ -164,7 +164,7 @@ function (DateInput, Queue, Tasks, strftime) {
             return <div id='Router' className='leftMapControl'>
                 <div className='controlIco'><i className='fi-page-multiple'></i></div>
                 <div className='controlContent'>
-                    <h4>Roteador</h4>
+                    <h3 className='controlTitle'>Roteador</h3>
                     <div className='panel contained clearfix'>
 
                         { !this.state.workers.length &&
@@ -178,7 +178,7 @@ function (DateInput, Queue, Tasks, strftime) {
                         <RouterWorkers workers={this.state.workers} toggleRouterMode={this.props.toggleRouterMode} />
 
                         <div className='row'>
-                            <div className='small-12 columns text-right'>
+                            <div className='medium-12 columns text-right'>
                                 <button onClick={this.cancel} className='tiny alert button'>Cancelar</button>
                                 {this.state.workers && this.state.workers.length
                                     ? <button onClick={this.save} className='tiny success button'>Salvar</button>
@@ -208,7 +208,7 @@ function (DateInput, Queue, Tasks, strftime) {
                         <i className='fi-widget'></i>
                     </div>
                     <div className='controlContent'>
-                        <h4>Opções da agenda</h4>
+                        <h3 className='controlTitle'>Opções da agenda</h3>
                         <div className='panel contained'>
                             <form onSubmit={this.handleSubmit}>
                                 <div className='row'>
@@ -237,7 +237,7 @@ function (DateInput, Queue, Tasks, strftime) {
                 $(this).closest('.leftMapControl').children('.controlContent,.controlIco').toggle();
                 $('#Console').trigger('resize');
             }
-            $(this.getDOMNode()).on('click', '.controlContent>h4,.controlIco', toggleControl);
+            $(this.getDOMNode()).on('click', '.controlContent>.controlTitle,.controlIco', toggleControl);
         },
         render: function () {
             return <nav id='LeftPanel'>

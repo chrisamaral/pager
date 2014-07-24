@@ -15,12 +15,12 @@ define(function () {
         render: function () {
             return (
                 <div className='row'>
-                    <div className='small-6 columns'>
+                    <div className='medium-6 columns'>
                         <a title='Descartar' className='wCfgX' onClick={this.killMe}>
                             <i className='fi-x'></i>
                         </a>{this.props.worker.name}
                     </div>
-                    <div className='small-3 columns'>
+                    <div className='medium-3 columns'>
                         <select className='pointSelector' data-collection='points' data-field='startPoint' data-worker={this.props.worker._id}>
                             {
                                 this.props.options.points.map(function (option, index) {
@@ -29,7 +29,7 @@ define(function () {
                             }
                         </select>
                     </div>
-                    <div className='small-3 columns'>
+                    <div className='medium-3 columns'>
                         <select className='shiftSelector' data-collection='workShifts' data-field='workShift' data-worker={this.props.worker._id}>
                             {
                                 this.props.options.workShifts.map(function (option, index) {
@@ -76,9 +76,9 @@ define(function () {
             return <form onSubmit={this.handleSubmit}>
                 <div className='cfgForm'>
                     <div className='row'>
-                        <div className='small-6 columns'><strong>Nome</strong></div>
-                        <div className='small-3 columns'><strong>Partida</strong></div>
-                        <div className='small-3 columns'><strong>Horário</strong></div>
+                        <div className='medium-6 columns'><strong>Nome</strong></div>
+                        <div className='medium-3 columns'><strong>Partida</strong></div>
+                        <div className='medium-3 columns'><strong>Horário</strong></div>
                     </div>
 
                     <div className='workersCfg'>
@@ -88,7 +88,7 @@ define(function () {
                     </div>
 
                     <div className='row'>
-                        <div className='small-12 columns text-right'>
+                        <div className='medium-12 columns text-right'>
                             <button className='small alert button' onClick={this.cancel}>Cancelar</button>
                             <button className='small success button'>Salvar</button>
                         </div>

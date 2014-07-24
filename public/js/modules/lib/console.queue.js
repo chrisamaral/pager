@@ -29,7 +29,7 @@ define(function(){
         },
         render: function(){
             return React.DOM.div( {className:"panel"}, 
-                React.DOM.ul( {className:"clearing-thumbs small-block-grid-2 medium-block-grid-3 large-block-grid-4", 'data-clearing':true}, 
+                React.DOM.ul( {className:"clearing-thumbs medium-block-grid-2 medium-block-grid-3 large-block-grid-4", 'data-clearing':true}, 
                     this.props.pics.map(function(p, index){
                         var pic = p && p.src ? p : {src: p};
                         return React.DOM.li( {key:index}, 
@@ -112,7 +112,7 @@ define(function(){
             return React.DOM.div( {id:"Queue", className:"leftMapControl"}, 
                 React.DOM.div( {className:"controlIco"}, React.DOM.i( {className:"fi-clock"})),
                 React.DOM.div( {className:"controlContent"}, 
-                    React.DOM.h4(null, "Ordens Pendentes"),
+                    React.DOM.h3( {className:"controlTitle"}, "Ordens Pendentes"),
                     React.DOM.div( {className:"panel contained activity-feed"}, 
                          _.isArray(this.props.items)
                             ? this.props.items.map(function (item) {

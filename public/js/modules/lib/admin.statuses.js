@@ -45,7 +45,7 @@ define(function () {
                 React.DOM.legend( {className:"textCapitalize"}, this.props.name),
                 React.DOM.form( {onSubmit:this.handleSubmit}, 
                     React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"small-12 columns"}, 
+                        React.DOM.div( {className:"medium-12 columns"}, 
                             React.DOM.label(null, "Novo status",
                                 React.DOM.input( {type:"text", ref:"newRef", name:"reference", disabled:this.state.locked, required:true} )
                             )
@@ -79,7 +79,7 @@ define(function () {
             this.reloadAll();
         },
         render: function () {
-            return React.DOM.div( {className:"small-block-grid-3"}, 
+            return React.DOM.div( {className:"medium-block-grid-3"}, 
                 _.map(this.state.statuses, function (references, name) {
                     return StatusForm( {reloadAll:this.reloadAll, name:name, references:references, key:name} );
                 }.bind(this))

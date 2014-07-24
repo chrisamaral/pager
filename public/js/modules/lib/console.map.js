@@ -274,11 +274,11 @@ define(function () {
 
                     new_style = {
 
-                        top: Math.max(0, consoleTop - scrollTop),
+                        top: consoleTop,
 
                         width: $console.width(),
 
-                        height: mapComponent.props.height + Math.min(scrollTop, consoleTop)
+                        height: mapComponent.props.height// + Math.min(scrollTop, consoleTop)
 
                     };
 

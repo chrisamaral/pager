@@ -504,7 +504,7 @@ define(['./component.DateInput'], function (DateInput) {
             return React.DOM.div( {id:"Tasks", className:"leftMapControl"}, 
                 React.DOM.div( {className:"controlIco"}, React.DOM.i( {className:"fi-calendar"})),
                 React.DOM.div( {className:"controlContent"}, 
-                    React.DOM.h4(null, "Ordens livres",
+                    React.DOM.h3( {className:"controlTitle"}, "Ordens livres",
                         React.DOM.a( {ref:"clickToRoute", className:"right radius ico fi-fast-forward", title:"Rotear todos"})
                     ),
                     TaskInput(

@@ -85,12 +85,12 @@ define(function () {
         render: function () {
             return React.DOM.div( {id:"AdminPanel", className:"panel"}, 
                 React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"small-3 columns"}, 
+                    React.DOM.div( {className:"medium-3 columns"}, 
                         this.state.options.length
                             ? SubNav( {options:this.state.options, currentView:this.state.currentView, setView:this.setView} )
                             : null
                     ),
-                    React.DOM.div( {id:"InnerComponent", className:"small-9 columns"}, 
+                    React.DOM.div( {id:"InnerComponent", className:"medium-9 columns"}, 
                         Component && !this.state.loadingView
                             ? Component(null )
                             : React.DOM.div(null, "...")

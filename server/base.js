@@ -79,6 +79,7 @@ Base.prototype.mongoSetup = function () {
             }
             console.log('mongodb: connected!');
             this.mongo = db;
+            require('./lib/mongo.indexes')(db);
         }.bind(this));
     this.mongoClient = MongoClient;
 };

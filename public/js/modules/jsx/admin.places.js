@@ -34,7 +34,7 @@ define(['../helpers/utils.js'], function (utils) {
         render: function () {
             return <form onSubmit={this.noAction}>
                 <div className='row'>
-                    <div className='small-12 columns'>
+                    <div className='medium-12 columns'>
                         <label>Endereço do novo local
                             <input type='text' ref='pInput' name='address' placeholder='Avenida Rio Branco 1, Rio de Janeiro' />
                         </label>
@@ -79,9 +79,9 @@ define(['../helpers/utils.js'], function (utils) {
                 <legend>{this.props.place.address}</legend>
                 <form onSubmit={this.handleSubmit}>
                     <div className='row'>
-                        <div className='small-7 columns'>
+                        <div className='medium-7 columns'>
                             <div className='row'>
-                                <div className='small-12 columns'>
+                                <div className='medium-12 columns'>
                                     <label>Dê um nome a este local
                                         <input type='text' ref='nameInput' name='name'
                                             required={true} placeholder='Sede, Almoxarifado, Posto de Gasolina'
@@ -89,9 +89,9 @@ define(['../helpers/utils.js'], function (utils) {
                                     </label>
                                 </div>
                             </div>
-                            {this.props.avaibleTags.map(function (tag) {
+                            {this.props.availableTags.map(function (tag) {
                                 return <div className='row' key={tag.value}>
-                                    <div className='small-12 columns'>
+                                    <div className='medium-12 columns'>
                                         <input id={'tagType' + tag.value + thisPlace._id} type='checkbox' value={tag.value}
                                             defaultChecked={_.isArray(thisPlace.tags) && thisPlace.tags.indexOf(tag.value) >= 0}/>
                                         <label htmlFor={'tagType' + tag.value + thisPlace._id}>{tag.name}</label>
@@ -99,13 +99,13 @@ define(['../helpers/utils.js'], function (utils) {
                                 </div>;
                             })}
                             <div className='row'>
-                                <div className='small-12 columns text-right'>
+                                <div className='medium-12 columns text-right'>
                                     <button className='button success small'>Salvar</button>
                                     <a onClick={this.removeMe} className='button alert small'>Remover</a>
                                 </div>
                             </div>
                         </div>
-                        <div className='small-5 columns' ref='mapContainer'>
+                        <div className='medium-5 columns' ref='mapContainer'>
                             {this.state.mapURL
                                 ? <img src={this.state.mapURL} />
                                 : <div>Carregando...</div>
@@ -123,7 +123,7 @@ define(['../helpers/utils.js'], function (utils) {
                 mapsLoaded: false,
                 geoCompleteLoaded: false,
                 places: [],
-                avaibleTags: [
+                availableTags: [
                     {name: 'Ponto de Saída', value: 'origin'},
                     {name: 'Parada opcional', value: 'pitstop'}
                 ]
@@ -207,7 +207,7 @@ define(['../helpers/utils.js'], function (utils) {
                     ? <PlaceInput newPlace={this.savePlace} />
                     : null}
                 {this.state.places.map(function(place){
-                    return <PlaceForm avaibleTags={this.state.avaibleTags} key={place._id} place={place} removePlace={this.removePlace} savePlace={this.savePlace} />;
+                    return <PlaceForm availableTags={this.state.availableTags} key={place._id} place={place} removePlace={this.removePlace} savePlace={this.savePlace} />;
                 }.bind(this))}
             </div>;
         }

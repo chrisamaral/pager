@@ -1,6 +1,7 @@
 'use strict';
 var app = require('../base.js')(),
-    ObjectID = require('mongodb').ObjectID,
+    $mongo = require('mongodb'),
+    ObjectID = $mongo.ObjectID,
     async = require('async'),
     _ = require('lodash');
 
@@ -77,6 +78,7 @@ function wOParse (row, shifts, statuses) {
             case 'schedule.date':
                 newRow.schedule = newRow.schedule || {};
                 newRow.schedule.date = new Date(val);
+
                 break;
             case 'schedule.shift':
 

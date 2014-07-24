@@ -85,12 +85,12 @@ define(function () {
         render: function () {
             return <div id='AdminPanel' className='panel'>
                 <div className='row'>
-                    <div className='small-3 columns'>
+                    <div className='medium-3 columns'>
                         {this.state.options.length
                             ? <SubNav options={this.state.options} currentView={this.state.currentView} setView={this.setView} />
                             : null}
                     </div>
-                    <div id='InnerComponent' className='small-9 columns'>
+                    <div id='InnerComponent' className='medium-9 columns'>
                         {Component && !this.state.loadingView
                             ? <Component />
                             : <div>...</div>}

@@ -79,14 +79,14 @@ define(function () {
             return React.DOM.div( {className:"panel"}, 
                 React.DOM.form( {onSubmit:this.handleSubmit}, 
                     React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"small-8 columns"}, 
+                        React.DOM.div( {className:"medium-8 columns"}, 
                             React.DOM.div( {className:"row"}, 
-                                React.DOM.div( {className:"small-4 large-3 columns"}, 
+                                React.DOM.div( {className:"medium-4 large-3 columns"}, 
                                     React.DOM.label(null, "Código",
                                         React.DOM.input( {type:"text", placeholder:"0000", ref:"sys_id", defaultValue:thisWorker.sys_id} )
                                     )
                                 ),
-                                React.DOM.div( {className:"small-8 large-9 columns"}, 
+                                React.DOM.div( {className:"medium-8 large-9 columns"}, 
                                     React.DOM.label(null, "Nome",
                                         React.DOM.input( {type:"text", ref:"workerName", required:true, placeholder:"Nome", ref:"name", defaultValue:thisWorker.name} )
                                     )
@@ -119,12 +119,13 @@ define(function () {
                                 )
                             )
                         ),
-                        React.DOM.div( {className:"small-4 columns"}, 
-                            this.props.avaibleTypes.map(function (type) {
+                        React.DOM.div( {className:"medium-4 columns"}, 
+                            this.props.availableTypes.map(function (t) {
+                                var type = t.name;
                                 var $id = thisWorker._id || Math.random().toString(36).substr(2);
 
                                 return React.DOM.div( {className:"row", key:type}, 
-                                    React.DOM.div( {className:"small-12 columns"}, 
+                                    React.DOM.div( {className:"medium-12 columns"}, 
                                         React.DOM.input( {id:'tagType' + type + $id, type:"checkbox", value:type,
                                             defaultChecked:_.isArray(thisWorker.types) && thisWorker.types.indexOf(type) >= 0}),
                                         React.DOM.label( {className:"textCapitalize", htmlFor:'tagType' + type + $id}, type)
@@ -146,10 +147,10 @@ define(function () {
 
         render: function () {
             return React.DOM.div( {className:"row"}, 
-                React.DOM.div( {className:"small-9 columns"}, 
+                React.DOM.div( {className:"medium-9 columns"}, 
                     React.DOM.h5(null, React.DOM.strong(null, this.props.worker.name))
                 ),
-                React.DOM.div( {className:"small-3 columns text-right"}, 
+                React.DOM.div( {className:"medium-3 columns text-right"}, 
                     this.props.worker.editable
                         ?
                             React.DOM.a( {onClick:this.toggle}, 
@@ -176,7 +177,7 @@ define(function () {
                         WorkerHeader( {worker:worker, toggleEditor:this.props.toggleEdit} ),
 
                             worker.editable
-                                ? EditWorkerForm( {users:this.props.users, worker:worker, avaibleTypes:this.props.avaibleTypes,
+                                ? EditWorkerForm( {users:this.props.users, worker:worker, availableTypes:this.props.availableTypes,
                                     saveWorker:this.props.saveWorker, deleteWorker:this.props.deleteWorker} )
                                 : null
 
@@ -195,7 +196,7 @@ define(function () {
                 defaultWorker: {name: '', sys_id: '', user_id: ''},
                 workers: [],
                 users: [],
-                avaibleTypes: []
+                availableTypes: []
             };
         },
 
@@ -272,17 +273,17 @@ define(function () {
             this.reloadWorkers();
             $.get(pager.urls.ajax + 'admin/types')
                 .done(function (types) {
-                    this.setState({avaibleTypes: types});
+                    this.setState({availableTypes: types});
                 }.bind(this));
         },
 
         render: function () {
             return React.DOM.div(null, 
 
-                WorkerList( {avaibleTypes:this.state.avaibleTypes, workers:this.state.workers, users:this.state.users,
+                WorkerList( {availableTypes:this.state.availableTypes, workers:this.state.workers, users:this.state.users,
                     deleteWorker:this.deleteWorker, toggleEdit:this.toggleEdit, saveWorker:this.saveWorker}  ),
 
-                EditWorkerForm( {avaibleTypes:this.state.avaibleTypes,
+                EditWorkerForm( {availableTypes:this.state.availableTypes,
                     saveWorker:this.saveWorker, worker:this.state.defaultWorker, users:this.state.users} )
             );
         }

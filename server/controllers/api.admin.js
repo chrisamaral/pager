@@ -5,14 +5,15 @@ var app = require('../base.js')(),
     _ = require('lodash');
 
 app.express.get('/:org/api/admin/options', app.authorized.can('enter app'), function (req, res) {
-    res.json([
+    res.json(_.sortBy([
         {id: 'workers', name: 'Equipes'},
         {id: 'import', name: 'Importar'},
         {id: 'shifts', name: 'Turnos da Agenda'},
         {id: 'work_shifts', name: 'Turnos de Trabalho'},
         {id: 'places', name: 'Pontos Geográficos'},
-        {id: 'statuses', name: 'Status de Ordem'}
-    ]);
+        {id: 'statuses', name: 'Status de Ordem'},
+        {id: 'types', name: 'Tipos de Ordem'}
+    ], 'name'));
 });
 app.express.get('/:org/api/admin/statuses',  app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('status', function (err, statusCollection) {
@@ -131,7 +132,7 @@ function saveWorker (req, res) {
         if ($id) {
 
             delete worker._id;
-            workerCollection.update({_id: new ObjectID($id)}, {$set: worker}, function (err, result) {
+            workerCollection.update({_id: new ObjectID($id), org: req.params.org}, {$set: worker}, function (err, result) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -157,7 +158,7 @@ app.express.post('/:org/api/admin/worker/:id', app.authorized.can('enter app'), 
 app.express.post('/:org/api/admin/worker', app.authorized.can('enter app'), saveWorker);
 app.express.delete('/:org/api/admin/worker/:id', app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('worker', function (err, workerCollection) {
-        workerCollection.update({_id: new ObjectID(req.params.id)}, {$set: {deleted: true}}, {upsert: false}, function (err, result) {
+        workerCollection.update({_id: new ObjectID(req.params.id), org: req.params.org}, {$set: {deleted: true}}, {upsert: false}, function (err, result) {
 
             if (err) {
                 console.log(err);
@@ -225,7 +226,7 @@ function savePlace (req, res) {
 
         } else {
 
-            placesCollection.update({_id: new ObjectID(id)}, {$set: place}, onComplete);
+            placesCollection.update({_id: new ObjectID(id), org: req.params.org}, {$set: place}, onComplete);
 
         }
     });
@@ -235,7 +236,7 @@ app.express.post('/:org/api/admin/place', app.authorized.can('enter app'), saveP
 app.express.post('/:org/api/admin/place/:id', app.authorized.can('enter app'), savePlace);
 app.express.delete('/:org/api/admin/place/:id', app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('place', function (err, placesCollection) {
-        placesCollection.remove({_id: new ObjectID(req.params.id)}, function (err, result) {
+        placesCollection.remove({_id: new ObjectID(req.params.id), org: req.params.org}, function (err, result) {
 
             if (err) {
                 console.log(err);
@@ -247,8 +248,8 @@ app.express.delete('/:org/api/admin/place/:id', app.authorized.can('enter app'),
     });
 });
 app.express.get('/:org/api/admin/types', app.authorized.can('enter app'), function (req, res) {
-    app.mongo.collection('work_order', function (err, workOrderCollection) {
-        workOrderCollection.distinct('type', {org: req.params.org}, function (err, result) {
+    app.mongo.collection('type', function (err, typeCollection) {
+        typeCollection.find({org: req.params.org}).toArray(function (err, result) {
 
             if (err) {
                 console.log(err);
@@ -256,6 +257,45 @@ app.express.get('/:org/api/admin/types', app.authorized.can('enter app'), functi
             }
 
             res.json(result);
+        });
+    });
+});
+
+app.express.post('/:org/api/admin/type/:name', app.authorized.can('enter app'), function (req, res) {
+    req.params.name = req.params.name.toLowerCase().trim();
+    var n_type = req.body.type;
+    n_type.org = req.params.org;
+    app.mongo.collection('type', function (err, typeCollection) {
+
+        if (err) {
+            console.log(err);
+            return res.send(500);
+        }
+
+        typeCollection.update(
+            {org: req.params.org, name: req.params.name},
+            {$set: n_type},
+            {upsert: true},
+            function (err, result) {
+                if (err) {
+                    console.log(err);
+                    return res.send(500);
+                }
+                res.send(204);
+            })
+    });
+});
+app.express.delete('/:org/api/admin/type/:name', app.authorized.can('enter app'), function (req, res) {
+    req.params.name = req.params.name.toLowerCase().trim();
+    app.mongo.collection('type', function (err, typeCollection) {
+        typeCollection.remove({name: req.params.name, org: req.params.org}, function (err, result) {
+
+            if (err) {
+                console.log(err);
+                return res.send(500);
+            }
+
+            res.send(204);
         });
     });
 });

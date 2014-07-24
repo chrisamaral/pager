@@ -96,7 +96,7 @@ define(['./console.schedule'], function (Schedule) {
         render: function () {
             return React.DOM.div( {id:"RightPanelToolbar"}, 
                 React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"small-12 columns"}, 
+                    React.DOM.div( {className:"medium-12 columns"}, 
                         this.state.CSVDataURI
 
                             ? React.DOM.a( {className:"button success small", href:this.state.CSVDataURI,
@@ -168,7 +168,7 @@ define(['./console.schedule'], function (Schedule) {
                     ? React.DOM.div( {id:"RightPanelContent"}, 
                         this.props.routerLoader
                             ? React.DOM.div(null, 
-                            React.DOM.h4(null, "Configurações de Roteamento"),
+                            React.DOM.h3( {className:"controlTitle"}, "Configurações de Roteamento"),
                             React.DOM.div( {className:"panel"}, 
                                 RouterCfg( {day:this.props.routerLoader._day, onSet:this.props.routerLoader} )
                             )

@@ -34,7 +34,7 @@ define(['../helpers/utils.js'], function (utils) {
         render: function () {
             return React.DOM.form( {onSubmit:this.noAction}, 
                 React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"small-12 columns"}, 
+                    React.DOM.div( {className:"medium-12 columns"}, 
                         React.DOM.label(null, "Endereço do novo local",
                             React.DOM.input( {type:"text", ref:"pInput", name:"address", placeholder:"Avenida Rio Branco 1, Rio de Janeiro"} )
                         )
@@ -79,9 +79,9 @@ define(['../helpers/utils.js'], function (utils) {
                 React.DOM.legend(null, this.props.place.address),
                 React.DOM.form( {onSubmit:this.handleSubmit}, 
                     React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"small-7 columns"}, 
+                        React.DOM.div( {className:"medium-7 columns"}, 
                             React.DOM.div( {className:"row"}, 
-                                React.DOM.div( {className:"small-12 columns"}, 
+                                React.DOM.div( {className:"medium-12 columns"}, 
                                     React.DOM.label(null, "Dê um nome a este local",
                                         React.DOM.input( {type:"text", ref:"nameInput", name:"name",
                                             required:true, placeholder:"Sede, Almoxarifado, Posto de Gasolina",
@@ -89,9 +89,9 @@ define(['../helpers/utils.js'], function (utils) {
                                     )
                                 )
                             ),
-                            this.props.avaibleTags.map(function (tag) {
+                            this.props.availableTags.map(function (tag) {
                                 return React.DOM.div( {className:"row", key:tag.value}, 
-                                    React.DOM.div( {className:"small-12 columns"}, 
+                                    React.DOM.div( {className:"medium-12 columns"}, 
                                         React.DOM.input( {id:'tagType' + tag.value + thisPlace._id, type:"checkbox", value:tag.value,
                                             defaultChecked:_.isArray(thisPlace.tags) && thisPlace.tags.indexOf(tag.value) >= 0}),
                                         React.DOM.label( {htmlFor:'tagType' + tag.value + thisPlace._id}, tag.name)
@@ -99,13 +99,13 @@ define(['../helpers/utils.js'], function (utils) {
                                 );
                             }),
                             React.DOM.div( {className:"row"}, 
-                                React.DOM.div( {className:"small-12 columns text-right"}, 
+                                React.DOM.div( {className:"medium-12 columns text-right"}, 
                                     React.DOM.button( {className:"button success small"}, "Salvar"),
                                     React.DOM.a( {onClick:this.removeMe, className:"button alert small"}, "Remover")
                                 )
                             )
                         ),
-                        React.DOM.div( {className:"small-5 columns", ref:"mapContainer"}, 
+                        React.DOM.div( {className:"medium-5 columns", ref:"mapContainer"}, 
                             this.state.mapURL
                                 ? React.DOM.img( {src:this.state.mapURL} )
                                 : React.DOM.div(null, "Carregando...")
@@ -123,7 +123,7 @@ define(['../helpers/utils.js'], function (utils) {
                 mapsLoaded: false,
                 geoCompleteLoaded: false,
                 places: [],
-                avaibleTags: [
+                availableTags: [
                     {name: 'Ponto de Saída', value: 'origin'},
                     {name: 'Parada opcional', value: 'pitstop'}
                 ]
@@ -207,7 +207,7 @@ define(['../helpers/utils.js'], function (utils) {
                     ? PlaceInput( {newPlace:this.savePlace} )
                     : null,
                 this.state.places.map(function(place){
-                    return PlaceForm( {avaibleTags:this.state.avaibleTags, key:place._id, place:place, removePlace:this.removePlace, savePlace:this.savePlace} );
+                    return PlaceForm( {availableTags:this.state.availableTags, key:place._id, place:place, removePlace:this.removePlace, savePlace:this.savePlace} );
                 }.bind(this))
             );
         }

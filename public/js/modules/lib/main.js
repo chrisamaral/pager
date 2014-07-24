@@ -1,7 +1,8 @@
 /** @jsx React.DOM */
 
 define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], function (utils, consts, Aviator) {
-    
+
+    if (Modernizr.touch) React.initializeTouchEvents(true);
     pager.constant = consts;
     var mainComponent;
 
@@ -165,8 +166,8 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
         render: function () {
             var App = mainComponent;
 
-            return (
-                React.DOM.div(null, 
+            return (React.DOM.div(null, 
+                React.DOM.div( {className:"fixed"}, 
                     React.DOM.nav( {id:"MainTopBar", className:"top-bar", 'data-topbar':true}, 
 
                         React.DOM.ul( {className:"title-area"}, 
@@ -174,7 +175,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                                 React.DOM.h1(null, React.DOM.a(null, 'Pager' + (pager.org && pager.org.name ? ' - '  + pager.org.name : '')))
                             ),
                             React.DOM.li( {className:"toggle-topbar menu-icon"}, 
-                                React.DOM.a( {href:"#"}, React.DOM.span(null))
+                                React.DOM.a( {href:"#"}, React.DOM.span(null, "Menu"))
                             )
                         ),
 
@@ -187,10 +188,10 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                             )
                         )
 
-                    ),
-                     App && App( {args:this.state.args} ) 
-                )
-            );
+                    )
+                ),
+                 App && App( {args:this.state.args} ) 
+            ));
         }
     });
 

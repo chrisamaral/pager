@@ -90,9 +90,7 @@ function (LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCom
             return React.DOM.table( {className:"attr-table"}, 
                 React.DOM.tbody(null, 
                         attrs.map(function(attr, index){
-                            return AttrItem(
-                            {key:index,
-                            attr:attr} );
+                            return AttrItem( {key:index, attr:attr} );
                         })
                 )
             );

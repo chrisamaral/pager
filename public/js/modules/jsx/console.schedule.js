@@ -12,24 +12,95 @@ define(['../ext/strftime'], function (strftime) {
 
             leftPos += this.props.index * 3;
 
-            return <div className='scheduleTask' style={{width:  w + 'px', left: leftPos + 'px'}}>
+            return <div className='scheduleTask' style={{width:  w + 'px', left: leftPos + 'px'}} data-dropdown={this.props.dropdown}>
 
             </div>;
         }
     });
 
+    var ScheduleInfo = React.createClass({
+        render: function () {
+            var AttrTable = pager.components.AttrTable;
+            return <div id={this.props._id} className='f-dropdown medium content' data-dropdown-content>
+                <table className='dropdown-table'>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <i className='f-ico fi-clock'></i>
+                                <strong>Deslocamento</strong>
+                            </td>
+                            <td>
+                                {strftime('%H:%M', new Date(this.props.task.directions.schedule.ini)) +
+                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.directions.schedule.end))}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i className='f-ico fi-map'></i>
+                                <strong>Deslocamento</strong>
+                            </td>
+                            <td>{this.props.task.directions.distance.text + '   •   ' + this.props.task.directions.duration.text}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i className='f-ico fi-clock'></i>
+                                <strong>Execução</strong>
+                            </td>
+                            <td>{strftime('%H:%M', new Date(this.props.task.schedule.ini)) +
+                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end))}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {this.props.task.work_orders.map(function(wo){
+                    return <AttrTable key={wo._id} attrs={wo.attrs} />;
+                })}
+            </div>;
+        }
+    });
+
     ScheduleTimeLine = React.createClass({
+        componentDidMount: function () {
+            this.updateDropDown();
+            $(this.getDOMNode()).foundation();
+        },
+        removeDropDown: function () {
+            this.props.tasks.forEach(function (task, index) {
+                $('#info' + this.props._id + task.addressPlusTargetIDSHA1).remove();
+            }.bind(this));
+        },
+        componentDidUpdate: function () {
+            this.updateDropDown();
+        },
+        updateDropDown: function () {
+            this.props.tasks.forEach(function (task, index) {
+
+                var id = 'info' + this.props._id + task.addressPlusTargetIDSHA1,
+                    content = React.renderComponentToStaticMarkup(<ScheduleInfo _id={id} task={task} />),
+                    $old = $('#' + id);
+
+                if ($old.length) $old.remove();
+
+                $(content).appendTo('body');
+            }.bind(this));
+        },
+        componentWillUnmount: function () {
+            this.removeDropDown();
+        },
         render: function () {
             return <div className='panel scheduleTimeLine'>
                 <div>
                     {
                         this.props.tasks.map(function (task, index) {
-                            return <ScheduleTask 
-                                        key={task.addressPlusTargetIDSHA1} task={task} index={index}
+                            return (
+                                <ScheduleTask
+                                        key={'t-' + task.addressPlusTargetIDSHA1} task={task} index={index}
+                                        dropdown={'info' + this.props._id+ task.addressPlusTargetIDSHA1}
                                         microSecondWidth={this.props.microSecondWidth} 
-                                        timelineBoundaries={this.props.timelineBoundaries} />;
+                                        timelineBoundaries={this.props.timelineBoundaries} />
+                            );
                         }.bind(this))
                     }
+
                 </div>
             </div>;
         }
@@ -43,11 +114,29 @@ define(['../ext/strftime'], function (strftime) {
                     <span className='success label'>{this.props.schedule.worker.name}</span>
                 </div>
 
-                <ScheduleTimeLine tasks={this.props.schedule.tasks} 
+                <ScheduleTimeLine tasks={this.props.schedule.tasks}  _id={this.props.schedule.worker._id}
                         microSecondWidth={this.props.microSecondWidth} 
                         timelineBoundaries={this.props.timelineBoundaries}  />
 
             </div>
+        }
+    });
+
+    var ScheduleHeader = React.createClass({
+        render: function () {
+            var pxStep = 100,
+                timeStep = (pxStep / this.props.microSecondWidth),
+                ini = this.props.timelineBoundaries.ini.getTime(),
+                ticks = _.range(ini, this.props.timelineBoundaries.end.getTime(), timeStep);
+
+            return <div id='ScheduleHeader'>
+                {
+                    ticks.map(function (tick, index) {
+                        return <span className='scheduleHeaderTick' style={{left: index * pxStep}}>
+                            {strftime('%H:%M', new Date(tick))}</span>;
+                    }.bind(this))
+                }
+            </div>;
         }
     });
 
@@ -97,6 +186,11 @@ define(['../ext/strftime'], function (strftime) {
             return <div id='Schedule'>
                 <div id='ScheduleContainer' ref='container'>
                     {this.state.microSecondWidth !== null
+                        ? <ScheduleHeader microSecondWidth={this.state.microSecondWidth} timelineBoundaries={this.state.timelineBoundaries} />
+                        :null
+                        }
+
+                    {this.state.microSecondWidth !== null
                         ?
                             this.props.schedule.map(function (schedule) {
                                 return <ScheduleRow key={schedule._id} 
@@ -107,6 +201,7 @@ define(['../ext/strftime'], function (strftime) {
 
                         : <p>...</p>
                     }
+
                 </div>
             </div>
         }

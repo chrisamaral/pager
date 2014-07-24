@@ -89,10 +89,10 @@ define(function () {
                                 style={{display: this.state.uploadProgress === null ? 'none' : ''}} />
 
                     <div className='row'>
-                        <div className='small-10 columns'>
+                        <div className='medium-10 columns'>
                             <input type='file' required ref='csvFile' onChange={this.changeFile} name='csv' />
                         </div>
-                        <div className='small-2 columns'>
+                        <div className='medium-2 columns'>
                             <button className='success button postfix' disabled={this.state.uploadProgress !== null}>Upload</button>
                         </div>
                     </div>

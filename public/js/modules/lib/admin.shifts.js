@@ -46,26 +46,21 @@ define(function(){
 
             return React.DOM.form( {onSubmit:this.handleSubmit, action:pager.urls.ajax + 'admin/shift' + (this.props.shift._id ? '/' + this.props.shift._id : '')}, 
                 React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"small-4 columns"}, 
+                    React.DOM.div( {className:"medium-4 columns"}, 
                         React.DOM.input( {required:true, type:"text", ref:"nameInput", name:"name", defaultValue:this.props.shift.name} )
                     ),
-                    React.DOM.div( {className:"small-3 columns"}, 
+                    React.DOM.div( {className:"medium-3 columns"}, 
                         React.DOM.input( {required:true, type:"time", ref:"fromInput", name:"from", defaultValue:this.props.shift.from} )
                     ),
-                    React.DOM.div( {className:"small-3 columns"}, 
+                    React.DOM.div( {className:"medium-3 columns"}, 
                         React.DOM.input( {required:true, type:"time", ref:"toInput", name:"to", defaultValue:this.props.shift.to} )
                     ),
-                    React.DOM.div( {className:"small-1 columns"}, 
-                        React.DOM.a( {onClick:this.handleSubmit, className:"button postfix success"}, 
-                            React.DOM.i( {className:"fi-save"})
-                        )
+                    React.DOM.div( {className:"medium-1 columns"}, 
+                        React.DOM.button( {className:"button postfix success fi-save"})
                     ),
-                    React.DOM.div( {className:"small-1 columns"}, 
+                    React.DOM.div( {className:"medium-1 columns"}, 
                         this.props.shift._id
-                            ? React.DOM.a( {className:"button postfix alert", onClick:this.killMe}, 
-                                    React.DOM.i( {className:"fi-x"})
-                                )
-
+                            ? React.DOM.button( {className:"fi-x button postfix alert", onClick:this.killMe})
                             : null
                     )
                 )
@@ -97,10 +92,10 @@ define(function(){
         render: function () {
             return React.DOM.div(null, 
                 React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"small-4 columns"}, "Nome do Turno"),
-                    React.DOM.div( {className:"small-3 columns"}, "Início"),
-                    React.DOM.div( {className:"small-3 columns"}, "Fim"),
-                    React.DOM.div( {className:"small-2 columns text-center"}, '#')
+                    React.DOM.div( {className:"medium-4 columns"}, "Nome do Turno"),
+                    React.DOM.div( {className:"medium-3 columns"}, "Início"),
+                    React.DOM.div( {className:"medium-3 columns"}, "Fim"),
+                    React.DOM.div( {className:"medium-2 columns text-center"}, '#')
                 ),React.DOM.br(null),
                 this.state.shifts.map(function (shift) {
                     return ShiftEditor( {key:shift._id, shift:shift, reloadShifts:this.reloadShifts} )

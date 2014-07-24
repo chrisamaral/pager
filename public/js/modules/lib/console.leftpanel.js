@@ -164,7 +164,7 @@ function (DateInput, Queue, Tasks, strftime) {
             return React.DOM.div( {id:"Router", className:"leftMapControl"}, 
                 React.DOM.div( {className:"controlIco"}, React.DOM.i( {className:"fi-page-multiple"})),
                 React.DOM.div( {className:"controlContent"}, 
-                    React.DOM.h4(null, "Roteador"),
+                    React.DOM.h3( {className:"controlTitle"}, "Roteador"),
                     React.DOM.div( {className:"panel contained clearfix"}, 
 
                          !this.state.workers.length &&
@@ -178,7 +178,7 @@ function (DateInput, Queue, Tasks, strftime) {
                         RouterWorkers( {workers:this.state.workers, toggleRouterMode:this.props.toggleRouterMode} ),
 
                         React.DOM.div( {className:"row"}, 
-                            React.DOM.div( {className:"small-12 columns text-right"}, 
+                            React.DOM.div( {className:"medium-12 columns text-right"}, 
                                 React.DOM.button( {onClick:this.cancel, className:"tiny alert button"}, "Cancelar"),
                                 this.state.workers && this.state.workers.length
                                     ? React.DOM.button( {onClick:this.save, className:"tiny success button"}, "Salvar")
@@ -208,7 +208,7 @@ function (DateInput, Queue, Tasks, strftime) {
                         React.DOM.i( {className:"fi-widget"})
                     ),
                     React.DOM.div( {className:"controlContent"}, 
-                        React.DOM.h4(null, "Opções da agenda"),
+                        React.DOM.h3( {className:"controlTitle"}, "Opções da agenda"),
                         React.DOM.div( {className:"panel contained"}, 
                             React.DOM.form( {onSubmit:this.handleSubmit}, 
                                 React.DOM.div( {className:"row"}, 
@@ -237,7 +237,7 @@ function (DateInput, Queue, Tasks, strftime) {
                 $(this).closest('.leftMapControl').children('.controlContent,.controlIco').toggle();
                 $('#Console').trigger('resize');
             }
-            $(this.getDOMNode()).on('click', '.controlContent>h4,.controlIco', toggleControl);
+            $(this.getDOMNode()).on('click', '.controlContent>.controlTitle,.controlIco', toggleControl);
         },
         render: function () {
             return React.DOM.nav( {id:"LeftPanel"}, 

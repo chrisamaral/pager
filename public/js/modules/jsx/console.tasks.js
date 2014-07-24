@@ -504,9 +504,9 @@ define(['./component.DateInput'], function (DateInput) {
             return <div id='Tasks' className='leftMapControl'>
                 <div className='controlIco'><i className='fi-calendar'></i></div>
                 <div className='controlContent'>
-                    <h4>Ordens livres
+                    <h3 className='controlTitle'>Ordens livres
                         <a ref='clickToRoute' className='right radius ico fi-fast-forward' title='Rotear todos'></a>
-                    </h4>
+                    </h3>
                     <TaskInput
                         routeThem={this.routeThem}
                         locations={this.props.locations}

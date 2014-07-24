@@ -95,15 +95,16 @@
     width: 300px;
     box-shadow: 2px 3px 3px rgba(0,0,0,0.3);
 }
-.controlContent>h4, .controlContent>.panel{
+.controlContent>.controlTitle, .controlContent>.panel{
     margin: 0;
     width: 100%;
 }
-.controlContent>h4{
+.controlContent>.controlTitle{
     text-indent: 0.3em;
     font-weight: bold;
+    font-size: large;
     color: white;
-    line-height: 1.7em;
+    line-height: 2em;
     margin: 0;
     background-color: #3a3a3a;
 }
@@ -112,19 +113,19 @@
     background-color: white;
 }
 
-#Queue>.controlContent>h4, #Queue>.controlIco{
+#Queue>.controlContent>.controlTitle, #Queue>.controlIco{
     background-color: #8A0808 !important;
 }
 
-#Tasks>.controlContent>h4 a.ico{
+#Tasks>.controlContent>.controlTitle a.ico{
     color: rgb(250,250,250);
     width: auto;
     height: 100%;
-    line-height: 1.7em;
+    line-height: 2em;
     margin-right: 0.5em;
     display: inline;
 }
-#Tasks>.controlContent>h4 a.ico:hover{
+#Tasks>.controlContent>.controlTitle a.ico:hover{
     background-color: inherit;
 }
 
@@ -304,4 +305,26 @@
 #RouterWorkers>table{
     width: 95%;
     margin: 0.5em auto;
+}
+.dropdown-table{
+    width: 100%;
+}
+
+#ScheduleHeader{
+    position: relative;
+    line-height: 3em;
+    overflow: hidden;
+    height: 3em;
+    margin-bottom: 0.5em;
+    background-color: rgb(245,245,245);
+    border-bottom: 2px solid rgb(200,200,200);
+}
+.scheduleHeaderTick{
+    display: inline-block;
+    height: 100%;
+    border-left: 1px dashed rgb(150,150,150);
+    padding: 3px;
+    position: absolute;
+    font-size: small;
+    font-weight: bold;
 }

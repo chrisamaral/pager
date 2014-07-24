@@ -39,7 +39,7 @@ function saveShift (req, res) {
         }
 
         if (id) {
-            shiftCollection.update({_id: new ObjectID(id)}, {$set: shift}, function (err, result) {
+            shiftCollection.update({_id: new ObjectID(id), org: req.params.org}, {$set: shift}, function (err, result) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -73,7 +73,7 @@ app.express.delete('/:org/api/admin/shift/:id', app.authorized.can('enter app'),
             return res.send(500);
         }
 
-        shiftCollection.remove({_id: new ObjectID(req.params.id)}, function (err, result) {
+        shiftCollection.remove({_id: new ObjectID(req.params.id), org: req.params.org}, function (err, result) {
 
             if (err) {
                 console.log(err);

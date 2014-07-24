@@ -15,12 +15,12 @@ define(function () {
         render: function () {
             return (
                 React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"small-6 columns"}, 
+                    React.DOM.div( {className:"medium-6 columns"}, 
                         React.DOM.a( {title:"Descartar", className:"wCfgX", onClick:this.killMe}, 
                             React.DOM.i( {className:"fi-x"})
                         ),this.props.worker.name
                     ),
-                    React.DOM.div( {className:"small-3 columns"}, 
+                    React.DOM.div( {className:"medium-3 columns"}, 
                         React.DOM.select( {className:"pointSelector", 'data-collection':"points", 'data-field':"startPoint", 'data-worker':this.props.worker._id}, 
                             
                                 this.props.options.points.map(function (option, index) {
@@ -29,7 +29,7 @@ define(function () {
                             
                         )
                     ),
-                    React.DOM.div( {className:"small-3 columns"}, 
+                    React.DOM.div( {className:"medium-3 columns"}, 
                         React.DOM.select( {className:"shiftSelector", 'data-collection':"workShifts", 'data-field':"workShift", 'data-worker':this.props.worker._id}, 
                             
                                 this.props.options.workShifts.map(function (option, index) {
@@ -76,9 +76,9 @@ define(function () {
             return React.DOM.form( {onSubmit:this.handleSubmit}, 
                 React.DOM.div( {className:"cfgForm"}, 
                     React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"small-6 columns"}, React.DOM.strong(null, "Nome")),
-                        React.DOM.div( {className:"small-3 columns"}, React.DOM.strong(null, "Partida")),
-                        React.DOM.div( {className:"small-3 columns"}, React.DOM.strong(null, "Horário"))
+                        React.DOM.div( {className:"medium-6 columns"}, React.DOM.strong(null, "Nome")),
+                        React.DOM.div( {className:"medium-3 columns"}, React.DOM.strong(null, "Partida")),
+                        React.DOM.div( {className:"medium-3 columns"}, React.DOM.strong(null, "Horário"))
                     ),
 
                     React.DOM.div( {className:"workersCfg"}, 
@@ -88,7 +88,7 @@ define(function () {
                     ),
 
                     React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"small-12 columns text-right"}, 
+                        React.DOM.div( {className:"medium-12 columns text-right"}, 
                             React.DOM.button( {className:"small alert button", onClick:this.cancel}, "Cancelar"),
                             React.DOM.button( {className:"small success button"}, "Salvar")
                         )

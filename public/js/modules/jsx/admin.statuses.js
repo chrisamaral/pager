@@ -45,7 +45,7 @@ define(function () {
                 <legend className='textCapitalize'>{this.props.name}</legend>
                 <form onSubmit={this.handleSubmit}>
                     <div className='row'>
-                        <div className='small-12 columns'>
+                        <div className='medium-12 columns'>
                             <label>Novo status
                                 <input type='text' ref='newRef' name='reference' disabled={this.state.locked} required />
                             </label>
@@ -79,7 +79,7 @@ define(function () {
             this.reloadAll();
         },
         render: function () {
-            return <div className='small-block-grid-3'>
+            return <div className='medium-block-grid-3'>
                 {_.map(this.state.statuses, function (references, name) {
                     return <StatusForm reloadAll={this.reloadAll} name={name} references={references} key={name} />;
                 }.bind(this))}

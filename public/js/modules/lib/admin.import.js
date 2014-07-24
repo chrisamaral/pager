@@ -89,10 +89,10 @@ define(function () {
                                 style:{display: this.state.uploadProgress === null ? 'none' : ''}} ),
 
                     React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"small-10 columns"}, 
+                        React.DOM.div( {className:"medium-10 columns"}, 
                             React.DOM.input( {type:"file", required:true, ref:"csvFile", onChange:this.changeFile, name:"csv"} )
                         ),
-                        React.DOM.div( {className:"small-2 columns"}, 
+                        React.DOM.div( {className:"medium-2 columns"}, 
                             React.DOM.button( {className:"success button postfix", disabled:this.state.uploadProgress !== null}, "Upload")
                         )
                     ),

@@ -2,16 +2,6 @@
     -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 
-html, body, body > #container, .off-canvas-wrap {
-    min-height:100vh;
-}
-.off-canvas-wrap {
-    overflow-y: auto;
-}
-.inner-wrap {
-    min-height: 100%;
-}
-
 i.the-icon{
     font-size: 1.5em;
     margin-right: 0.5em;
@@ -62,4 +52,14 @@ progress.ProgressBar{
     font-size: x-large;
     line-height: 2em;
     margin: 0.5em 0;
+}
+.top-bar-section ul{
+    z-index: 999;
+}
+.f-dropdown{
+    box-shadow: 4px 6px 5px rgba(0,0,0,0.2);
+}
+
+.f-ico{
+    margin: 0 5px;
 }
