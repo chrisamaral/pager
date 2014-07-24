@@ -8,8 +8,7 @@ define([
     '../lib/console.component.router.js',
     '../lib/console.component.map.js',
     '../lib/console.component.queries.js'
-],
-function (LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCompQueries) {
+], function (LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCompQueries) {
     var Aviator = pager.Aviator,
         Console,
         UserLink,

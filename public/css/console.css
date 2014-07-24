@@ -38,6 +38,7 @@
 #RightPanelContent{
     padding: 1em;
     background-color: white;
+    box-shadow: -2px 3px 3px rgba(0,0,0,0.3);
 }
 .leftMapControl{
     width: auto;
@@ -296,12 +297,20 @@
 }
 .scheduleTask{
     position: absolute;
+    cursor: pointer;
     border: 1px solid rgb(200,200,200);
     margin-right: 3px;
     height: 100%;
     background-color: rgb(240,240,240);
-    
 }
+/*
+.scheduleTask:hover{
+    border-width: 2px;
+    border-right-width: 3px;
+    border-bottom-width: 5px;
+
+}*/
+
 #RouterWorkers>table{
     width: 95%;
     margin: 0.5em auto;
@@ -316,15 +325,20 @@
     overflow: hidden;
     height: 3em;
     margin-bottom: 0.5em;
-    background-color: rgb(245,245,245);
-    border-bottom: 2px solid rgb(200,200,200);
+    border: 1px solid rgb(150,150,150);
+    background-color: rgb(245, 245, 245);
+    border-bottom: 2px solid rgb(200,200,200)
 }
 .scheduleHeaderTick{
     display: inline-block;
     height: 100%;
-    border-left: 1px dashed rgb(150,150,150);
+    border-left: 1px solid rgb(150,150,150);
     padding: 3px;
     position: absolute;
     font-size: small;
     font-weight: bold;
+}
+
+.scheduleHeaderTick:first-of-type{
+    border-left: none;
 }

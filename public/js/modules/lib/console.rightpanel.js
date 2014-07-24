@@ -146,7 +146,7 @@ define(['./console.schedule'], function (Schedule) {
         },
 
         cleanScheduleAndUpdate: function () {
-            $.ajax({type: 'DELETE', url: pager.urls.ajax + 'console/schedule/' + this.props.day})
+            $.ajax({type: 'DELETE', url: pager.urls.ajax + 'console/schedules/' + this.props.day})
                 .done(function () {
 
                     this.props.updateSchedule();
@@ -176,7 +176,7 @@ define(['./console.schedule'], function (Schedule) {
                             : null,
                             
                         this.props.schedule.length
-                            ? Schedule( {schedule:this.props.schedule} )
+                            ? Schedule( {schedule:this.props.schedule, day:this.props.day, syncQueries:this.props.syncQueries, updateSchedule:this.props.updateSchedule} )
                             : null,
                             
                         this.props.schedule.length

@@ -128,31 +128,8 @@ define(['./component.DateInput'], function (DateInput) {
         }
     });
     QueryTask = React.createClass({
-        getInitialState: function () {
-            return {id: 'Q' + Math.random().toString(36).substr(2), hasLocation: false};
-        },
-        renderDropdown: function (props) {
-            props = props || this.props;
-
-            $('#' + this.state.id + 'Menu').remove();
-            var menu =  $(React.renderComponentToString(
-                <ul id={this.state.id + 'Menu'} className='tiny f-dropdown hide' data-dropdown-content>
-                    <li><a id={this.state.id + 'killMe'}>Descartar</a></li>
-                </ul>)).appendTo('body');
-
-            $('#' + this.state.id + 'killMe').click(this.killMe);
-
-            if (this.state.hasLocation !== !!props.task.location) {
-                this.setState({hasLocation: !!props.task.location});
-            }
-            menu.foundation();
-        },
-        componentWillUnmount: function () {
-            $('#' + this.state.id + 'Menu').remove();
-        },
         killMe: function () {
             this.props.removeTask(this.props.index);
-            $('#' + this.state.id + 'Menu').remove();
             if (this.props.selectedTask === this.props.task._id) {
                 this.mapFocusOnMe();
             }
@@ -160,17 +137,7 @@ define(['./component.DateInput'], function (DateInput) {
         mapFocusOnMe: function () {
             this.props.setTaskFocus(this.props.task._id);
         },
-        spawnDropDown: function (e) {
-            var menuBt = $(e.currentTarget),
-                hasD = menuBt.attr('data-dropdown');
-            
-            if (hasD) return;
 
-            menuBt.attr('data-dropdown', this.state.id + 'Menu');
-
-            this.renderDropdown();
-            menuBt.foundation().trigger('click');
-        },
         render: function () {
             
             var AttrTable = pager.components.AttrTable, classes = React.addons.classSet({
@@ -181,7 +148,7 @@ define(['./component.DateInput'], function (DateInput) {
             return <div className={classes} data-task={this.props.task._id}>
                 <span className='icos'>
                     { this.props.task.location && <a className='radius ico fi-target-two' onClick={this.mapFocusOnMe} title='Selecionar'></a> }
-                    <a className='radius ico fi-list' ref='menuBt' title='Menu' onClick={this.spawnDropDown}></a>
+                    <a className='radius ico fi-x' ref='menuBt' title='Descartar' onClick={this.killMe}></a>
                 </span>
                 <AttrTable attrs={this.props.task.attrs} />
             </div>;

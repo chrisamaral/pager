@@ -1,5 +1,17 @@
+var allCollections = [
+        'customer',
+        'place',
+        'schedule',
+        'shift',
+        'status',
+        'type',
+        'work_order',
+        'work_shift',
+        'worker',
+        'schedule_history'
+    ], async = require('async');
 
-module.exports = function (mongo) {
+function indexer (mongo) {
     function handleErr (err, nope) {
         if (err) console.log(err);
     }
@@ -16,6 +28,7 @@ module.exports = function (mongo) {
     mongo.ensureIndex('schedule', {work_orders: 1}, handleErr);
     mongo.ensureIndex('schedule', {customers: 1}, handleErr);
     mongo.ensureIndex('schedule', {day: 1}, handleErr);
+    mongo.ensureIndex('schedule', {worker: 1, org: 1, day: 1}, {unique: true}, handleErr);
 
     collections = ['customer', 'work_order', 'worker'];
     collections.forEach(function (collection) {
@@ -28,10 +41,25 @@ module.exports = function (mongo) {
         mongo.ensureIndex(collection, {name: 1, org: 1}, {unique: true}, handleErr);
     });
 
-    collections = ['customer', 'place', 'schedule', 'shift', 'status', 'type', 'work_order', 'work_shift', 'worker'];
+    collections = allCollections;
     collections.forEach(function (collection) {
         mongo.ensureIndex(collection, {org: 1}, handleErr);
     });
+}
+module.exports = function (mongo) {
+
+    return indexer(mongo);
+/*
+    async.eachSeries(
+        allCollections,
+        function (collection, callback) {
+            mongo.createCollection(collection)
+        },
+        function (err, nope) {
+            indexer();
+        }
+    );
+*/
 
 
 };
