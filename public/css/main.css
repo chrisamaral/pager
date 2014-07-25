@@ -1,12 +1,10 @@
 *, *:before, *:after {
     -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
-
-i.the-icon{
+.top-bar i.the-icon{
     font-size: 1.5em;
     margin-right: 0.5em;
 }
-
 .tiny.button{
     line-height: 2em;
     padding: 0 1em;
@@ -22,22 +20,7 @@ i.the-icon{
 .f-dropdown.open{
     display: block !important;
 }
-a.ico{
-    display: inline-block;
-    text-align: center;
-    width: 2em;
-    line-height: 2em;
-    color: rgb(70,70,70);
-}
-a.ico.radius{
-    border-radius: 5px;
-}
-a.ico.round{
-    border-radius: 100%;
-}
-a.ico:hover{
-    background-color: rgb(240,240,240);
-}
+
 .no-flow-x{
     overflow-x: hidden;
 }

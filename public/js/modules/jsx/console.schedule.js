@@ -24,6 +24,11 @@ define(['../ext/strftime'], function (strftime) {
                 <table className='dropdown-table'>
                     <tbody>
                         <tr>
+                            <td colSpan={2}>
+                                <strong>{this.props.task.address.address}</strong>
+                            </td>
+                        </tr>
+                        <tr>
                             <td>
                                 <i className='f-ico fi-clock'></i>
                                 <strong>Deslocamento</strong>

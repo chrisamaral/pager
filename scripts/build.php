@@ -10,7 +10,7 @@ $build = str_replace('[moduleROOT]', "/js/v/{$time}", $build);
 $l = '../server/build/lazy.cache.load.js';
 
 $lazyCache = file_get_contents($l);
-$lazyCacheMin = shell_exec("closure {$l}");
+$lazyCacheMin = shell_exec("uglifyjs {$l}");
 
 $inputHtml = file_get_contents('../server/build/index.html');
 $build = json_decode($build, true);

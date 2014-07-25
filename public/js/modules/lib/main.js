@@ -84,7 +84,8 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                 currentView: null,
                 args: {},
                 pagesEnabled: pager.pagesEnabled,
-                urls: pager.urls
+                urls: pager.urls,
+                lastAppChange: Date.now()
             };
         },
 
@@ -94,7 +95,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                 run = function (View) {
 
                     mainComponent = View;
-                    this.forceUpdate();
+                    this.setState({lastAppChange: Date.now()});
 
                 };
 

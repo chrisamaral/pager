@@ -46,7 +46,24 @@ app.express.post('/:org/api/admin/status/:name/:ref', app.authorized.can('enter 
                     console.log(err);
                     return res.send(500);
                 }
-                res.send(204);
+                app.mongo.collection('work_order', function (err, workOrderCollection) {
+                    if (err) {
+                        console.log(err);
+                        return res.send(500);
+                    }
+                    workOrderCollection.update({org: req.params.org, original_status: req.params.ref},
+                        {$set: {status: req.params.name}},
+                        {multi: true},
+                        function (err) {
+                            if (err) {
+                                console.log(err);
+                                return res.send(500);
+                            }
+                            res.send(204);
+                        }
+                    )
+                });
+
             });
     });
 });
@@ -258,6 +275,36 @@ app.express.get('/:org/api/admin/types', app.authorized.can('enter app'), functi
 
             res.json(result);
         });
+    });
+});
+
+app.express.get('/:org/api/admin/undefined/types', app.authorized.can('enter app'), function (req, res) {
+    app.mongo.collection('work_order', function (err, workerCollection) {
+        workerCollection.distinct('type', {org: req.params.org}, function (err, result) {
+
+            if (err) {
+                console.log(err);
+                return res.send(500);
+            }
+
+            res.json(result);
+        });
+    });
+});
+
+app.express.get('/:org/api/admin/undefined/statuses', app.authorized.can('enter app'), function (req, res) {
+    app.mongo.collection('work_order', function (err, workerCollection) {
+        workerCollection.distinct('original_status',
+            {org: req.params.org, original_status: {$exists: true}, status: 'desconhecido'},
+            function (err, result) {
+
+                if (err) {
+                    console.log(err);
+                    return res.send(500);
+                }
+
+                res.json(result);
+            });
     });
 });
 

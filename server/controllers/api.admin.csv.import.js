@@ -1,6 +1,7 @@
 'use strict';
 var app = require('../base.js')(),
     $mongo = require('mongodb'),
+    strftime = require('strftime'),
     ObjectID = $mongo.ObjectID,
     async = require('async'),
     _ = require('lodash');
@@ -53,7 +54,7 @@ function wOParse (row, shifts, statuses) {
         if (key === 'código' || key === 'codigo' || key === 'id') guess = 'sys_id';
 
         if (key.indexOf('agenda') >= 0) {
-            if (key.indexOf('turno') >= 0 || key.indexOf('janela') >= 0) {
+            if (key.indexOf('turno') >= 0 || key.indexOf('janela') >= 0 || key.indexOf('periodo') >= 0) {
                 guess = 'schedule.shift';
             } else {
                 guess = 'schedule.date';
@@ -63,21 +64,23 @@ function wOParse (row, shifts, statuses) {
         switch (guess) {
             case 'creation':
                 newRow.creation = new Date(val);
+                newRow.creation_day = strftime('%Y-%m-%d', newRow.creation);
                 break;
             case 'sys_id':
             case 'type':
                 newRow[guess] = val;
-
+                break;
             case 'status':
                 var myS = _.find(statuses, function (s){ return s.name === val || s.references.indexOf(val) >= 0; });
                 newRow.status = myS ? myS.name : 'desconhecido';
-                newRow.originalStatus = val;
+                newRow.original_status = val;
 
                 break;
 
             case 'schedule.date':
                 newRow.schedule = newRow.schedule || {};
                 newRow.schedule.date = new Date(val);
+                newRow.schedule.day = strftime('%Y-%m-%d', newRow.schedule.date);
 
                 break;
             case 'schedule.shift':
@@ -115,6 +118,7 @@ function wOParse (row, shifts, statuses) {
             case 'customer.creation':
                 newRow.customer = newRow.customer || {};
                 newRow.customer.creation = new Date(val);
+
                 break;
 
 

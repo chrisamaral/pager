@@ -24,10 +24,19 @@ function workOrderFormat (order) {
         };
     }
 
-    o.attrs.push({descr: 'Tipo', value: order.type, relevance: 3});
+    if (order.type) {
+        o.attrs.push({descr: 'Tipo', value: order.type, relevance: 3});
+    }
+
     o.attrs.push({descr: 'Código Ordem', value: order.sys_id, relevance: 2});
-    o.attrs.push({descr: 'Status', value: order.status, relevance: 2});
-    o.attrs.push({descr: 'Ingresso', value: strftime('%d/%m/%Y', order.creation)});
+
+    if (order.status) {
+        o.attrs.push({descr: 'Status', value: order.status, relevance: 2});
+    }
+
+    if (order.creation) {
+        o.attrs.push({descr: 'Ingresso', value: strftime('%d/%m/%Y', order.creation)});
+    }
 
     target = order.customer || order.asset;
 
@@ -39,8 +48,10 @@ function workOrderFormat (order) {
         o.attrs.push({descr: order.customer ? 'Cliente' : 'Equipamento',
             value: target.name, relevance: 2});
 
-        o.attrs.push({descr: order.customer ? 'Tipo Cliente' : 'Tipo Equipamento',
-            value: target.type});
+        if (target.type) {
+            o.attrs.push({descr: order.customer ? 'Tipo Cliente' : 'Tipo Equipamento',
+                value: target.type});
+        }
 
         o.attrs.push({descr: order.customer ? 'Código Cliente' : 'Código Equipamento',
             value: target.sys_id});
@@ -142,7 +153,7 @@ function formatTasks(req, res) {
             async.filter(result, function (order, callback) {
                 var query = {
                     org: req.params.org,
-                    day: req.params.day,
+                    //day: req.params.day,
                     deleted: {$ne: true},
                     work_orders: '' + order._id
                 };
@@ -213,15 +224,13 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
         if (notEmptyArray(query.schedule)) {
             aux = {$or: []};
             query.schedule.forEach(function (schedule) {
-                var ini = new Date(schedule),
-                    end = new Date(schedule);
+                var ini = new Date(schedule);
 
                 ini.setTime(ini.getTime() + oneDay);
                 ini.setHours(0);
-                end.setTime(ini.getTime() + oneDay);
 
                 aux.$or.push({
-                    'schedule.date': {$lt: end, $gt: ini}
+                    'schedule.day': strftime('%Y-%m-%d', ini)
                 });
             });
             search.$and.push(aux);
@@ -230,13 +239,12 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
         if (notEmptyArray(query.creation)) {
             aux = {$or: []};
             query.creation.forEach(function (creation) {
-                var ini = new Date(creation), end = new Date(creation);
+                var ini = new Date(creation);
 
                 ini.setTime(ini.getTime() + oneDay);
                 ini.setHours(0);
-                end.setTime(ini.getTime() + oneDay);
 
-                aux.$or.push({creation: {$gt: ini, $lt: end}});
+                aux.$or.push({creation_day: strftime('%Y-%m-%d', ini)});
             });
             search.$and.push(aux);
         }

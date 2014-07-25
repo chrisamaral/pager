@@ -55,21 +55,29 @@ define([
 
     AttrItem = React.createClass({displayName: 'AttrItem',
         toggleTb: function() {
-            $(this.getDOMNode()).closest('table').find('tbody>tr').not('.main-attr').toggle();
+            $(this.getDOMNode()).closest('.attr-table').find('.row').not('.main-attr').toggle();
         },
         render: function () {
+
             var attr = this.props.attr,
+
                 classes = React.addons.classSet({
+                    row: true,
                     'main-attr': attr.relevance === 3,
                     'important-attr': attr.relevance === 2
                 }),
+
                 val = attr.relevance === 3 && _.isString(attr.value)
                     ? attr.value.toUpperCase()
                     : attr.value,
-                hasDescr = attr.relevance !== 3 && attr.descr;
-            return React.DOM.tr( {className:classes, onClick:attr.relevance === 3 ? this.toggleTb : null }, 
-                hasDescr ? React.DOM.td(null, attr.descr) : null,
-                React.DOM.td( {colSpan:attr.relevance === 3 || !hasDescr ? 2 : 1, title:!hasDescr && attr.descr ? attr.descr : ''}, 
+
+                hasDescr = attr.relevance !== 3 && attr.descr,
+
+                otherClasses = React.addons.classSet({columns: true, 'small-8': hasDescr, 'small-12': !hasDescr});
+
+            return React.DOM.div( {className:classes, onClick:attr.relevance === 3 ? this.toggleTb : null }, 
+                hasDescr ? React.DOM.div( {className:"small-4 columns"}, attr.descr) : null,
+                React.DOM.div( {className:otherClasses, title:!hasDescr && attr.descr ? attr.descr : ''}, 
                     attr.url
                         ? React.DOM.a( {href:attr.url, target:"_blank"}, val)
                         : val
@@ -86,12 +94,10 @@ define([
                 .concat(_.filter(this.props.attrs, function(attr){
                     return !attr.relevance || attr.relevance <= 1;
                 }));
-            return React.DOM.table( {className:"attr-table"}, 
-                React.DOM.tbody(null, 
-                        attrs.map(function(attr, index){
-                            return AttrItem( {key:index, attr:attr} );
-                        })
-                )
+            return React.DOM.div( {className:"attr-table"}, 
+                    attrs.map(function(attr, index){
+                        return AttrItem( {key:index, attr:attr} );
+                    })
             );
         }
     });
@@ -158,8 +164,9 @@ define([
 
             var onResize = _.throttle(function () {
 
-                if(!this.isMounted) return $(window).off('resize', onResize);
-                this.forceUpdate();
+                if(!this.isMounted()) return $(window).off('resize', onResize);
+
+                this.setState({myHeight: $(window).height() - $('#MainTopBar').outerHeight()});
 
             }.bind(this), 300);
 
@@ -209,7 +216,8 @@ define([
 
         render: function () {
 
-            var h = $(window).height() - $('#MainTopBar').outerHeight(), style = {'min-height': h};
+            var h = this.state.myHeight || $(window).height() - $('#MainTopBar').outerHeight(),
+                style = {'min-height': h};
 
             return React.DOM.div( {id:"Console", style:style}, 
 

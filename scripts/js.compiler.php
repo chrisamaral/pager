@@ -10,7 +10,7 @@ function compile_js($path){
     if(!file_exists($file['dirname'])){
     mkdir($file['dirname'], 0777, true);
     }
-    $cmd = "closure --js={$path} --js_output_file={$output}";
+    $cmd = "uglifyjs --output {$output} {$path}";
     echo "$cmd\n";
     system($cmd);
 }

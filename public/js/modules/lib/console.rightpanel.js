@@ -118,7 +118,7 @@ define(['./console.schedule'], function (Schedule) {
     var RightPanel = React.createClass({displayName: 'RightPanel',
 
         getInitialState: function() {
-            return {contentVisible: true};
+            return {contentVisible: true, myWidth: null};
         },
 
         componentDidMount: function () {
@@ -130,8 +130,9 @@ define(['./console.schedule'], function (Schedule) {
 
                     var $elem = $(this.getDOMNode());
 
-                    if ($elem && $('#Console').width() - $('#LeftPanel').width() !== $elem.width()) {
-                        this.forceUpdate();
+                    if (this.isMounted() && $elem && $('#Console').width() - $('#LeftPanel').width() !== $elem.width()) {
+
+                        this.setState({myWidth: $('#Console').width() - $('#LeftPanel').width()});
                     }
 
                 }.bind(this),
@@ -161,7 +162,7 @@ define(['./console.schedule'], function (Schedule) {
                 actuallyVisible = this.state.contentVisible
                     && (this.props.schedule.length || this.props.routerLoader);
 
-            if (actuallyVisible) s.width = $('#Console').width() - $('#LeftPanel').width();
+            if (actuallyVisible) s.width = this.state.myWidth || $('#Console').width() - $('#LeftPanel').width();
 
             return React.DOM.main( {id:"RightPanel", style:s}, 
                 actuallyVisible

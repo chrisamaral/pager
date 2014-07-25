@@ -1,4 +1,21 @@
 
+a.ico{
+    display: inline-block;
+    text-align: center;
+    width: 2em;
+    line-height: 2em;
+    color: rgb(70,70,70);
+}
+a.ico.radius{
+    border-radius: 5px;
+}
+a.ico.round{
+    border-radius: 100%;
+}
+a.ico:hover{
+    background-color: rgba(0,0,0,0.1);
+}
+
 #Console label>strong{
     margin-bottom: 0.5em;
 }
@@ -173,27 +190,39 @@
 
 .attr-table{
     width: 100%;
+    overflow-x: hidden;
     margin: 0.2em 0;
-    font-size: smaller;
+    border: 1px solid rgb(200, 200, 200);
 }
-.attr-table>tbody>.main-attr:first-child, .attr-table>tbody>.first-attr{
-    background-color: rgba(0,0,0,0.1);
-}
-.first-attr>td{
-    font-weight: bold;
-    line-height: 1em;
 
+.attr-table>.row:first-child>.columns, .attr-table>.row.first-attr>.columns{
+    background-color: rgb(240,240,240) !important;
+    font-weight: bold;
 }
-.main-attr>td{
+
+.attr-table>.row{
+    line-height: 2.5em;
+}
+
+.attr-table .columns{
+    border-top: 1px solid rgb(200, 200, 200);
+}
+.attr-table>.row>.columns:first-child{
+    font-weight: bold;
+}
+
+.attr-table>.row>.columns:last-child{
+    z-index: 1;
+    background-color: white;
+}
+.main-attr.columns{
     font-weight: bold;
     font-size: larger;
 }
-
-.important-attr>td:first-child{
-    font-weight: bold;
+.important-attr{
+    text-transform: capitalize;
 }
-
-.important-attr>td:last-child{
+.important-attr>.columns:last-child{
     font-style: italic;
 }
 
@@ -222,10 +251,12 @@
     position: relative;
 }
 .queryTask>.icos{
+    background-color: rgb(240,240,240);
     position: absolute;
     right: 5px; top: 3px;
+    z-index: 2;
 }
-.queryTask.selectedTask>table{
+.queryTask.selectedTask>.attr-table{
     border: 1px solid #5700ff;
     box-shadow: 1px 2px 2px rgba(0,0,0,0.2);
 }

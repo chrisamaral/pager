@@ -140,14 +140,16 @@ define(['./component.DateInput'], function (DateInput) {
 
         render: function () {
             
-            var AttrTable = pager.components.AttrTable, classes = React.addons.classSet({
-                queryTask: true,
-                selectedTask: this.props.selectedTask === this.props.task._id
-            });
+            var AttrTable = pager.components.AttrTable,
+                classes = React.addons.classSet({
+                    queryTask: true,
+                    selectedTask: this.props.selectedTask === this.props.task._id
+                });
 
             return <div className={classes} data-task={this.props.task._id}>
                 <span className='icos'>
-                    { this.props.task.location && <a className='radius ico fi-target-two' onClick={this.mapFocusOnMe} title='Selecionar'></a> }
+                    { this.props.task.location
+                        && <a className='radius ico fi-target-two' onClick={this.mapFocusOnMe} title='Selecionar'></a> }
                     <a className='radius ico fi-x' ref='menuBt' title='Descartar' onClick={this.killMe}></a>
                 </span>
                 <AttrTable attrs={this.props.task.attrs} />

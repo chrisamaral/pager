@@ -47,7 +47,7 @@ define(function () {
                     React.DOM.div( {className:"row"}, 
                         React.DOM.div( {className:"medium-12 columns"}, 
                             React.DOM.label(null, "Novo status",
-                                React.DOM.input( {type:"text", ref:"newRef", name:"reference", disabled:this.state.locked, required:true} )
+                                React.DOM.input( {type:"text", list:"UndefinedStatuses", ref:"newRef", name:"reference", disabled:this.state.locked, required:true} )
                             )
                         )
                     )
@@ -66,13 +66,30 @@ define(function () {
     });
     var Statuses = React.createClass({displayName: 'Statuses',
         getInitialState: function () {
-            return {statuses: parseStatuses()};
+            return {statuses: parseStatuses(), undefinedStatuses: []};
         },
         reloadAll: function () {
             $.get(pager.urls.ajax + 'admin/statuses')
                 .done(function(result) {
                     if (!this.isMounted()) return;
-                    this.setState({statuses: parseStatuses(result)});
+                    this.setState({statuses: parseStatuses(result)}, this.loadUndefinedStatuses);
+                }.bind(this));
+        },
+        loadUndefinedStatuses: function () {
+            $.get(pager.urls.ajax + 'admin/undefined/statuses')
+                .done(function (statuses) {
+                    if (!this.isMounted()) return;
+
+                    this.setState({
+                        undefinedStatuses: _.filter(statuses,
+                            function (status) {
+                                return !_.find(this.state.statuses,
+                                    function (s) { return s.indexOf(status) >= 0; }
+                                );
+                            }.bind(this)
+                        )
+                    });
+
                 }.bind(this));
         },
         componentDidMount: function () {
@@ -80,6 +97,11 @@ define(function () {
         },
         render: function () {
             return React.DOM.div( {className:"medium-block-grid-3"}, 
+                React.DOM.datalist( {id:"UndefinedStatuses"}, 
+                    this.state.undefinedStatuses.map(function (s) {
+                        return React.DOM.option( {key:s, value:s});
+                    })
+                ),
                 _.map(this.state.statuses, function (references, name) {
                     return StatusForm( {reloadAll:this.reloadAll, name:name, references:references, key:name} );
                 }.bind(this))

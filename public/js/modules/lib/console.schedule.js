@@ -24,6 +24,11 @@ define(['../ext/strftime'], function (strftime) {
                 React.DOM.table( {className:"dropdown-table"}, 
                     React.DOM.tbody(null, 
                         React.DOM.tr(null, 
+                            React.DOM.td( {colSpan:2}, 
+                                React.DOM.strong(null, this.props.task.address.address)
+                            )
+                        ),
+                        React.DOM.tr(null, 
                             React.DOM.td(null, 
                                 React.DOM.i( {className:"f-ico fi-clock"}),
                                 React.DOM.strong(null, "Deslocamento")
