@@ -28,16 +28,21 @@ $build = json_decode($build, true);
     $cssRoot = "/css/v/{$time}/";
     
     exec('rm -R ../public/css/build');
+    exec('rm -R ../public/css/v');
+
     mkdir('../public/css-build');
     exec('cp -R ../public/css/* ../public/css-build');
     exec('mv ../public/css-build ../public/css/build');
+    mkdir('../public/css/v');
 
     foreach ($build['development']['css'] as $key => $file) {
         
         $renamed = str_replace("/css/", $cssRoot, $file);
         $noRootFolder = str_replace("/css/", '', $file);
 
-        exec("lessc --clean-css ../public{$file} ../public/css/build/{$noRootFolder}");
+        $cmd = "lessc --clean-css ../public{$file} ../public/css/build/{$noRootFolder}";
+
+        echo "$cmd\n"; exec($cmd);
         $build['production']['css'][$key] = $renamed;
     }
 
@@ -79,6 +84,10 @@ $fp = fopen('../build.json', 'w');
 fwrite($fp, json_encode($build, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 fclose($fp);
 
+function replaceV ($str, $time) {
+    return str_replace("/build/", "/v/{$time}/", $str);
+}
+
 $static = 
     trim(
         shell_exec(
@@ -87,15 +96,19 @@ $static =
     )
     ."\n".
     trim(
-        shell_exec(
-            'find ../public/css -type f -name "*.woff"'
-        )
+        replaceV(
+            shell_exec(
+                "find ../public/css/build -type f -name '*.woff'"
+            )
+        , $time)
     )
     ."\n".
     trim(
-        shell_exec(
-            'find ../public/css -type f -name "*.css"'
-        )
+        replaceV(
+            shell_exec(
+                "find ../public/css/build -type f -name '*.css'"
+            )
+        , $time)
     );
 
 $static = str_replace('../public', '', $static);

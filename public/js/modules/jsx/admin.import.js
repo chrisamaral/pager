@@ -17,7 +17,7 @@ define(function () {
         },
         isValidFile: function (fInput) {
             var file = fInput.files[0];
-            return file && file.type.indexOf('csv') > -1;
+            return file && (file.type.indexOf('csv') > -1 || file.type.indexOf('excel') > -1);
         },
         changeFile: function (e) {
             var fElem = e.currentTarget,
