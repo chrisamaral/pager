@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 define([
+    '../ext/strftime',
     './console.leftpanel',
     './console.rightpanel',
     './console.map',
@@ -8,7 +9,7 @@ define([
     '../lib/console.component.router.js',
     '../lib/console.component.map.js',
     '../lib/console.component.queries.js'
-], function (LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCompQueries) {
+], function (strftime, LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCompQueries) {
     var Aviator = pager.Aviator,
         Console,
         UserLink,
@@ -33,21 +34,21 @@ define([
     UserLink = React.createClass({displayName: 'UserLink',
         render: function () {
             if (this.props.user.url) {
-                return React.DOM.a( {target:"_blank", title:this.props.user.full_name, href:this.props.user.url}, 
+                return React.DOM.a({target: "_blank", title: this.props.user.full_name, href: this.props.user.url}, 
                     this.props.user.short_name
                 );
             }
-            return React.DOM.strong( {title:this.props.user.full_name}, this.props.user.short_name);
+            return React.DOM.strong({title: this.props.user.full_name}, this.props.user.short_name);
         }
     });
 
     ObjectLink = React.createClass({displayName: 'ObjectLink',
         render: function () {
             return React.DOM.span(null, 
-                this.props.object.adj ? ' ' + this.props.object.adj : null,
-                React.DOM.span(null,  " " ),
+                this.props.object.adj ? ' ' + this.props.object.adj : null, 
+                React.DOM.span(null, " "), 
                 this.props.object.url
-                    ? React.DOM.a( {target:"_blank", href:this.props.object.url}, this.props.object.name)
+                    ? React.DOM.a({target: "_blank", href: this.props.object.url}, this.props.object.name)
                     : React.DOM.strong(null, this.props.object.name)
             );
         }
@@ -69,17 +70,19 @@ define([
 
                 val = attr.relevance === 3 && _.isString(attr.value)
                     ? attr.value.toUpperCase()
-                    : attr.value,
+                    : _.isDate(attr.value)
+                        ? strftime('%d/%m/%Y', attr.value)
+                        : attr.value,
 
                 hasDescr = attr.relevance !== 3 && attr.descr,
 
                 otherClasses = React.addons.classSet({columns: true, 'small-8': hasDescr, 'small-12': !hasDescr});
 
-            return React.DOM.div( {className:classes, onClick:attr.relevance === 3 ? this.toggleTb : null }, 
-                hasDescr ? React.DOM.div( {className:"small-4 columns"}, attr.descr) : null,
-                React.DOM.div( {className:otherClasses, title:!hasDescr && attr.descr ? attr.descr : ''}, 
+            return React.DOM.div({className: classes, onClick: attr.relevance === 3 ? this.toggleTb : null}, 
+                hasDescr ? React.DOM.div({className: "small-4 columns"}, attr.descr) : null, 
+                React.DOM.div({className: otherClasses, title: !hasDescr && attr.descr ? attr.descr : ''}, 
                     attr.url
-                        ? React.DOM.a( {href:attr.url, target:"_blank"}, val)
+                        ? React.DOM.a({href: attr.url, target: "_blank"}, val)
                         : val
                         
                 )
@@ -94,9 +97,12 @@ define([
                 .concat(_.filter(this.props.attrs, function(attr){
                     return !attr.relevance || attr.relevance <= 1;
                 }));
-            return React.DOM.div( {className:"attr-table"}, 
+
+            attrs = pager.helpers.dateAutoConv(attrs);
+
+            return React.DOM.div({className: "attr-table"}, 
                     attrs.map(function(attr, index){
-                        return AttrItem( {key:index, attr:attr} );
+                        return AttrItem({key: index, attr: attr});
                     })
             );
         }
@@ -219,41 +225,41 @@ define([
             var h = this.state.myHeight || $(window).height() - $('#MainTopBar').outerHeight(),
                 style = {'min-height': h};
 
-            return React.DOM.div( {id:"Console", style:style}, 
+            return React.DOM.div({id: "Console", style: style}, 
 
                  this.state.hasGoogleMaps
-                    ? Map( {queries:this.state.queries,
-                            setTaskFocus:this.setTaskFocus,
-                            routerWorker:this.state.routerWorker,
-                            mapState:this.state.mapState,
-                            height:h,
-                            setMapState:this.setMapState,
-                            selectedTask:this.state.selectedTask} )
-                    : null,
+                    ? Map({queries: this.state.queries, 
+                            setTaskFocus: this.setTaskFocus, 
+                            routerWorker: this.state.routerWorker, 
+                            mapState: this.state.mapState, 
+                            height: h, 
+                            setMapState: this.setMapState, 
+                            selectedTask: this.state.selectedTask})
+                    : null, 
                     
 
-                LeftPanel( {pending:this.state.pending,
-                    routeTasks:this.initRouter,
-                    queries:this.state.queries,
-                    toggleRouterMode:this.toggleRouterMode,
-                    saveRoute:this.saveRoute,
-                    cancelRoute:this.cancelRoute,
-                    day:this.state.day,
-                    router:this.state.router,
-                    locations:this.state.locations,
-                    hasGoogleMaps:this.state.hasGoogleMaps,
-                    setQueries:this.setQueries,
-                    selectedTask:this.state.selectedTask,
-                    setTaskFocus:this.setTaskFocus} ),
+                LeftPanel({pending: this.state.pending, 
+                    routeTasks: this.initRouter, 
+                    queries: this.state.queries, 
+                    toggleRouterMode: this.toggleRouterMode, 
+                    saveRoute: this.saveRoute, 
+                    cancelRoute: this.cancelRoute, 
+                    day: this.state.day, 
+                    router: this.state.router, 
+                    locations: this.state.locations, 
+                    hasGoogleMaps: this.state.hasGoogleMaps, 
+                    setQueries: this.setQueries, 
+                    selectedTask: this.state.selectedTask, 
+                    setTaskFocus: this.setTaskFocus}), 
 
-                RightPanel( {router:this.state.router,
-                    updateSchedule:this.updateSchedule,
-                    syncQueries:this.syncQueries,
-                    schedule:this.state.schedule,
-                    day:this.state.day,
-                    totalWidth:$(window).width(),
-                    routerLoader:this.state.routerLoader,
-                    hasGoogleMaps:this.state.hasGoogleMaps} )
+                RightPanel({router: this.state.router, 
+                    updateSchedule: this.updateSchedule, 
+                    syncQueries: this.syncQueries, 
+                    schedule: this.state.schedule, 
+                    day: this.state.day, 
+                    totalWidth: $(window).width(), 
+                    routerLoader: this.state.routerLoader, 
+                    hasGoogleMaps: this.state.hasGoogleMaps})
             );
         }
 

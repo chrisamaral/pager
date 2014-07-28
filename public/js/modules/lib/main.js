@@ -4,6 +4,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
 
     if (Modernizr.touch) React.initializeTouchEvents(true);
     pager.constant = consts;
+    pager.helpers = utils;
     var mainComponent;
 
     var Root,
@@ -35,9 +36,9 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                 pagesEnabled = this.props.pagesEnabled.map(function (page) {
                     var icon = icons[page.id];
 
-                    return React.DOM.li( {key:page.name}, 
-                        React.DOM.a( {onClick:this.navigateTo, href:page.url}, 
-                            icon ? React.DOM.i( {className:'the-icon ' + icon}) : null,
+                    return React.DOM.li({key: page.name}, 
+                        React.DOM.a({onClick: this.navigateTo, href: page.url}, 
+                            icon ? React.DOM.i({className: 'the-icon ' + icon}) : null, 
                             page.name
                         )
                     );
@@ -45,31 +46,31 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                 }.bind(this)), baseUrl = this.props.urls.base;
 
 
-            pagesEnabled.unshift(React.DOM.li( {key:'usr.home'}, 
-                React.DOM.a( {href:baseUrl + '/home'}, 
-                    React.DOM.i( {className:"the-icon fi-home"}),
+            pagesEnabled.unshift(React.DOM.li({key: 'usr.home'}, 
+                React.DOM.a({href: baseUrl + '/home'}, 
+                    React.DOM.i({className: "the-icon fi-home"}), 
                 "Início"
                 )
             ));
 
-            pagesEnabled.unshift(React.DOM.li( {key:'placeholder'}, React.DOM.label(null, "Menu")));
-            pagesEnabled.push(React.DOM.li( {key:"usr"}, React.DOM.label(null, "Usuário")));
+            pagesEnabled.unshift(React.DOM.li({key: 'placeholder'}, React.DOM.label(null, "Menu")));
+            pagesEnabled.push(React.DOM.li({key: "usr"}, React.DOM.label(null, "Usuário")));
 
-            pagesEnabled.push(React.DOM.li( {key:'usr.settings'}, 
-                React.DOM.a( {href:baseUrl + '/user'}, 
-                    React.DOM.i( {className:"the-icon fi-torso"}),
+            pagesEnabled.push(React.DOM.li({key: 'usr.settings'}, 
+                React.DOM.a({href: baseUrl + '/user'}, 
+                    React.DOM.i({className: "the-icon fi-torso"}), 
                 "Configurações"
                 )
             ));
 
-            pagesEnabled.push(React.DOM.li( {key:'usr.logout'}, 
-                React.DOM.a( {href:baseUrl + '/logout'}, 
-                    React.DOM.i( {className:"the-icon fi-x"}),
+            pagesEnabled.push(React.DOM.li({key: 'usr.logout'}, 
+                React.DOM.a({href: baseUrl + '/logout'}, 
+                    React.DOM.i({className: "the-icon fi-x"}), 
                 "Logout"
                 )
             ));
 
-            return React.DOM.ul( {className:"dropdown"}, pagesEnabled);
+            return React.DOM.ul({className: "dropdown"}, pagesEnabled);
         }
     });
 
@@ -168,30 +169,30 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
             var App = mainComponent;
 
             return (React.DOM.div(null, 
-                React.DOM.div( {className:"fixed"}, 
-                    React.DOM.nav( {id:"MainTopBar", className:"top-bar", 'data-topbar':true}, 
+                React.DOM.div({className: "fixed"}, 
+                    React.DOM.nav({id: "MainTopBar", className: "top-bar", 'data-topbar': true}, 
 
-                        React.DOM.ul( {className:"title-area"}, 
-                            React.DOM.li( {className:"name"}, 
+                        React.DOM.ul({className: "title-area"}, 
+                            React.DOM.li({className: "name"}, 
                                 React.DOM.h1(null, React.DOM.a(null, 'Pager' + (pager.org && pager.org.name ? ' - '  + pager.org.name : '')))
-                            ),
-                            React.DOM.li( {className:"toggle-topbar menu-icon"}, 
-                                React.DOM.a( {href:"#"}, React.DOM.span(null, "Menu"))
+                            ), 
+                            React.DOM.li({className: "toggle-topbar menu-icon"}, 
+                                React.DOM.a({href: "#"}, React.DOM.span(null, "Menu"))
                             )
-                        ),
+                        ), 
 
-                        React.DOM.section( {className:"top-bar-section"}, 
-                            React.DOM.ul( {className:"right"}, 
-                                React.DOM.li( {className:"has-dropdown"}, 
-                                    React.DOM.a(null, "Menu"),
-                                    PageList( {urls:this.state.urls, pagesEnabled:this.state.pagesEnabled} )
+                        React.DOM.section({className: "top-bar-section"}, 
+                            React.DOM.ul({className: "right"}, 
+                                React.DOM.li({className: "has-dropdown"}, 
+                                    React.DOM.a(null, "Menu"), 
+                                    PageList({urls: this.state.urls, pagesEnabled: this.state.pagesEnabled})
                                 )
                             )
                         )
 
                     )
-                ),
-                 App && App( {args:this.state.args} ) 
+                ), 
+                 App && App({args: this.state.args})
             ));
         }
     });
@@ -244,7 +245,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
                 }
             }).always(function () {
 
-                pager.rootElem = React.renderComponent(Root(null ),
+                pager.rootElem = React.renderComponent(Root(null),
                     document.getElementById('container'));
 
             });

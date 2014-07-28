@@ -47,6 +47,22 @@ define(['../ext/strftime'], function (strftime) {
         return strftime('%Y-%m-%d %H:%M:%S', this);
     };
 
+    function autoDate(val) {
+        if (!_.isString(val)) { return val; }
+        if (!val.match(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/)) { return val; }
+        return new Date(val);
+    }
+
+    function datefy(x) {
+        if (!_.isPlainObject(x) && !_.isArray(x)) { return autoDate(x); }
+
+        _.forEach(x, function (elem, index) {
+            x[index] = datefy(elem);
+        });
+
+        return x;
+    }
+
     return {
         doGetCaretPosition: function (ctrl) {
 
@@ -68,7 +84,7 @@ define(['../ext/strftime'], function (strftime) {
             return (CaretPos);
 
         },
-
+        dateAutoConv: datefy,
         setCaretPosition: function (el, caretPos) {
 
             el.value = el.value;

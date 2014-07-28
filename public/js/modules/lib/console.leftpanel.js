@@ -11,10 +11,10 @@ function (DateInput, Queue, Tasks, strftime) {
         },
         render: function () {
             return React.DOM.tr(null, 
-                React.DOM.td(null, this.props.worker.name),
-                React.DOM.td(null, this.props.worker.tasks ? this.props.worker.tasks.length : '0'),
+                React.DOM.td(null, this.props.worker.name), 
+                React.DOM.td(null, this.props.worker.tasks ? this.props.worker.tasks.length : '0'), 
                 React.DOM.td(null, this.props.worker.tasks && this.props.worker.tasks.length
-                        ? React.DOM.a( {className:"radius ico fi-map", onClick:this.drawMe})
+                        ? React.DOM.a({className: "radius ico fi-map", onClick: this.drawMe})
                         : null
                 )
             )
@@ -94,18 +94,18 @@ function (DateInput, Queue, Tasks, strftime) {
         },
 
         render: function () {
-            return React.DOM.div( {id:"RouterWorkers"}, 
+            return React.DOM.div({id: "RouterWorkers"}, 
                 React.DOM.table(null, 
                     React.DOM.thead(null, 
                         React.DOM.tr(null, 
-                            React.DOM.th(null, "Nome"),
-                            React.DOM.th(null, "Visitas"),
+                            React.DOM.th(null, "Nome"), 
+                            React.DOM.th(null, "Visitas"), 
                             React.DOM.th(null, '##')
                         )
-                    ),
+                    ), 
                     React.DOM.tbody(null, 
                         this.props.workers.map(function (worker) {
-                            return RouterWorker( {drawWorkerDirections:this.drawWorkerDirections, key:worker._id, worker:worker} );
+                            return RouterWorker({drawWorkerDirections: this.drawWorkerDirections, key: worker._id, worker: worker});
                         }.bind(this))
                     )
                 )
@@ -161,27 +161,27 @@ function (DateInput, Queue, Tasks, strftime) {
             this.props.saveRoute(this.state.workers, this.state.day);
         },
         render: function () {
-            return React.DOM.div( {id:"Router", className:"leftMapControl"}, 
-                React.DOM.div( {className:"controlIco"}, React.DOM.i( {className:"fi-page-multiple"})),
-                React.DOM.div( {className:"controlContent"}, 
-                    React.DOM.h3( {className:"controlTitle"}, "Roteador"),
-                    React.DOM.div( {className:"panel contained clearfix"}, 
+            return React.DOM.div({id: "Router", className: "leftMapControl"}, 
+                React.DOM.div({className: "controlIco"}, React.DOM.i({className: "fi-page-multiple"})), 
+                React.DOM.div({className: "controlContent"}, 
+                    React.DOM.h3({className: "controlTitle"}, "Roteador"), 
+                    React.DOM.div({className: "panel contained clearfix"}, 
 
                          !this.state.workers.length &&
-                            React.DOM.div( {id:"RouterLog"}, 
+                            React.DOM.div({id: "RouterLog"}, 
                                 this.state.messages.map(function (msg, index) {
-                                    return React.DOM.p( {key:index}, msg);
+                                    return React.DOM.p({key: index}, msg);
                                 })
-                            ),
+                            ), 
                             
 
-                        RouterWorkers( {workers:this.state.workers, toggleRouterMode:this.props.toggleRouterMode} ),
+                        RouterWorkers({workers: this.state.workers, toggleRouterMode: this.props.toggleRouterMode}), 
 
-                        React.DOM.div( {className:"row"}, 
-                            React.DOM.div( {className:"medium-12 columns text-right"}, 
-                                React.DOM.button( {onClick:this.cancel, className:"tiny alert button"}, "Cancelar"),
+                        React.DOM.div({className: "row"}, 
+                            React.DOM.div({className: "medium-12 columns text-right"}, 
+                                React.DOM.button({onClick: this.cancel, className: "tiny alert button"}, "Cancelar"), 
                                 this.state.workers && this.state.workers.length
-                                    ? React.DOM.button( {onClick:this.save, className:"tiny success button"}, "Salvar")
+                                    ? React.DOM.button({onClick: this.save, className: "tiny success button"}, "Salvar")
                                     : null
                             )
                         )
@@ -203,24 +203,24 @@ function (DateInput, Queue, Tasks, strftime) {
         },
         render: function () {
             return (
-                React.DOM.div( {id:"ConsoleOpts", className:"leftMapControl"}, 
-                    React.DOM.div( {className:"controlIco"}, 
-                        React.DOM.i( {className:"fi-widget"})
-                    ),
-                    React.DOM.div( {className:"controlContent"}, 
-                        React.DOM.h3( {className:"controlTitle"}, "Opções da agenda"),
-                        React.DOM.div( {className:"panel contained"}, 
-                            React.DOM.form( {onSubmit:this.handleSubmit}, 
-                                React.DOM.div( {className:"row"}, 
-                                    React.DOM.div( {className:"large-12 columns"}, 
-                                        React.DOM.label(null, "Dia",
-                                            DateInput( {ref:"dayInput", date:this.props.day, inputName:"day"} )
+                React.DOM.div({id: "ConsoleOpts", className: "leftMapControl"}, 
+                    React.DOM.div({className: "controlIco"}, 
+                        React.DOM.i({className: "fi-widget"})
+                    ), 
+                    React.DOM.div({className: "controlContent"}, 
+                        React.DOM.h3({className: "controlTitle"}, "Opções da agenda"), 
+                        React.DOM.div({className: "panel contained"}, 
+                            React.DOM.form({onSubmit: this.handleSubmit}, 
+                                React.DOM.div({className: "row"}, 
+                                    React.DOM.div({className: "large-12 columns"}, 
+                                        React.DOM.label(null, "Dia", 
+                                            DateInput({ref: "dayInput", date: this.props.day, inputName: "day"})
                                         )
                                     )
-                                ),
-                                React.DOM.div( {className:"row"}, 
-                                    React.DOM.div( {className:"large-12 columns text-right"}, 
-                                        React.DOM.button( {className:"tiny success button"}, "Ok")
+                                ), 
+                                React.DOM.div({className: "row"}, 
+                                    React.DOM.div({className: "large-12 columns text-right"}, 
+                                        React.DOM.button({className: "tiny success button"}, "Ok")
                                     )
                                 )
                             )
@@ -240,31 +240,31 @@ function (DateInput, Queue, Tasks, strftime) {
             $(this.getDOMNode()).on('click', '.controlContent>.controlTitle,.controlIco', toggleControl);
         },
         render: function () {
-            return React.DOM.nav( {id:"LeftPanel"}, 
-                React.DOM.div( {id:"LeftPanelWrapper"}, 
+            return React.DOM.nav({id: "LeftPanel"}, 
+                React.DOM.div({id: "LeftPanelWrapper"}, 
                      this.props.pending.length
-                        ? Queue( {items:this.props.pending,
-                                locations:this.props.locations} )
-                        : null,
+                        ? Queue({items: this.props.pending, 
+                                locations: this.props.locations})
+                        : null, 
                     
 
-                    ConsoleOpts( {day:this.props.day, locations:this.props.locations} ),
+                    ConsoleOpts({day: this.props.day, locations: this.props.locations}), 
 
                      this.props.router
-                        ? RouterController( {router:this.props.router,
-                            saveRoute:this.props.saveRoute,
-                            cancelRoute:this.props.cancelRoute,
-                            toggleRouterMode:this.props.toggleRouterMode} )
-                        : null,
+                        ? RouterController({router: this.props.router, 
+                            saveRoute: this.props.saveRoute, 
+                            cancelRoute: this.props.cancelRoute, 
+                            toggleRouterMode: this.props.toggleRouterMode})
+                        : null, 
                     
-                    Tasks( {routeTasks:this.props.routeTasks,
-                            locations:this.props.locations,
-                            day:this.props.day,
-                            setTaskFocus:this.props.setTaskFocus,
-                            selectedTask:this.props.selectedTask,
-                            hasGoogleMaps:this.props.hasGoogleMaps,
-                            queries:this.props.queries,
-                            setQueries:this.props.setQueries} )
+                    Tasks({routeTasks: this.props.routeTasks, 
+                            locations: this.props.locations, 
+                            day: this.props.day, 
+                            setTaskFocus: this.props.setTaskFocus, 
+                            selectedTask: this.props.selectedTask, 
+                            hasGoogleMaps: this.props.hasGoogleMaps, 
+                            queries: this.props.queries, 
+                            setQueries: this.props.setQueries})
                 )
             );
         }

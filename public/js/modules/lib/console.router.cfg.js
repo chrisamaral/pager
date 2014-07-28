@@ -14,26 +14,26 @@ define(function () {
         },
         render: function () {
             return (
-                React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"medium-6 columns"}, 
-                        React.DOM.a( {title:"Descartar", className:"wCfgX", onClick:this.killMe}, 
-                            React.DOM.i( {className:"fi-x"})
-                        ),this.props.worker.name
-                    ),
-                    React.DOM.div( {className:"medium-3 columns"}, 
-                        React.DOM.select( {className:"pointSelector", 'data-collection':"points", 'data-field':"startPoint", 'data-worker':this.props.worker._id}, 
+                React.DOM.div({className: "row"}, 
+                    React.DOM.div({className: "medium-6 columns"}, 
+                        React.DOM.a({title: "Descartar", className: "wCfgX", onClick: this.killMe}, 
+                            React.DOM.i({className: "fi-x"})
+                        ), this.props.worker.name
+                    ), 
+                    React.DOM.div({className: "medium-3 columns"}, 
+                        React.DOM.select({className: "pointSelector", 'data-collection': "points", 'data-field': "startPoint", 'data-worker': this.props.worker._id}, 
                             
                                 this.props.options.points.map(function (option, index) {
-                                    return React.DOM.option( {key:index, value:index}, option.name);
+                                    return React.DOM.option({key: index, value: index}, option.name);
                                 })
                             
                         )
-                    ),
-                    React.DOM.div( {className:"medium-3 columns"}, 
-                        React.DOM.select( {className:"shiftSelector", 'data-collection':"workShifts", 'data-field':"workShift", 'data-worker':this.props.worker._id}, 
+                    ), 
+                    React.DOM.div({className: "medium-3 columns"}, 
+                        React.DOM.select({className: "shiftSelector", 'data-collection': "workShifts", 'data-field': "workShift", 'data-worker': this.props.worker._id}, 
                             
                                 this.props.options.workShifts.map(function (option, index) {
-                                    return React.DOM.option( {key:index, value:index}, option.name);
+                                    return React.DOM.option({key: index, value: index}, option.name);
                                 })
                             
                         )
@@ -73,24 +73,25 @@ define(function () {
         },
         
         render: function () {
-            return React.DOM.form( {onSubmit:this.handleSubmit}, 
-                React.DOM.div( {className:"cfgForm"}, 
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"medium-6 columns"}, React.DOM.strong(null, "Nome")),
-                        React.DOM.div( {className:"medium-3 columns"}, React.DOM.strong(null, "Partida")),
-                        React.DOM.div( {className:"medium-3 columns"}, React.DOM.strong(null, "Horário"))
-                    ),
+            return React.DOM.form({onSubmit: this.handleSubmit}, 
+                React.DOM.fieldset(null, 
+                    React.DOM.legend(null, "Técnicos"), 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-6 columns"}, React.DOM.strong(null, "Nome")), 
+                        React.DOM.div({className: "medium-3 columns"}, React.DOM.strong(null, "Partida")), 
+                        React.DOM.div({className: "medium-3 columns"}, React.DOM.strong(null, "Horário"))
+                    ), 
 
-                    React.DOM.div( {className:"workersCfg"}, 
+                    React.DOM.div({className: "workersCfg"}, 
                         this.props.workers.map(function (worker, index) {
-                            return WorkerCfg( {index:index, worker:worker, removeUser:this.props.removeUser, key:worker._id, options:this.props.options} );
+                            return WorkerCfg({index: index, worker: worker, removeUser: this.props.removeUser, key: worker._id, options: this.props.options});
                         }.bind(this))
-                    ),
+                    ), 
 
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"medium-12 columns text-right"}, 
-                            React.DOM.button( {className:"small alert button", onClick:this.cancel}, "Cancelar"),
-                            React.DOM.button( {className:"small success button"}, "Salvar")
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-12 columns text-right"}, 
+                            React.DOM.button({className: "small alert button", onClick: this.cancel}, "Cancelar"), 
+                            React.DOM.button({className: "small success button"}, "Salvar")
                         )
                     )
                 )
@@ -126,11 +127,27 @@ define(function () {
                 $('#Console').trigger('resize');
             });
         },
-        
+        submitOptions: function (workers) {
+            this.props.onSet(workers,
+                {
+                    balanced: $(this.refs.balancedRoute.getDOMNode()).is(':checked')
+                }
+            );
+        },
         render: function () {
             return (React.DOM.div(null, 
+                React.DOM.fieldset(null, 
+                    React.DOM.legend(null, "Opções"), 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "small-12 columns text-left"}, 
+                            React.DOM.label(null, "Gerar Rotas Balanceadas", 
+                                React.DOM.input({type: "checkbox", ref: "balancedRoute", name: "balancedRoute"})
+                            )
+                        )
+                    )
+                ), 
                 this.state.options && this.state.workers
-                    ? CfgForm( {options:this.state.options, removeUser:this.killUserAt, workers:this.state.workers, submitWorkers:this.props.onSet} )
+                    ? CfgForm({options: this.state.options, removeUser: this.killUserAt, workers: this.state.workers, submitWorkers: this.submitOptions})
                     : React.DOM.p(null, React.DOM.i(null, "Carregando Opções..."))
                 
             ));

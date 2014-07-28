@@ -42,21 +42,21 @@ define(function () {
         },
         render: function () {
             return React.DOM.fieldset(null, 
-                React.DOM.legend( {className:"textCapitalize"}, this.props.name),
-                React.DOM.form( {onSubmit:this.handleSubmit}, 
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"medium-12 columns"}, 
-                            React.DOM.label(null, "Novo status",
-                                React.DOM.input( {type:"text", list:"UndefinedStatuses", ref:"newRef", name:"reference", disabled:this.state.locked, required:true} )
+                React.DOM.legend({className: "textCapitalize"}, this.props.name), 
+                React.DOM.form({onSubmit: this.handleSubmit}, 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-12 columns"}, 
+                            React.DOM.label(null, "Novo status", 
+                                React.DOM.input({type: "text", list: "UndefinedStatuses", ref: "newRef", name: "reference", disabled: this.state.locked, required: true})
                             )
                         )
                     )
-                ),
+                ), 
                 React.DOM.ul(null, 
                     this.props.references.map(function (val) {
-                        return React.DOM.li( {key:val, className:"textCapitalize"}, val,
-                            React.DOM.a( {onClick:this.removeOne, className:"killStatus close",
-                                href:pager.urls.ajax + 'admin/status/' +
+                        return React.DOM.li({key: val, className: "textCapitalize"}, val, 
+                            React.DOM.a({onClick: this.removeOne, className: "killStatus close", 
+                                href: pager.urls.ajax + 'admin/status/' +
                                     this.props.name + '/' + val}, '×')
                         );
                     }.bind(this))
@@ -96,14 +96,14 @@ define(function () {
             this.reloadAll();
         },
         render: function () {
-            return React.DOM.div( {className:"medium-block-grid-3"}, 
-                React.DOM.datalist( {id:"UndefinedStatuses"}, 
+            return React.DOM.div({className: "medium-block-grid-3"}, 
+                React.DOM.datalist({id: "UndefinedStatuses"}, 
                     this.state.undefinedStatuses.map(function (s) {
-                        return React.DOM.option( {key:s, value:s});
+                        return React.DOM.option({key: s, value: s});
                     })
-                ),
+                ), 
                 _.map(this.state.statuses, function (references, name) {
-                    return StatusForm( {reloadAll:this.reloadAll, name:name, references:references, key:name} );
+                    return StatusForm({reloadAll: this.reloadAll, name: name, references: references, key: name});
                 }.bind(this))
             );
         }

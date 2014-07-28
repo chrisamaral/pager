@@ -74,6 +74,14 @@ define(function () {
             e.preventDefault();
             this.props.deleteWorker(this.props.worker._id);
         },
+        allTypes: function (e) {
+            e.preventDefault();
+            $(this.getDOMNode()).find('input:checkbox').prop('checked', true);
+        },
+        noTypes: function (e) {
+            e.preventDefault();
+            $(this.getDOMNode()).find('input:checkbox').prop('checked', false);
+        },
         render: function () {
             var thisWorker = this.props.worker;
             return <div className='panel'>
@@ -111,15 +119,17 @@ define(function () {
                                             ? <button onClick={this.killMe} className='small button alert'>Remover</button>
                                             : null
                                             }
-
                                 </div>
-
                                 : <strong>Carregando...</strong>
                                 }
                                 </div>
                             </div>
                         </div>
                         <div className='medium-4 columns'>
+                            <p className='text-right'>
+                                <button onClick={this.allTypes} className='tiny button fi-check'>Todos</button>
+                                <button onClick={this.noTypes} className='tiny button alert fi-x'>Nenhum</button>
+                            </p>
                             {this.props.availableTypes.map(function (t) {
                                 var type = t.name;
                                 var $id = thisWorker._id || Math.random().toString(36).substr(2);

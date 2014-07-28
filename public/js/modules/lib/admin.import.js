@@ -34,8 +34,8 @@ define(function () {
             if (!this.isValidFile(this.refs.csvFile.getDOMNode())) {
 
                 $(React.renderComponentToStaticMarkup(
-                    React.DOM.div( {'data-alert':true, className:"alert-box alert radius"}, "Arquivo Inválido",
-                        React.DOM.a( {href:"#", className:"close"}, '×')
+                    React.DOM.div({'data-alert': true, className: "alert-box alert radius"}, "Arquivo Inválido", 
+                        React.DOM.a({href: "#", className: "close"}, '×')
                     )
                 )).insertAfter($(this.refs.fieldSet.getDOMNode()).find('legend'));
 
@@ -53,16 +53,16 @@ define(function () {
                 if (this.status === 200 || this.status === 204) {
 
                     $(React.renderComponentToStaticMarkup(
-                        React.DOM.div( {'data-alert':true, className:"alert-box success radius"}, "Upload completo: ", this.responseText,
-                            React.DOM.a( {href:"#", className:"close"}, '×')
+                        React.DOM.div({'data-alert': true, className: "alert-box success radius"}, "Upload completo: ", this.responseText, 
+                            React.DOM.a({href: "#", className: "close"}, '×')
                         )
                     )).insertAfter($(formComponent.refs.fieldSet.getDOMNode()).find('legend'));
 
                 } else {
 
                     $(React.renderComponentToStaticMarkup(
-                        React.DOM.div( {'data-alert':true, className:"alert-box warning radius"}, 'Falha no upload: ' + this.responseText,
-                            React.DOM.a( {href:"#", className:"close"}, '×')
+                        React.DOM.div({'data-alert': true, className: "alert-box warning radius"}, 'Erro, não foi possível interpretar o arquivo selecionado.', 
+                            React.DOM.a({href: "#", className: "close"}, '×')
                         )
                     )).insertAfter($(formComponent.refs.fieldSet.getDOMNode()).find('legend'));
 
@@ -80,27 +80,45 @@ define(function () {
 
         },
         render: function () {
-            return React.DOM.form( {onSubmit:this.handleSubmit, encType:"multipart/form-data"}, 
-                React.DOM.fieldset( {ref:"fieldSet"}, 
-                    React.DOM.legend(null, "Planilha de Ordens (CSV)"),
-
-                    React.DOM.progress( {className:"ProgressBar",
-                                value:this.state.uploadProgress, max:100,
-                                style:{display: this.state.uploadProgress === null ? 'none' : ''}} ),
-
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"medium-10 columns"}, 
-                            React.DOM.input( {type:"file", required:true, ref:"csvFile", onChange:this.changeFile, name:"csv"} )
-                        ),
-                        React.DOM.div( {className:"medium-2 columns"}, 
-                            React.DOM.button( {className:"success button postfix", disabled:this.state.uploadProgress !== null}, "Upload")
+            return React.DOM.form({onSubmit: this.handleSubmit, encType: "multipart/form-data"}, 
+                React.DOM.fieldset({ref: "fieldSet"}, 
+                    React.DOM.legend(null, "Planilha de Ordens (CSV)"), 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-6 columns"}, 
+                            React.DOM.label(null, "Separador", 
+                                React.DOM.select({name: "separatorChar"}, 
+                                    React.DOM.option(null, ";"), 
+                                    React.DOM.option(null, ","), 
+                                    React.DOM.option(null, "''")
+                                )
+                            )
+                        ), 
+                        React.DOM.div({className: "medium-6 columns"}, 
+                            React.DOM.label(null, "Aspas", 
+                                React.DOM.select({name: "quoteChar"}, 
+                                    React.DOM.option(null, "\""), 
+                                    React.DOM.option(null, "'")
+                                )
+                            )
                         )
-                    ),
+                    ), 
+                    React.DOM.progress({className: "ProgressBar", 
+                                value: this.state.uploadProgress, max: 100, 
+                                style: {display: this.state.uploadProgress === null ? 'none' : ''}}), 
+
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-10 columns"}, 
+                            React.DOM.input({type: "file", required: true, ref: "csvFile", onChange: this.changeFile, name: "csv"})
+                        ), 
+                        React.DOM.div({className: "medium-2 columns"}, 
+                            React.DOM.button({className: "success button postfix", disabled: this.state.uploadProgress !== null}, "Upload")
+                        )
+                    ), 
                     this.state.fileDescr
-                        ? React.DOM.div( {id:"AdminFileDescriptor"}, 
-                                React.DOM.span( {className:"label secondary"}, this.state.fileDescr.name),
-                                React.DOM.span( {className:"label secondary"}, this.state.fileDescr.type),
-                                React.DOM.span( {className:"label secondary"}, this.state.fileDescr.size)
+                        ? React.DOM.div({id: "AdminFileDescriptor"}, 
+                                React.DOM.span({className: "label secondary"}, this.state.fileDescr.name), 
+                                React.DOM.span({className: "label secondary"}, this.state.fileDescr.type), 
+                                React.DOM.span({className: "label secondary"}, this.state.fileDescr.size)
                             )
                         : null
                 )

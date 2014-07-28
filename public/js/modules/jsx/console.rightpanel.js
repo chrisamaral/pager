@@ -170,9 +170,7 @@ define(['./console.schedule'], function (Schedule) {
                         {this.props.routerLoader
                             ? <div>
                             <h3 className='controlTitle'>Configurações de Roteamento</h3>
-                            <div className='panel'>
-                                <RouterCfg day={this.props.routerLoader._day} onSet={this.props.routerLoader} />
-                            </div>
+                            <RouterCfg day={this.props.routerLoader._day} onSet={this.props.routerLoader} />
                         </div>
                             : null
                             }

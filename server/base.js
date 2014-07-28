@@ -88,7 +88,6 @@ module.exports = function (mysql) {
     if (mysql) {
         app = new Base(mysql);
         //app.helpers = require('./helpers/std.js');
-        app.strftime = require('strftime');
         app.startConnection();
         app.mongoSetup();
     }

@@ -61,7 +61,7 @@ define(function () {
                 } else {
 
                     $(React.renderComponentToStaticMarkup(
-                        <div data-alert className="alert-box warning radius">{'Falha no upload: ' + this.responseText}
+                        <div data-alert className="alert-box warning radius">{'Erro, não foi possível interpretar o arquivo selecionado.'}
                             <a href="#" className="close">{'×'}</a>
                         </div>
                     )).insertAfter($(formComponent.refs.fieldSet.getDOMNode()).find('legend'));
@@ -83,7 +83,25 @@ define(function () {
             return <form onSubmit={this.handleSubmit} encType="multipart/form-data">
                 <fieldset ref='fieldSet'>
                     <legend>Planilha de Ordens (CSV)</legend>
-
+                    <div className='row'>
+                        <div className='medium-6 columns'>
+                            <label>Separador
+                                <select name='separatorChar'>
+                                    <option>;</option>
+                                    <option>,</option>
+                                    <option>''</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div className='medium-6 columns'>
+                            <label>Aspas
+                                <select name='quoteChar'>
+                                    <option>"</option>
+                                    <option>'</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
                     <progress className='ProgressBar'
                                 value={this.state.uploadProgress} max={100}
                                 style={{display: this.state.uploadProgress === null ? 'none' : ''}} />

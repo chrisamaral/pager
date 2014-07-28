@@ -38,21 +38,21 @@ define(function () {
         },
 
         render: function () {
-            return React.DOM.form( {onSubmit:this.handleSubmit}, 
-                React.DOM.div( {className:"panel"}, 
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"medium-7 columns"}, 
-                            React.DOM.input( {type:"text", name:"name", list:"UndefinedTypes", ref:"nameInput", required:true, valueLink:this.linkState('name'), placeholder:"Nome"} )
-                        ),
-                        React.DOM.div( {className:"medium-3 columns"}, 
-                            React.DOM.input( {type:"number", min:0, name:"duration", ref:"durationInput", valueLink:this.linkState('duration'), placeholder:"Minutos"} )
-                        ),
-                        React.DOM.div( {className:"medium-1 columns"}, 
-                            React.DOM.button( {className:"fi-save button postfix success"})
-                        ),
-                        React.DOM.div( {className:"medium-1 columns"}, 
+            return React.DOM.form({onSubmit: this.handleSubmit}, 
+                React.DOM.div({className: "panel"}, 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-7 columns"}, 
+                            React.DOM.input({type: "text", name: "name", list: "UndefinedTypes", ref: "nameInput", required: true, valueLink: this.linkState('name'), placeholder: "Nome"})
+                        ), 
+                        React.DOM.div({className: "medium-3 columns"}, 
+                            React.DOM.input({type: "number", min: 0, name: "duration", ref: "durationInput", valueLink: this.linkState('duration'), placeholder: "Minutos"})
+                        ), 
+                        React.DOM.div({className: "medium-1 columns"}, 
+                            React.DOM.button({className: "fi-save button postfix success"})
+                        ), 
+                        React.DOM.div({className: "medium-1 columns"}, 
                             this.state._id
-                                ? React.DOM.button( {className:"fi-x button postfix alert", onClick:this.killMe})
+                                ? React.DOM.button({className: "fi-x button postfix alert", onClick: this.killMe})
                                 : null
                         )
                     )
@@ -86,15 +86,15 @@ define(function () {
         },
         render: function () {
             return React.DOM.div(null, 
-                React.DOM.datalist( {id:"UndefinedTypes"}, 
+                React.DOM.datalist({id: "UndefinedTypes"}, 
                     this.state.undefinedTypes.map(function(type){
-                        return React.DOM.option( {key:type, value:type});
+                        return React.DOM.option({key: type, value: type});
                     })
-                ),
+                ), 
                 this.state.availableTypes.map(function (t) {
-                    return TypeForm( {type:t, key:t._id, reloadAll:this.reloadTypes} );
-                }.bind(this)),
-                TypeForm( {type:this.state.defaultType, reloadAll:this.reloadTypes} )
+                    return TypeForm({type: t, key: t._id, reloadAll: this.reloadTypes});
+                }.bind(this)), 
+                TypeForm({type: this.state.defaultType, reloadAll: this.reloadTypes})
             );
         }
     });

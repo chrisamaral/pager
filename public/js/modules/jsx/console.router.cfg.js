@@ -74,7 +74,8 @@ define(function () {
         
         render: function () {
             return <form onSubmit={this.handleSubmit}>
-                <div className='cfgForm'>
+                <fieldset>
+                    <legend>Técnicos</legend>
                     <div className='row'>
                         <div className='medium-6 columns'><strong>Nome</strong></div>
                         <div className='medium-3 columns'><strong>Partida</strong></div>
@@ -93,7 +94,7 @@ define(function () {
                             <button className='small success button'>Salvar</button>
                         </div>
                     </div>
-                </div>
+                </fieldset>
             </form>;
         }
     });
@@ -126,11 +127,27 @@ define(function () {
                 $('#Console').trigger('resize');
             });
         },
-        
+        submitOptions: function (workers) {
+            this.props.onSet(workers,
+                {
+                    balanced: $(this.refs.balancedRoute.getDOMNode()).is(':checked')
+                }
+            );
+        },
         render: function () {
             return (<div>
+                <fieldset>
+                    <legend>Opções</legend>
+                    <div className='row'>
+                        <div className='small-12 columns text-left'>
+                            <label>Gerar Rotas Balanceadas
+                                <input type='checkbox' ref='balancedRoute' name='balancedRoute' />
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
                 {this.state.options && this.state.workers
-                    ? <CfgForm options={this.state.options} removeUser={this.killUserAt} workers={this.state.workers} submitWorkers={this.props.onSet} />
+                    ? <CfgForm options={this.state.options} removeUser={this.killUserAt} workers={this.state.workers} submitWorkers={this.submitOptions} />
                     : <p><i>Carregando Opções...</i></p>
                 }
             </div>);

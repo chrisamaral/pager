@@ -23,7 +23,7 @@ define(['./component.DateInput'], function (DateInput) {
 
     TxtInput = React.createClass({displayName: 'TxtInput',
         render: function () {
-            return React.DOM.input( {name:this.props.inputName, required:true, autoComplete:"on", type:"text", defaultValue:"", placeholder:this.props.name}  );
+            return React.DOM.input({name: this.props.inputName, required: true, autoComplete: "on", type: "text", defaultValue: "", placeholder: this.props.name});
         }
     });
 
@@ -45,13 +45,13 @@ define(['./component.DateInput'], function (DateInput) {
                     break;
             }
 
-            return React.DOM.div( {className:"row"}, 
-                React.DOM.div( {className:"large-12 columns text-right"}, 
+            return React.DOM.div({className: "row"}, 
+                React.DOM.div({className: "large-12 columns text-right"}, 
                     React.DOM.label(null, 
-                        React.DOM.strong(null, this.props.name,
-                            React.DOM.a( {onClick:this.killFilter},  " - " )
-                        ),
-                        FilterInput( {id:this.props.id, name:this.props.name, inputName:this.props.id} )
+                        React.DOM.strong(null, this.props.name, 
+                            React.DOM.a({onClick: this.killFilter}, " - ")
+                        ), 
+                        FilterInput({id: this.props.id, name: this.props.name, inputName: this.props.id})
                     )
                 )
             )
@@ -85,18 +85,18 @@ define(['./component.DateInput'], function (DateInput) {
         render: function () {
             var fs = this.props.filters.map(function (filter, index) {
                     var _id = Foundation.utils.random_str(10);
-                    return FilterItem(
-                                {key:filter.key,
-                                index:index,
-                                id:filter.id, name:filter.name,
-                                removeFilter:this.props.removeFilter} );
+                    return FilterItem({
+                                key: filter.key, 
+                                index: index, 
+                                id: filter.id, name: filter.name, 
+                                removeFilter: this.props.removeFilter});
                 }.bind(this));
-            return React.DOM.div( {className:"filter-list panel"}, 
-                React.DOM.form( {onSubmit:this.handleSubmit}, 
-                    fs,
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"large-12 columns text-right"}, 
-                            React.DOM.button( {type:"submit", className:"tiny success button"}, "Buscar")
+            return React.DOM.div({className: "filter-list panel"}, 
+                React.DOM.form({onSubmit: this.handleSubmit}, 
+                    fs, 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "large-12 columns text-right"}, 
+                            React.DOM.button({type: "submit", className: "tiny success button"}, "Buscar")
                         )
                     )
                 )
@@ -106,17 +106,17 @@ define(['./component.DateInput'], function (DateInput) {
     
     QueryInfoDropDown = React.createClass({displayName: 'QueryInfoDropDown',
         render: function () {
-            return (React.DOM.div( {'data-dropdown-content':true, className:"f-dropdown content medium hide", id:this.props.id}, 
-                React.DOM.h4( {className:"subheader"}, (this.props.count || 'Nenhuma') + (this.props.count > 1 ? ' ordens' : ' ordem')),
-                React.DOM.table( {className:"queryInfoDropDownTable"}, 
+            return (React.DOM.div({'data-dropdown-content': true, className: "f-dropdown content medium hide", id: this.props.id}, 
+                React.DOM.h4({className: "subheader"}, (this.props.count || 'Nenhuma') + (this.props.count > 1 ? ' ordens' : ' ordem')), 
+                React.DOM.table({className: "queryInfoDropDownTable"}, 
                     React.DOM.tbody(null, 
                         _.map(this.props.query, function (item, key) {
                             return (
-                                React.DOM.tr( {key:key}, 
-                                    React.DOM.td(null, filterName[key]),
+                                React.DOM.tr({key: key}, 
+                                    React.DOM.td(null, filterName[key]), 
                                     React.DOM.td(null, 
                                         item.map(function(val, index){
-                                            return React.DOM.span( {key:index, className:"round secondary label"}, val);
+                                            return React.DOM.span({key: index, className: "round secondary label"}, val);
                                         })
                                     )
                                 )
@@ -146,13 +146,13 @@ define(['./component.DateInput'], function (DateInput) {
                     selectedTask: this.props.selectedTask === this.props.task._id
                 });
 
-            return React.DOM.div( {className:classes, 'data-task':this.props.task._id}, 
-                React.DOM.span( {className:"icos"}, 
+            return React.DOM.div({className: classes, 'data-task': this.props.task._id}, 
+                React.DOM.span({className: "icos"}, 
                      this.props.task.location
-                        && React.DOM.a( {className:"radius ico fi-target-two", onClick:this.mapFocusOnMe, title:"Selecionar"}), 
-                    React.DOM.a( {className:"radius ico fi-x", ref:"menuBt", title:"Descartar", onClick:this.killMe})
-                ),
-                AttrTable( {attrs:this.props.task.attrs} )
+                        && React.DOM.a({className: "radius ico fi-target-two", onClick: this.mapFocusOnMe, title: "Selecionar"}), 
+                    React.DOM.a({className: "radius ico fi-x", ref: "menuBt", title: "Descartar", onClick: this.killMe})
+                ), 
+                AttrTable({attrs: this.props.task.attrs})
             );
 
         }
@@ -230,7 +230,7 @@ define(['./component.DateInput'], function (DateInput) {
             if (this.state.lookupProgress === null) {
                 style.display = 'none';
             }
-            return React.DOM.progress( {style:style, value:this.state.lookupProgress, max:100, title:this.state.lookupProgress + '% das ordens foram localizadas'} );
+            return React.DOM.progress({style: style, value: this.state.lookupProgress, max: 100, title: this.state.lookupProgress + '% das ordens foram localizadas'});
         }
     });
 
@@ -262,16 +262,16 @@ define(['./component.DateInput'], function (DateInput) {
             this.cleanDropdown();
             var menu = 
                 $(React.renderComponentToString(
-                    React.DOM.ul( {id:this.state.auxId + 'Menu', className:"tiny f-dropdown hide", 'data-dropdown-content':true}, 
-                        React.DOM.li(null, React.DOM.a( {id:this.state.auxId + 'routeMe'}, "Rotear")),
-                        React.DOM.li(null, React.DOM.a( {id:this.state.auxId + 'killMe'}, "Descartar"))
+                    React.DOM.ul({id: this.state.auxId + 'Menu', className: "tiny f-dropdown hide", 'data-dropdown-content': true}, 
+                        React.DOM.li(null, React.DOM.a({id: this.state.auxId + 'routeMe'}, "Rotear")), 
+                        React.DOM.li(null, React.DOM.a({id: this.state.auxId + 'killMe'}, "Descartar"))
                     ))).appendTo('body'),
                 info =
                     $(React.renderComponentToString(
-                        QueryInfoDropDown(
-                                {id:this.state.auxId + 'Info',
-                                count:this.props.query.tasks.length,
-                                query:this.props.query.query} ))).appendTo('body');
+                        QueryInfoDropDown({
+                                id: this.state.auxId + 'Info', 
+                                count: this.props.query.tasks.length, 
+                                query: this.props.query.query}))).appendTo('body');
 
             $('#' + this.state.auxId + 'killMe').click(this.killMe);
             $('#' + this.state.auxId + 'routeMe').click(this.routeMe);
@@ -323,19 +323,19 @@ define(['./component.DateInput'], function (DateInput) {
         render: function () {
             var noPropagation = function(e){e.stopPropagation();};
             return (
-                React.DOM.div( {className:"panel sequential queryResult"}, 
-                    React.DOM.h5( {className:"clearfix", onClick:this.toggleMe}, 
-                        this.props.query.name ? this.props.query.name : null,
-                        React.DOM.a( {onClick:noPropagation, className:"right radius ico fi-info", title:"Informação", 'data-dropdown':this.state.auxId + 'Info'}),
-                        React.DOM.a( {onClick:noPropagation, className:"right radius ico fi-list", title:"Menu", 'data-dropdown':this.state.auxId + 'Menu'})
-                    ),
-                    LookupProgress( {updateTask:this.updateTask, tasks:this.props.query.tasks, hasGoogleMaps:this.props.hasGoogleMaps} ),
-                    React.DOM.div( {ref:"tasks", className:"QueryElem no-flow-x"}, 
+                React.DOM.div({className: "panel sequential queryResult"}, 
+                    React.DOM.h5({className: "clearfix", onClick: this.toggleMe}, 
+                        this.props.query.name ? this.props.query.name : null, 
+                        React.DOM.a({onClick: noPropagation, className: "right radius ico fi-info", title: "Informação", 'data-dropdown': this.state.auxId + 'Info'}), 
+                        React.DOM.a({onClick: noPropagation, className: "right radius ico fi-list", title: "Menu", 'data-dropdown': this.state.auxId + 'Menu'})
+                    ), 
+                    LookupProgress({updateTask: this.updateTask, tasks: this.props.query.tasks, hasGoogleMaps: this.props.hasGoogleMaps}), 
+                    React.DOM.div({ref: "tasks", className: "QueryElem no-flow-x"}, 
                         this.props.query.tasks.map(function (task, index) {
-                            return QueryTask( {key:task._id, index:index, task:task,
-                                        setTaskFocus:this.props.setTaskFocus,
-                                        selectedTask:this.props.selectedTask,
-                                        removeTask:this.removeTask} );
+                            return QueryTask({key: task._id, index: index, task: task, 
+                                        setTaskFocus: this.props.setTaskFocus, 
+                                        selectedTask: this.props.selectedTask, 
+                                        removeTask: this.removeTask});
                         }.bind(this))
                     )
                 )
@@ -392,44 +392,44 @@ define(['./component.DateInput'], function (DateInput) {
         },
         render: function () {
             return (
-                React.DOM.div( {className:"TaskInput panel contained"}, 
-                    React.DOM.form( {onSubmit:this.createFilter}, 
-                        React.DOM.div( {className:"row"}, 
-                            React.DOM.div( {className:"large-12 columns"}, 
-                                React.DOM.label(null, "Filtrar por",
-                                    React.DOM.select( {name:"type", ref:"filterType"}, 
+                React.DOM.div({className: "TaskInput panel contained"}, 
+                    React.DOM.form({onSubmit: this.createFilter}, 
+                        React.DOM.div({className: "row"}, 
+                            React.DOM.div({className: "large-12 columns"}, 
+                                React.DOM.label(null, "Filtrar por", 
+                                    React.DOM.select({name: "type", ref: "filterType"}, 
                                         _.map(filterName, function(name, key){
-                                            return React.DOM.option( {key:key, value:key}, name);
+                                            return React.DOM.option({key: key, value: key}, name);
                                         })
                                     )
                                 )
                             )
-                        ),
-                        React.DOM.div( {className:"row"}, 
-                            React.DOM.div( {className:"large-12 columns text-right"}, 
-                                React.DOM.button( {disabled:true, className:"tiny secondary button", onClick:this.createTask}, "+ Ordem"),
-                                React.DOM.button( {type:"submit", className:"tiny success button"}, "+ Filtro")
+                        ), 
+                        React.DOM.div({className: "row"}, 
+                            React.DOM.div({className: "large-12 columns text-right"}, 
+                                React.DOM.button({disabled: true, className: "tiny secondary button", onClick: this.createTask}, "+ Ordem"), 
+                                React.DOM.button({type: "submit", className: "tiny success button"}, "+ Filtro")
                             )
                         )
-                    ),
+                    ), 
                 this.state.filters.length
-                    ? FilterList( {removeFilter:this.removeFilter,
-                            day:this.props.day,
-                            filters:this.state.filters, 
-                            pushQuery:this.pushQuery} ) : null, 
-                    React.DOM.div( {className:"panel sequential contained"}, 
+                    ? FilterList({removeFilter: this.removeFilter, 
+                            day: this.props.day, 
+                            filters: this.state.filters, 
+                            pushQuery: this.pushQuery}) : null, 
+                    React.DOM.div({className: "panel sequential contained"}, 
                         this.props.queries.map(function (query, index) {
                             return (
-                                QueryElem(
-                                    {routeThem:this.props.routeThem,
-                                    setTaskFocus:this.props.setTaskFocus,
-                                    selectedTask:this.props.selectedTask,
-                                    hasGoogleMaps:this.props.hasGoogleMaps,
-                                    popQuery:this.popQuery,
-                                    setQuery:this.setQuery,
-                                    key:query.id,
-                                    index:index,
-                                    query:query} )
+                                QueryElem({
+                                    routeThem: this.props.routeThem, 
+                                    setTaskFocus: this.props.setTaskFocus, 
+                                    selectedTask: this.props.selectedTask, 
+                                    hasGoogleMaps: this.props.hasGoogleMaps, 
+                                    popQuery: this.popQuery, 
+                                    setQuery: this.setQuery, 
+                                    key: query.id, 
+                                    index: index, 
+                                    query: query})
                             );
                         }.bind(this))
                     )
@@ -460,7 +460,7 @@ define(['./component.DateInput'], function (DateInput) {
             var tasks = [];
             this.props.queries.forEach(function (query) {
                 query.tasks.forEach(function (task) {
-                    if (!_.any(task,{sys_id: task.sys_id})) {
+                    if (!_.any(tasks, {_id: task._id})) {
                         tasks.push(task);
                     }
                 });
@@ -470,21 +470,21 @@ define(['./component.DateInput'], function (DateInput) {
         },
 
         render: function () {
-            return React.DOM.div( {id:"Tasks", className:"leftMapControl"}, 
-                React.DOM.div( {className:"controlIco"}, React.DOM.i( {className:"fi-calendar"})),
-                React.DOM.div( {className:"controlContent"}, 
-                    React.DOM.h3( {className:"controlTitle"}, "Ordens livres",
-                        React.DOM.a( {ref:"clickToRoute", className:"right radius ico fi-fast-forward", title:"Rotear todos"})
-                    ),
-                    TaskInput(
-                        {routeThem:this.routeThem,
-                        locations:this.props.locations,
-                        day:this.props.day,
-                        setTaskFocus:this.props.setTaskFocus,
-                        selectedTask:this.props.selectedTask,
-                        hasGoogleMaps:this.props.hasGoogleMaps,
-                        setQueries:this.props.setQueries,
-                        queries:this.props.queries} )
+            return React.DOM.div({id: "Tasks", className: "leftMapControl"}, 
+                React.DOM.div({className: "controlIco"}, React.DOM.i({className: "fi-calendar"})), 
+                React.DOM.div({className: "controlContent"}, 
+                    React.DOM.h3({className: "controlTitle"}, "Ordens livres", 
+                        React.DOM.a({ref: "clickToRoute", className: "right radius ico fi-fast-forward", title: "Rotear todos"})
+                    ), 
+                    TaskInput({
+                        routeThem: this.routeThem, 
+                        locations: this.props.locations, 
+                        day: this.props.day, 
+                        setTaskFocus: this.props.setTaskFocus, 
+                        selectedTask: this.props.selectedTask, 
+                        hasGoogleMaps: this.props.hasGoogleMaps, 
+                        setQueries: this.props.setQueries, 
+                        queries: this.props.queries})
                 )
             );
         }

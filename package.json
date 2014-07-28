@@ -29,6 +29,7 @@
         "redis": "*",
         "mongodb": "*",
         "multiparty": "*",
-        "ya-csv": "*"
+        "ya-csv": "*",
+        "moment": "*"
     }
 }

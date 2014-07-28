@@ -125,11 +125,12 @@ define(function(){
 
                 if (!Console.isMounted()) return;
 
-                new_state.routerLoader = function (workers) {
+                new_state.routerLoader = function (workers, options) {
+
                     var latest_state = {routerLoader: null};
 
                     if (Console.isMounted() && workers && workers.length) {
-                        latest_state.router = new Router(day, tasks, workers);
+                        latest_state.router = new Router(day, tasks, workers, options);
                         latest_state.router._day = day;
                     }
 

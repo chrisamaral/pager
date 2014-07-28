@@ -2,7 +2,7 @@
 var app = require('../base.js')(),
     async = require('async'),
     _ = require('lodash'),
-    strftime = require('strftime');
+    moment = require('moment');
 
 function workOrderFormat (order) {
     var o = {
@@ -11,8 +11,7 @@ function workOrderFormat (order) {
         address: order.address,
         creation: order.creation,
         type: order.type,
-        attrs: order.attrs && _.isArray(order.attrs)
-                    ? order.attrs : []
+        attrs: order.attrs && _.isArray(order.attrs) ? order.attrs : []
     }, target;
 
 
@@ -35,7 +34,7 @@ function workOrderFormat (order) {
     }
 
     if (order.creation) {
-        o.attrs.push({descr: 'Ingresso', value: strftime('%d/%m/%Y', order.creation)});
+        o.attrs.push({descr: 'Ingresso', value: order.creation});
     }
 
     target = order.customer || order.asset;
@@ -112,7 +111,7 @@ function workOrderFormat (order) {
 
             o.attrs.push({
                 descr: 'Agenda',
-                value: strftime('%d/%m/%Y', order.schedule.date)
+                value: order.schedule.date
             });
 
             o.attrs.push({
@@ -124,7 +123,7 @@ function workOrderFormat (order) {
 
             o.attrs.push({
                 descr: 'Agenda',
-                value: strftime('%d/%m/%Y', order.schedule.date)
+                value: order.schedule.date
             });
 
         }
@@ -224,14 +223,12 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
         if (notEmptyArray(query.schedule)) {
             aux = {$or: []};
             query.schedule.forEach(function (schedule) {
-                var ini = new Date(schedule);
 
-                ini.setTime(ini.getTime() + oneDay);
-                ini.setHours(0);
+                var ini = moment(new Date(schedule)).toDate();
+                var end = moment(new Date(schedule)).add('d', 1).toDate();
 
-                aux.$or.push({
-                    'schedule.day': strftime('%Y-%m-%d', ini)
-                });
+                aux.$or.push({'schedule.date': {$lte: end, $gt: ini}});
+
             });
             search.$and.push(aux);
         }
@@ -239,12 +236,10 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
         if (notEmptyArray(query.creation)) {
             aux = {$or: []};
             query.creation.forEach(function (creation) {
-                var ini = new Date(creation);
+                var ini = moment(new Date(creation)).toDate();
+                var end = moment(new Date(creation)).add('d', 1).toDate();
 
-                ini.setTime(ini.getTime() + oneDay);
-                ini.setHours(0);
-
-                aux.$or.push({creation_day: strftime('%Y-%m-%d', ini)});
+                aux.$or.push({'creation': {$lte: end, $gt: ini}});
             });
             search.$and.push(aux);
         }

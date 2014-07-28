@@ -41,7 +41,7 @@ app.express.post('/:org/api/admin/status/:name/:ref', app.authorized.can('enter 
         statusCollection.update({org: req.params.org, name: req.params.name},
             {$set: {name: req.params.name}, $push: {references: req.params.ref}},
             {upsert: true},
-            function (err, result) {
+            function (err) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -75,7 +75,7 @@ app.express.delete('/:org/api/admin/status/:name/:ref', app.authorized.can('ente
     app.mongo.collection('status', function (err, statusCollection) {
         statusCollection.update({org: req.params.org, name: req.params.name},
             {$pull: {references: req.params.ref}},
-            function (err, result) {
+            function (err) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -149,7 +149,7 @@ function saveWorker (req, res) {
         if ($id) {
 
             delete worker._id;
-            workerCollection.update({_id: new ObjectID($id), org: req.params.org}, {$set: worker}, function (err, result) {
+            workerCollection.update({_id: new ObjectID($id), org: req.params.org}, {$set: worker}, function (err) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -159,7 +159,7 @@ function saveWorker (req, res) {
 
         } else {
             worker.creation = new Date();
-            workerCollection.insert(worker, function (err, result) {
+            workerCollection.insert(worker, function (err) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -175,7 +175,7 @@ app.express.post('/:org/api/admin/worker/:id', app.authorized.can('enter app'), 
 app.express.post('/:org/api/admin/worker', app.authorized.can('enter app'), saveWorker);
 app.express.delete('/:org/api/admin/worker/:id', app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('worker', function (err, workerCollection) {
-        workerCollection.update({_id: new ObjectID(req.params.id), org: req.params.org}, {$set: {deleted: true}}, {upsert: false}, function (err, result) {
+        workerCollection.update({_id: new ObjectID(req.params.id), org: req.params.org}, {$set: {deleted: true}}, {upsert: false}, function (err) {
 
             if (err) {
                 console.log(err);
@@ -225,7 +225,7 @@ function savePlace (req, res) {
         id = req.params.id;
 
     app.mongo.collection('place', function (err, placesCollection) {
-        function onComplete (err, result) {
+        function onComplete (err) {
             if (err) {
                 console.log(err);
                 return res.send(500);
@@ -253,7 +253,7 @@ app.express.post('/:org/api/admin/place', app.authorized.can('enter app'), saveP
 app.express.post('/:org/api/admin/place/:id', app.authorized.can('enter app'), savePlace);
 app.express.delete('/:org/api/admin/place/:id', app.authorized.can('enter app'), function (req, res) {
     app.mongo.collection('place', function (err, placesCollection) {
-        placesCollection.remove({_id: new ObjectID(req.params.id), org: req.params.org}, function (err, result) {
+        placesCollection.remove({_id: new ObjectID(req.params.id), org: req.params.org}, function (err) {
 
             if (err) {
                 console.log(err);
@@ -323,7 +323,7 @@ app.express.post('/:org/api/admin/type/:name', app.authorized.can('enter app'), 
             {org: req.params.org, name: req.params.name},
             {$set: n_type},
             {upsert: true},
-            function (err, result) {
+            function (err) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
@@ -335,7 +335,7 @@ app.express.post('/:org/api/admin/type/:name', app.authorized.can('enter app'), 
 app.express.delete('/:org/api/admin/type/:name', app.authorized.can('enter app'), function (req, res) {
     req.params.name = req.params.name.toLowerCase().trim();
     app.mongo.collection('type', function (err, typeCollection) {
-        typeCollection.remove({name: req.params.name, org: req.params.org}, function (err, result) {
+        typeCollection.remove({name: req.params.name, org: req.params.org}, function (err) {
 
             if (err) {
                 console.log(err);

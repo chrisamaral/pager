@@ -2,8 +2,7 @@
 var app = require('../base.js')(),
     ObjectID = require('mongodb').ObjectID,
     async = require('async'),
-    _ = require('lodash'),
-    strftime = require('strftime');
+    _ = require('lodash');
 
 require('./api.console.tasks');
 

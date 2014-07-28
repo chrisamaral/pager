@@ -13,50 +13,50 @@ define(['../ext/strftime'], function (strftime) {
 
             leftPos += this.props.index * 3;
 
-            return React.DOM.div( {className:"scheduleTask", style:{width:  w + 'px', left: leftPos + 'px'}, 'data-dropdown':this.props.dropdown} );
+            return React.DOM.div({className: "scheduleTask", style: {width:  w + 'px', left: leftPos + 'px'}, 'data-dropdown': this.props.dropdown});
         }
     });
 
     var ScheduleInfo = React.createClass({displayName: 'ScheduleInfo',
         render: function () {
             var AttrTable = pager.components.AttrTable;
-            return React.DOM.div( {id:this.props._id, className:"f-dropdown medium content", 'data-dropdown-content':true}, 
-                React.DOM.table( {className:"dropdown-table"}, 
+            return React.DOM.div({id: this.props._id, className: "f-dropdown medium content", 'data-dropdown-content': true}, 
+                React.DOM.table({className: "dropdown-table"}, 
                     React.DOM.tbody(null, 
                         React.DOM.tr(null, 
-                            React.DOM.td( {colSpan:2}, 
+                            React.DOM.td({colSpan: 2}, 
                                 React.DOM.strong(null, this.props.task.address.address)
                             )
-                        ),
+                        ), 
                         React.DOM.tr(null, 
                             React.DOM.td(null, 
-                                React.DOM.i( {className:"f-ico fi-clock"}),
+                                React.DOM.i({className: "f-ico fi-clock"}), 
                                 React.DOM.strong(null, "Deslocamento")
-                            ),
+                            ), 
                             React.DOM.td(null, 
                                 strftime('%H:%M', new Date(this.props.task.directions.schedule.ini)) +
                                     '   <>   ' + strftime('%H:%M', new Date(this.props.task.directions.schedule.end))
                             )
-                        ),
+                        ), 
                         React.DOM.tr(null, 
                             React.DOM.td(null, 
-                                React.DOM.i( {className:"f-ico fi-map"}),
+                                React.DOM.i({className: "f-ico fi-map"}), 
                                 React.DOM.strong(null, "Deslocamento")
-                            ),
+                            ), 
                             React.DOM.td(null, this.props.task.directions.distance.text + '   •   ' + this.props.task.directions.duration.text)
-                        ),
+                        ), 
                         React.DOM.tr(null, 
                             React.DOM.td(null, 
-                                React.DOM.i( {className:"f-ico fi-clock"}),
+                                React.DOM.i({className: "f-ico fi-clock"}), 
                                 React.DOM.strong(null, "Execução")
-                            ),
+                            ), 
                             React.DOM.td(null, strftime('%H:%M', new Date(this.props.task.schedule.ini)) +
                                     '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end)))
                         )
                     )
-                ),
+                ), 
                 this.props.task.work_orders.map(function(wo){
-                    return AttrTable( {key:wo._id, attrs:wo.attrs} );
+                    return AttrTable({key: wo._id, attrs: wo.attrs});
                 })
             );
         }
@@ -81,7 +81,7 @@ define(['../ext/strftime'], function (strftime) {
             this.props.tasks.forEach(function (task, index) {
 
                 var id = 'info' + this.props._id + task.addressPlusTargetIDSHA1,
-                    $content = $(React.renderComponentToStaticMarkup(ScheduleInfo( {_id:id, task:task} ))),
+                    $content = $(React.renderComponentToStaticMarkup(ScheduleInfo({_id: id, task: task}))),
                     $old = $('#' + id);
 
                 if ($old.length) {
@@ -96,16 +96,16 @@ define(['../ext/strftime'], function (strftime) {
             this.removeDropDown();
         },
         render: function () {
-            return React.DOM.div( {className:"panel scheduleTimeLine"}, 
+            return React.DOM.div({className: "panel scheduleTimeLine"}, 
                 React.DOM.div(null, 
                     
                         this.props.tasks.map(function (task, index) {
                             return (
-                                ScheduleTask(
-                                        {key:'t-' + task.addressPlusTargetIDSHA1, task:task, index:index,
-                                        dropdown:'info' + this.props._id+ task.addressPlusTargetIDSHA1,
-                                        microSecondWidth:this.props.microSecondWidth, 
-                                        timelineBoundaries:this.props.timelineBoundaries} )
+                                ScheduleTask({
+                                        key: 't-' + task.addressPlusTargetIDSHA1, task: task, index: index, 
+                                        dropdown: 'info' + this.props._id+ task.addressPlusTargetIDSHA1, 
+                                        microSecondWidth: this.props.microSecondWidth, 
+                                        timelineBoundaries: this.props.timelineBoundaries})
                             );
                         }.bind(this))
                     
@@ -117,9 +117,9 @@ define(['../ext/strftime'], function (strftime) {
 
     var ScheduleRowMenu = React.createClass({displayName: 'ScheduleRowMenu',
         render: function () {
-            return React.DOM.ul( {id:this.props._id, className:"f-dropdown", 'data-dropdown-content':true}, 
-                React.DOM.li(null, React.DOM.a( {'data-doempty':true}, "Limpar")),
-                React.DOM.li(null, React.DOM.a( {'data-doremove':true}, "Remover"))
+            return React.DOM.ul({id: this.props._id, className: "f-dropdown", 'data-dropdown-content': true}, 
+                React.DOM.li(null, React.DOM.a({'data-doempty': true}, "Limpar")), 
+                React.DOM.li(null, React.DOM.a({'data-doremove': true}, "Remover"))
             )
         }
     });
@@ -147,7 +147,7 @@ define(['../ext/strftime'], function (strftime) {
 
             if ($old.length) return;
 
-            $content = $(React.renderComponentToStaticMarkup(ScheduleRowMenu( {_id:id} ))).appendTo('body');
+            $content = $(React.renderComponentToStaticMarkup(ScheduleRowMenu({_id: id}))).appendTo('body');
 
             $content.find('[data-doempty]').click(this.emptySchedule);
             $content.find('[data-doremove]').click(this.removeSchedule);
@@ -155,16 +155,16 @@ define(['../ext/strftime'], function (strftime) {
             $(this.getDOMNode()).foundation();
         },
         render: function () {
-            return React.DOM.div( {className:"scheduleRow"}, 
+            return React.DOM.div({className: "scheduleRow"}, 
                 
-                React.DOM.div( {className:"scheduleLabels"}, 
-                    React.DOM.span( {className:"success label"}, this.props.schedule.worker.name),
-                    React.DOM.a( {className:"secondary label fi-widget", title:"Menu", 'data-dropdown':'Menu' + this.props.schedule._id})
-                ),
+                React.DOM.div({className: "scheduleLabels"}, 
+                    React.DOM.span({className: "success label"}, this.props.schedule.worker.name), 
+                    React.DOM.a({className: "secondary label fi-widget", title: "Menu", 'data-dropdown': 'Menu' + this.props.schedule._id})
+                ), 
 
-                ScheduleTimeLine( {tasks:this.props.schedule.tasks,  _id:this.props.schedule.worker._id,
-                        microSecondWidth:this.props.microSecondWidth, 
-                        timelineBoundaries:this.props.timelineBoundaries}  )
+                ScheduleTimeLine({tasks: this.props.schedule.tasks, _id: this.props.schedule.worker._id, 
+                        microSecondWidth: this.props.microSecondWidth, 
+                        timelineBoundaries: this.props.timelineBoundaries})
 
             )
         }
@@ -177,11 +177,11 @@ define(['../ext/strftime'], function (strftime) {
                 ini = this.props.timelineBoundaries.ini.getTime(),
                 ticks = _.range(ini, this.props.timelineBoundaries.end.getTime(), timeStep);
 
-            return React.DOM.div( {id:"ScheduleHeader"}, 
+            return React.DOM.div({id: "ScheduleHeader"}, 
                 
                     ticks.map(function (tick, index) {
                         var txt = strftime('%H:%M', new Date(tick));
-                        return React.DOM.span( {className:"scheduleHeaderTick", style:{left: index * pxStep}, key:txt}, 
+                        return React.DOM.span({className: "scheduleHeaderTick", style: {left: index * pxStep}, key: txt}, 
                             txt);
                     }.bind(this))
                 
@@ -244,21 +244,21 @@ define(['../ext/strftime'], function (strftime) {
             this.props.syncQueries();
         },
         render: function () {
-            return React.DOM.div( {id:"Schedule"}, 
-                React.DOM.div( {id:"ScheduleContainer", ref:"container"}, 
+            return React.DOM.div({id: "Schedule"}, 
+                React.DOM.div({id: "ScheduleContainer", ref: "container"}, 
                     this.state.microSecondWidth !== null
-                        ? ScheduleHeader( {microSecondWidth:this.state.microSecondWidth, timelineBoundaries:this.state.timelineBoundaries} )
-                        :null,
+                        ? ScheduleHeader({microSecondWidth: this.state.microSecondWidth, timelineBoundaries: this.state.timelineBoundaries})
+                        :null, 
                         
 
                     this.state.microSecondWidth !== null
                         ?
                             this.props.schedule.map(function (schedule) {
-                                return ScheduleRow( {key:schedule._id,
-                                            updateSchedule:this.syncSchedules,
-                                            schedule:schedule, 
-                                            microSecondWidth:this.state.microSecondWidth,
-                                            timelineBoundaries:this.state.timelineBoundaries} );
+                                return ScheduleRow({key: schedule._id, 
+                                            updateSchedule: this.syncSchedules, 
+                                            schedule: schedule, 
+                                            microSecondWidth: this.state.microSecondWidth, 
+                                            timelineBoundaries: this.state.timelineBoundaries});
                             }.bind(this))
 
                         : React.DOM.p(null, "...")

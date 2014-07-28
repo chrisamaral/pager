@@ -294,9 +294,7 @@ a.ico:hover{
 .workersCfg{
     margin-top: 1em;
 }
-.cfgForm{
-    margin-top: 1em;
-}
+
 .scheduleLabels{
     display: block; position: absolute;
     top: 0; left: 0.5em;

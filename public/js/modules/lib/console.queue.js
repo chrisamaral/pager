@@ -9,14 +9,14 @@ define(function(){
         render: function(){
             var txtClasses = React.addons.classSet({error: this.state.obsError, 'default-textarea': true}),
                 AttrTable = pager.components.AttrTable;
-            return React.DOM.div( {className:"panel sequential"}, 
-                AttrTable( {attrs:this.props.task.attrs} ),
+            return React.DOM.div({className: "panel sequential"}, 
+                AttrTable({attrs: this.props.task.attrs}), 
                 React.DOM.form(null, 
-                    React.DOM.textarea( {className:txtClasses, placeholder:"Observação", name:"obs"}),
-                    this.state.obsError ? React.DOM.small( {className:"error"}, "Campo necessário") : null,
-                    React.DOM.div( {className:"text-right"}, 
-                        React.DOM.button( {className:"tiny alert button", type:"submit"}, "Rejeitar"),
-                        React.DOM.button( {className:"tiny success button", type:"submit"}, "Aceitar")
+                    React.DOM.textarea({className: txtClasses, placeholder: "Observação", name: "obs"}), 
+                    this.state.obsError ? React.DOM.small({className: "error"}, "Campo necessário") : null, 
+                    React.DOM.div({className: "text-right"}, 
+                        React.DOM.button({className: "tiny alert button", type: "submit"}, "Rejeitar"), 
+                        React.DOM.button({className: "tiny success button", type: "submit"}, "Aceitar")
                     )
                 )
             );
@@ -28,15 +28,15 @@ define(function(){
             $(this.getDOMNode()).foundation();
         },
         render: function(){
-            return React.DOM.div( {className:"panel"}, 
-                React.DOM.ul( {className:"clearing-thumbs medium-block-grid-2 medium-block-grid-3 large-block-grid-4", 'data-clearing':true}, 
+            return React.DOM.div({className: "panel"}, 
+                React.DOM.ul({className: "clearing-thumbs medium-block-grid-2 medium-block-grid-3 large-block-grid-4", 'data-clearing': true}, 
                     this.props.pics.map(function(p, index){
                         var pic = p && p.src ? p : {src: p};
-                        return React.DOM.li( {key:index}, 
-                            React.DOM.a( {href:pic.src}, 
+                        return React.DOM.li({key: index}, 
+                            React.DOM.a({href: pic.src}, 
                                 pic.descr
-                                    ? React.DOM.img( {className:"th", 'data-caption':pic.descr, src:pic.src} )
-                                    : React.DOM.img( {className:"th", src:pic.src} )
+                                    ? React.DOM.img({className: "th", 'data-caption': pic.descr, src: pic.src})
+                                    : React.DOM.img({className: "th", src: pic.src})
                                 
                             )
                         );
@@ -78,28 +78,28 @@ define(function(){
                 timestamp = anyDate(event.timestamp),
                 AttrTable = pager.components.AttrTable;
 
-            return React.DOM.div( {className:"activity-item panel"}, 
-                React.DOM.span( {className:"activity-timestamp"}, timestamp),
+            return React.DOM.div({className: "activity-item panel"}, 
+                React.DOM.span({className: "activity-timestamp"}, timestamp), 
 
-                React.DOM.div( {className:"activity-header"}, 
-                    React.DOM.div( {className:"activity-avatar"}, 
-                        React.DOM.img( {src:event.subject.avatar.thumb} )
-                    ),
-                    React.DOM.div( {className:"activity-summary"}, 
-                        UserLink( {user:event.subject} ),
-                        React.DOM.span(null, ' ' + event.predicate + ' '),
-                        ObjectLink( {object:event.object} )
+                React.DOM.div({className: "activity-header"}, 
+                    React.DOM.div({className: "activity-avatar"}, 
+                        React.DOM.img({src: event.subject.avatar.thumb})
+                    ), 
+                    React.DOM.div({className: "activity-summary"}, 
+                        UserLink({user: event.subject}), 
+                        React.DOM.span(null, ' ' + event.predicate + ' '), 
+                        ObjectLink({object: event.object})
                     )
-                ),
-                event.pics && event.pics.length ? PicSlide( {pics:event.pics} ) : null,
-                React.DOM.div( {className:toggleClasses}, 
-                    AttrTable( {attrs:event.attrs} ),
+                ), 
+                event.pics && event.pics.length ? PicSlide({pics: event.pics}) : null, 
+                React.DOM.div({className: toggleClasses}, 
+                    AttrTable({attrs: event.attrs}), 
                     event.tasks.map(function(task){
-                        return SubTask( {key:task.id, task:task} );
+                        return SubTask({key: task.id, task: task});
                     })
-                ),
-                React.DOM.div( {className:"activity-footer"}, 
-                    React.DOM.button( {className:"tiny secondary button", onClick:this.toggleStuff}, 
+                ), 
+                React.DOM.div({className: "activity-footer"}, 
+                    React.DOM.button({className: "tiny secondary button", onClick: this.toggleStuff}, 
                         this.state.infoShown ? 'menos' : 'mais')
                 )
             );
@@ -109,14 +109,14 @@ define(function(){
     Queue = React.createClass({displayName: 'Queue',
         render: function () {
 
-            return React.DOM.div( {id:"Queue", className:"leftMapControl"}, 
-                React.DOM.div( {className:"controlIco"}, React.DOM.i( {className:"fi-clock"})),
-                React.DOM.div( {className:"controlContent"}, 
-                    React.DOM.h3( {className:"controlTitle"}, "Ordens Pendentes"),
-                    React.DOM.div( {className:"panel contained activity-feed"}, 
+            return React.DOM.div({id: "Queue", className: "leftMapControl"}, 
+                React.DOM.div({className: "controlIco"}, React.DOM.i({className: "fi-clock"})), 
+                React.DOM.div({className: "controlContent"}, 
+                    React.DOM.h3({className: "controlTitle"}, "Ordens Pendentes"), 
+                    React.DOM.div({className: "panel contained activity-feed"}, 
                          _.isArray(this.props.items)
                             ? this.props.items.map(function (item) {
-                                    return TaskPendingApproval( {item:item, key:item.id} );
+                                    return TaskPendingApproval({item: item, key: item.id});
                                 })
                             : null
                         

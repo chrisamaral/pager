@@ -29,7 +29,7 @@ define(function(){
        },
        setQueries: function (items) {
 
-           items = items.filter(function (item, index) {
+           items = items.filter(function (item) {
                return item.name === 'Agenda' || item.tasks;
            }).map(function (item) {
                item.id = item.id || 'query-' + Math.random().toString(36).substr(2);
@@ -88,7 +88,7 @@ define(function(){
 
        syncQueries: function () {
 
-           clearTimeout(this.syncQueries.__timeout)
+           clearTimeout(this.syncQueries.__timeout);
 
            if (!this.isMounted()) return;
 

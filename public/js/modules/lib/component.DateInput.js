@@ -44,13 +44,13 @@ define(['../helpers/utils', '../ext/strftime'], function(utils, strftime){
 
         },
         render: function () {
-            return React.DOM.input( {name:this.props.inputName, ref:"input", required:true, type:"text", onChange:this.validDate, value:this.state.value, placeholder:this.state.initial} );
+            return React.DOM.input({name: this.props.inputName, ref: "input", required: true, type: "text", onChange: this.validDate, value: this.state.value, placeholder: this.state.initial});
         }
     });
 
     NativeDate = React.createClass({displayName: 'NativeDate',
         render: function(){
-            return React.DOM.input( {name:this.props.inputName, required:true, type:"date", defaultValue:this.props.date || (new Date()).toYMD()} );
+            return React.DOM.input({name: this.props.inputName, required: true, type: "date", defaultValue: this.props.date || (new Date()).toYMD()});
         }
     });
 

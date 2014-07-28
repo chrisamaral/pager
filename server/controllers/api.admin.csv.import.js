@@ -2,7 +2,6 @@
 var app = require('../base.js')(),
     $mongo = require('mongodb'),
     strftime = require('strftime'),
-    ObjectID = $mongo.ObjectID,
     async = require('async'),
     _ = require('lodash');
 
@@ -64,14 +63,14 @@ function wOParse (row, shifts, statuses) {
         switch (guess) {
             case 'creation':
                 newRow.creation = new Date(val);
-                newRow.creation_day = strftime('%Y-%m-%d', newRow.creation);
+                //newRow.creation_day = strftime('%Y-%m-%d', newRow.creation);
                 break;
             case 'sys_id':
             case 'type':
                 newRow[guess] = val;
                 break;
             case 'status':
-                var myS = _.find(statuses, function (s){ return s.name === val || s.references.indexOf(val) >= 0; });
+                var myS = _.find(statuses, function (s) { return s.name === val || s.references.indexOf(val) >= 0; });
                 newRow.status = myS ? myS.name : 'desconhecido';
                 newRow.original_status = val;
 
@@ -80,7 +79,7 @@ function wOParse (row, shifts, statuses) {
             case 'schedule.date':
                 newRow.schedule = newRow.schedule || {};
                 newRow.schedule.date = new Date(val);
-                newRow.schedule.day = strftime('%Y-%m-%d', newRow.schedule.date);
+                //newRow.schedule.day = strftime('%Y-%m-%d', newRow.schedule.date);
 
                 break;
             case 'schedule.shift':
@@ -236,6 +235,13 @@ exports.workOrderCSVUploadHandler = function (req, res) {
 
     form.parse(req, function (err, formFields, formFiles) {
 
+        var csvOpts = {columnsFromHeader: true};
+
+        if (formFields.separatorChar) csvOpts.separator = formFields.separatorChar[0];
+        if (formFields.quoteChar) csvOpts.quote = formFields.quoteChar[0];
+        if (formFields.escapeChar) csvOpts.escape = formFields.escapeChar[0];
+
+
         if (err) {
             console.log(err);
             return res.status(500).send('Erro ao processar upload.');
@@ -247,15 +253,14 @@ exports.workOrderCSVUploadHandler = function (req, res) {
 
         var tmpFile = formFiles.csv[0].path,
             csv = require('ya-csv'),
-            reader = csv.createCsvFileReader(tmpFile, {
-                columnsFromHeader: true
-            });
+            reader = csv.createCsvFileReader(tmpFile, csvOpts);
 
         workOrderHandler(function(Handler){
             var rows = 0,
                 parsedRows = 0,
                 validRows = 0,
                 EOF = false;
+
             reader.addListener('data', function (row) {
                 rows++;
                 Handler(req.params.org, row, function (err, success) {
@@ -263,6 +268,10 @@ exports.workOrderCSVUploadHandler = function (req, res) {
                     if (!err && success) validRows++;
                     if (rows === parsedRows && EOF) answer();
                 });
+            });
+
+            reader.addListener('error', function (err) {
+                console.log(err);
             });
 
             reader.addListener('end', function () {

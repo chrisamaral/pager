@@ -4,10 +4,10 @@ define(function () {
 
     var UserSelector = React.createClass({displayName: 'UserSelector',
         render: function () {
-            return React.DOM.select( {defaultValue:this.props.selected || ''} , 
-                React.DOM.option( {value:""}, '########## Nenhum #########'),
+            return React.DOM.select({defaultValue: this.props.selected || ''}, 
+                React.DOM.option({value: ""}, '########## Nenhum #########'), 
                 this.props.users.map(function (user) {
-                    return React.DOM.option( {key:user.id, value:user.id}, user.name);
+                    return React.DOM.option({key: user.id, value: user.id}, user.name);
                 })
             );
         }
@@ -63,9 +63,9 @@ define(function () {
                 .fail(function () {
                     if (!this.isMounted()) return;
                     $(this.getDOMNode()).prepend(
-                        React.renderComponentToStaticMarkup(React.DOM.div( {'data-alert':true, className:"radius alert alert-box"}, 
-                            "Erro, não foi possível salvar.",
-                            React.DOM.a( {href:"#", className:"close"}, '×')
+                        React.renderComponentToStaticMarkup(React.DOM.div({'data-alert': true, className: "radius alert alert-box"}, 
+                            "Erro, não foi possível salvar.", 
+                            React.DOM.a({href: "#", className: "close"}, '×')
                         ))
                     ).foundation()
                 }.bind(this));
@@ -74,61 +74,71 @@ define(function () {
             e.preventDefault();
             this.props.deleteWorker(this.props.worker._id);
         },
+        allTypes: function (e) {
+            e.preventDefault();
+            $(this.getDOMNode()).find('input:checkbox').prop('checked', true);
+        },
+        noTypes: function (e) {
+            e.preventDefault();
+            $(this.getDOMNode()).find('input:checkbox').prop('checked', false);
+        },
         render: function () {
             var thisWorker = this.props.worker;
-            return React.DOM.div( {className:"panel"}, 
-                React.DOM.form( {onSubmit:this.handleSubmit}, 
-                    React.DOM.div( {className:"row"}, 
-                        React.DOM.div( {className:"medium-8 columns"}, 
-                            React.DOM.div( {className:"row"}, 
-                                React.DOM.div( {className:"medium-4 large-3 columns"}, 
-                                    React.DOM.label(null, "Código",
-                                        React.DOM.input( {type:"text", placeholder:"0000", ref:"sys_id", defaultValue:thisWorker.sys_id} )
+            return React.DOM.div({className: "panel"}, 
+                React.DOM.form({onSubmit: this.handleSubmit}, 
+                    React.DOM.div({className: "row"}, 
+                        React.DOM.div({className: "medium-8 columns"}, 
+                            React.DOM.div({className: "row"}, 
+                                React.DOM.div({className: "medium-4 large-3 columns"}, 
+                                    React.DOM.label(null, "Código", 
+                                        React.DOM.input({type: "text", placeholder: "0000", ref: "sys_id", defaultValue: thisWorker.sys_id})
                                     )
-                                ),
-                                React.DOM.div( {className:"medium-8 large-9 columns"}, 
-                                    React.DOM.label(null, "Nome",
-                                        React.DOM.input( {type:"text", ref:"workerName", required:true, placeholder:"Nome", ref:"name", defaultValue:thisWorker.name} )
-                                    )
-                                )
-                            ),
-                            React.DOM.div( {className:"row"}, 
-                                React.DOM.div( {className:"large-12 columns"}, 
-                                    React.DOM.label(null, "Usuário Associado",
-                                        UserSelector( {ref:"user_id", selected:thisWorker.user_id,
-                                        users:this.props.users, selectUser:this.selectUser} )
+                                ), 
+                                React.DOM.div({className: "medium-8 large-9 columns"}, 
+                                    React.DOM.label(null, "Nome", 
+                                        React.DOM.input({type: "text", ref: "workerName", required: true, placeholder: "Nome", ref: "name", defaultValue: thisWorker.name})
                                     )
                                 )
-                            ),
-                            React.DOM.div( {className:"row"}, 
-                                React.DOM.div( {className:"large-12 columns text-right"}, 
+                            ), 
+                            React.DOM.div({className: "row"}, 
+                                React.DOM.div({className: "large-12 columns"}, 
+                                    React.DOM.label(null, "Usuário Associado", 
+                                        UserSelector({ref: "user_id", selected: thisWorker.user_id, 
+                                        users: this.props.users, selectUser: this.selectUser})
+                                    )
+                                )
+                            ), 
+                            React.DOM.div({className: "row"}, 
+                                React.DOM.div({className: "large-12 columns text-right"}, 
                             !this.state.locked
                                 ?
-                                React.DOM.div( {className:"AdmWBtRow"}, 
+                                React.DOM.div({className: "AdmWBtRow"}, 
 
-                                    React.DOM.button( {className:"small buton success"}, "Salvar"),
+                                    React.DOM.button({className: "small buton success"}, "Salvar"), 
                                         this.props.deleteWorker
-                                            ? React.DOM.button( {onClick:this.killMe, className:"small button alert"}, "Remover")
+                                            ? React.DOM.button({onClick: this.killMe, className: "small button alert"}, "Remover")
                                             : null
                                             
-
                                 )
-
                                 : React.DOM.strong(null, "Carregando...")
                                 
                                 )
                             )
-                        ),
-                        React.DOM.div( {className:"medium-4 columns"}, 
+                        ), 
+                        React.DOM.div({className: "medium-4 columns"}, 
+                            React.DOM.p({className: "text-right"}, 
+                                React.DOM.button({onClick: this.allTypes, className: "tiny button fi-check"}, "Todos"), 
+                                React.DOM.button({onClick: this.noTypes, className: "tiny button alert fi-x"}, "Nenhum")
+                            ), 
                             this.props.availableTypes.map(function (t) {
                                 var type = t.name;
                                 var $id = thisWorker._id || Math.random().toString(36).substr(2);
 
-                                return React.DOM.div( {className:"row", key:type}, 
-                                    React.DOM.div( {className:"medium-12 columns"}, 
-                                        React.DOM.input( {id:'tagType' + type + $id, type:"checkbox", value:type,
-                                            defaultChecked:_.isArray(thisWorker.types) && thisWorker.types.indexOf(type) >= 0}),
-                                        React.DOM.label( {className:"textCapitalize", htmlFor:'tagType' + type + $id}, type)
+                                return React.DOM.div({className: "row", key: type}, 
+                                    React.DOM.div({className: "medium-12 columns"}, 
+                                        React.DOM.input({id: 'tagType' + type + $id, type: "checkbox", value: type, 
+                                            defaultChecked: _.isArray(thisWorker.types) && thisWorker.types.indexOf(type) >= 0}), 
+                                        React.DOM.label({className: "textCapitalize", htmlFor: 'tagType' + type + $id}, type)
                                     )
                                 );
                             })
@@ -146,20 +156,20 @@ define(function () {
         },
 
         render: function () {
-            return React.DOM.div( {className:"row"}, 
-                React.DOM.div( {className:"medium-9 columns"}, 
+            return React.DOM.div({className: "row"}, 
+                React.DOM.div({className: "medium-9 columns"}, 
                     React.DOM.h5(null, React.DOM.strong(null, this.props.worker.name))
-                ),
-                React.DOM.div( {className:"medium-3 columns text-right"}, 
+                ), 
+                React.DOM.div({className: "medium-3 columns text-right"}, 
                     this.props.worker.editable
                         ?
-                            React.DOM.a( {onClick:this.toggle}, 
-                                React.DOM.i( {className:"actionIco fi-x"}),
+                            React.DOM.a({onClick: this.toggle}, 
+                                React.DOM.i({className: "actionIco fi-x"}), 
                                 "Cancelar"
                             )
                         :
-                            React.DOM.a( {onClick:this.toggle}, 
-                                React.DOM.i( {className:"actionIco fi-pencil"}),
+                            React.DOM.a({onClick: this.toggle}, 
+                                React.DOM.i({className: "actionIco fi-pencil"}), 
                                 "Editar"
                             )
 
@@ -173,12 +183,12 @@ define(function () {
         render: function () {
             return React.DOM.div(null, 
                 this.props.workers.map(function (worker) {
-                    return React.DOM.div( {className:"WorkerHeader", key:worker._id}, 
-                        WorkerHeader( {worker:worker, toggleEditor:this.props.toggleEdit} ),
+                    return React.DOM.div({className: "WorkerHeader", key: worker._id}, 
+                        WorkerHeader({worker: worker, toggleEditor: this.props.toggleEdit}), 
 
                             worker.editable
-                                ? EditWorkerForm( {users:this.props.users, worker:worker, availableTypes:this.props.availableTypes,
-                                    saveWorker:this.props.saveWorker, deleteWorker:this.props.deleteWorker} )
+                                ? EditWorkerForm({users: this.props.users, worker: worker, availableTypes: this.props.availableTypes, 
+                                    saveWorker: this.props.saveWorker, deleteWorker: this.props.deleteWorker})
                                 : null
 
                     );
@@ -280,11 +290,11 @@ define(function () {
         render: function () {
             return React.DOM.div(null, 
 
-                WorkerList( {availableTypes:this.state.availableTypes, workers:this.state.workers, users:this.state.users,
-                    deleteWorker:this.deleteWorker, toggleEdit:this.toggleEdit, saveWorker:this.saveWorker}  ),
+                WorkerList({availableTypes: this.state.availableTypes, workers: this.state.workers, users: this.state.users, 
+                    deleteWorker: this.deleteWorker, toggleEdit: this.toggleEdit, saveWorker: this.saveWorker}), 
 
-                EditWorkerForm( {availableTypes:this.state.availableTypes,
-                    saveWorker:this.saveWorker, worker:this.state.defaultWorker, users:this.state.users} )
+                EditWorkerForm({availableTypes: this.state.availableTypes, 
+                    saveWorker: this.saveWorker, worker: this.state.defaultWorker, users: this.state.users})
             );
         }
     });

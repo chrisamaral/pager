@@ -70,7 +70,7 @@ define(function () {
             if (elem.length && elem.is(':visible')) {
                 $content.append('<p>' + marker.task.address.address + '</p>');
             } else {
-                $content.append(React.renderComponentToString(AttrTable( {attrs:marker.task.attrs} )));
+                $content.append(React.renderComponentToString(AttrTable({attrs: marker.task.attrs})));
             }
 
             $content.append(
@@ -226,8 +226,8 @@ define(function () {
                             infoWindows[wayPoint.id] = new google.maps.InfoWindow({
                                 content:
                                     $('<div class="consoleInfoWindow">')
-                                        .append(React.renderComponentToString(AttrTable(
-                                            {attrs:wayPoint.attrs} )))[0]
+                                        .append(React.renderComponentToString(AttrTable({
+                                            attrs: wayPoint.attrs})))[0]
                             });
 
                             infoWindows[wayPoint.id].open(pager.console.map, wayPoint.marker);
@@ -309,7 +309,7 @@ define(function () {
         },
 
         render: function () {
-            return React.DOM.div( {id:"ConsoleMainMap"});
+            return React.DOM.div({id: "ConsoleMainMap"});
         }
     });
 

@@ -4,6 +4,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
 
     if (Modernizr.touch) React.initializeTouchEvents(true);
     pager.constant = consts;
+    pager.helpers = utils;
     var mainComponent;
 
     var Root,

@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 define([
+    '../ext/strftime',
     './console.leftpanel',
     './console.rightpanel',
     './console.map',
@@ -8,7 +9,7 @@ define([
     '../lib/console.component.router.js',
     '../lib/console.component.map.js',
     '../lib/console.component.queries.js'
-], function (LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCompQueries) {
+], function (strftime, LeftPanel, RightPanel, Map, cCompSchedule, cCompRouter, cCompMap, cCompQueries) {
     var Aviator = pager.Aviator,
         Console,
         UserLink,
@@ -69,7 +70,9 @@ define([
 
                 val = attr.relevance === 3 && _.isString(attr.value)
                     ? attr.value.toUpperCase()
-                    : attr.value,
+                    : _.isDate(attr.value)
+                        ? strftime('%d/%m/%Y', attr.value)
+                        : attr.value,
 
                 hasDescr = attr.relevance !== 3 && attr.descr,
 
@@ -94,6 +97,9 @@ define([
                 .concat(_.filter(this.props.attrs, function(attr){
                     return !attr.relevance || attr.relevance <= 1;
                 }));
+
+            attrs = pager.helpers.dateAutoConv(attrs);
+
             return <div className='attr-table'>
                     {attrs.map(function(attr, index){
                         return <AttrItem key={index} attr={attr} />;

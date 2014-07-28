@@ -460,7 +460,7 @@ define(['./component.DateInput'], function (DateInput) {
             var tasks = [];
             this.props.queries.forEach(function (query) {
                 query.tasks.forEach(function (task) {
-                    if (!_.any(task,{sys_id: task.sys_id})) {
+                    if (!_.any(tasks, {_id: task._id})) {
                         tasks.push(task);
                     }
                 });

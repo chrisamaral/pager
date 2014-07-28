@@ -15,8 +15,8 @@ define(function () {
                 classes = React.addons.classSet(
                             {active: opt.id === this.props.currentView});
 
-            return React.DOM.li( {className:classes, key:opt.id}, 
-                    React.DOM.a( {onClick:this.selectMe, href:'/' + pager.org.id + '/admin/' + opt.id}, opt.name)
+            return React.DOM.li({className: classes, key: opt.id}, 
+                    React.DOM.a({onClick: this.selectMe, href: '/' + pager.org.id + '/admin/' + opt.id}, opt.name)
             );
         }
     });
@@ -26,10 +26,10 @@ define(function () {
             if(!this.props.currentView) this.props.setView(this.props.options[0].id);
         },
         render: function () {
-            return React.DOM.ul( {id:"AdminSideNav", className:"side-nav"}, 
+            return React.DOM.ul({id: "AdminSideNav", className: "side-nav"}, 
                 
                     this.props.options.map(function(opt){
-                        return SubNavItem( {key:opt.id, option:opt, setView:this.props.setView, currentView:this.props.currentView} );
+                        return SubNavItem({key: opt.id, option: opt, setView: this.props.setView, currentView: this.props.currentView});
                     }.bind(this))
                 
             );
@@ -83,16 +83,16 @@ define(function () {
         },
 
         render: function () {
-            return React.DOM.div( {id:"AdminPanel", className:"panel"}, 
-                React.DOM.div( {className:"row"}, 
-                    React.DOM.div( {className:"medium-3 columns"}, 
+            return React.DOM.div({id: "AdminPanel", className: "panel"}, 
+                React.DOM.div({className: "row"}, 
+                    React.DOM.div({className: "medium-3 columns"}, 
                         this.state.options.length
-                            ? SubNav( {options:this.state.options, currentView:this.state.currentView, setView:this.setView} )
+                            ? SubNav({options: this.state.options, currentView: this.state.currentView, setView: this.setView})
                             : null
-                    ),
-                    React.DOM.div( {id:"InnerComponent", className:"medium-9 columns"}, 
+                    ), 
+                    React.DOM.div({id: "InnerComponent", className: "medium-9 columns"}, 
                         Component && !this.state.loadingView
-                            ? Component(null )
+                            ? Component(null)
                             : React.DOM.div(null, "...")
                     )
                 )

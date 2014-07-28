@@ -2,6 +2,9 @@
 
     var tasks, workers, day,
         taskDurationByType, console,
+        RouterConfiguration =  {
+            balanced: false
+        },
         MINUTE = 1000 * 60,
         MAX_CLUSTER_DISTANCE = 5, //km
         MAX_TRAVEL_DISTANCE = 10,
@@ -16,9 +19,11 @@
             self.postMessage({type: 'progressLog', data: args});
         }
     };
+
     function notify (msg) {
         self.postMessage({type: 'logMessage', data: msg});
     }
+
     function roundNumber (number, digits) {
         var multiple = Math.pow(10, digits);
         var rndedNum = Math.round(number * multiple) / multiple;
@@ -445,6 +450,15 @@
     function allocIterator (clusters) {
         notify('Separando atividades...');
         function hasClosestWorker () {
+            var tCount = 0, avgTCount = 0;
+
+            if (workers.length) {
+                _.forEach(workers, function (worker) {
+                    tCount += worker.tasks.length;
+                });
+                avgTCount = tCount/workers.length;
+            }
+
             var min = _.min(tasks, function (task) {
 
                 delete task.closestWorker;
@@ -454,26 +468,33 @@
                 }
 
                 var min = _.min(task.candidateWorkers, function (worker) {
-                    var theWorker = worker.worker;
+                    var realWorkerObject = worker.worker;
 
 
-                    if (task.cluster && _.indexOf(task.cluster.candidateWorkers, theWorker) === -1) {
+                    if (task.cluster && _.indexOf(task.cluster.candidateWorkers, realWorkerObject) === -1) {
                         return undefined;
                     }
 
                     /*
-                    if (theWorker.tasks.length > 0) {
+                    if (realWorkerObject.tasks.length > 0) {
                         return undefined;
                     }
                     */
 
                     worker.distance = getDistanceFromLatLonInKm(
                         task.location.lat, task.location.lng,
-                        theWorker.startPoint.lat, theWorker.startPoint.lng
+                        realWorkerObject.startPoint.lat, realWorkerObject.startPoint.lng
                     );
 
                     if (worker.distance > MAX_FIRST_HOP_DISTANCE) {
                         return undefined;
+                    }
+
+                    if (RouterConfiguration.balanced) {
+                        return worker.distance + (realWorkerObject.tasks.length > avgTCount
+                            ? (realWorkerObject.tasks.length - avgTCount) * 0.1
+                            : 0
+                            );
                     }
 
                     return worker.distance;
@@ -677,6 +698,8 @@
 
         workers = data.workers;
         day = data.day;
+
+        _.merge(RouterConfiguration, data.options || {});
 
         console.log('Calculando duração de atividades...');
 

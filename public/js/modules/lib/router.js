@@ -1,6 +1,6 @@
 define(['../ext/strftime'], function (strftime) {
     var BpTspSolver, tsp;
-    function Router (day, tasks, workers) {
+    function Router (day, tasks, workers, options) {
 
         var dead = false;
         this.id = Math.random().toString(36).substr(2);
@@ -23,7 +23,16 @@ define(['../ext/strftime'], function (strftime) {
                 window.URL.revokeObjectURL(blobURL);
 
                 this.connectToWorker();
-                this.webWorker.postMessage({cmd: 'startRouter', data: {tasks: tasks, workers: workers, day: day}});
+
+                this.webWorker.postMessage({
+                    cmd: 'startRouter',
+                    data: {
+                        tasks: tasks,
+                        workers: workers,
+                        day: day,
+                        options: options
+                    }
+                });
 
             }.bind(this));
 
