@@ -64,7 +64,7 @@ foreach (array('development', 'production')  as $env) {
     $output = $build[$env];
     
     $outputHtml = str_replace('[ INSERT LAZYLOAD SCRIPT URL HERE ]', $output['js']['lazyload'], $inputHtml);
-    $outputHtml = str_replace('[ INSERT BUILD OBJECT HERE ]', json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), $outputHtml);
+    $outputHtml = str_replace('[ INSERT BUILD OBJECT HERE ]', json_encode($output), $outputHtml);
     
     $outputHtml = str_replace('//INSERT LAZY CACHE LOAD HERE',
         $env === 'development' ? $lazyCache : $lazyCacheMin, $outputHtml);
