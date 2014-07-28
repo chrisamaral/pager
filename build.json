@@ -27,30 +27,30 @@
         }
     },
     "production": {
-        "moduleRoot": "/js/v/1406585263",
+        "moduleRoot": "/js/v/1406585375",
         "moduleExpiration": 0,
         "pager": {
             "isDev": false
         },
         "js": {
-            "lazyload": "/js/v/1406585263/ext/lazyload.js",
+            "lazyload": "/js/v/1406585375/ext/lazyload.js",
             "inject": "/js/inject.min.js",
-            "base64": "/js/v/1406585263/ext/base64.js",
-            "lodash": "/js/v/1406585263/ext/lodash.js",
-            "modernizr": "/js/v/1406585263/ext/modernizr.js",
-            "pace": "/js/v/1406585263/ext/pace.js",
-            "jquery": "/js/v/1406585263/ext/jquery.js",
-            "react": "/js/v/1406585263/ext/react-with-addons-0.10.0.js",
-            "foundation": "/js/v/1406585263/ext/foundation.min.js"
+            "base64": "/js/v/1406585375/ext/base64.js",
+            "lodash": "/js/v/1406585375/ext/lodash.js",
+            "modernizr": "/js/v/1406585375/ext/modernizr.js",
+            "pace": "/js/v/1406585375/ext/pace.js",
+            "jquery": "/js/v/1406585375/ext/jquery.js",
+            "react": "/js/v/1406585375/ext/react-with-addons-0.10.0.js",
+            "foundation": "/js/v/1406585375/ext/foundation.min.js"
         },
         "css": {
-            "pace": "/css/v/1406585263/pace.css",
-            "normalize": "/css/v/1406585263/normalize.css",
-            "foundation": "/css/v/1406585263/foundation.min.css",
-            "foundationIcons": "/css/v/1406585263/foundation-icons/foundation-icons.css",
-            "main": "/css/v/1406585263/main.css",
-            "admin": "/css/v/1406585263/admin.css",
-            "console": "/css/v/1406585263/console.css"
+            "pace": "/css/v/1406585375/pace.css",
+            "normalize": "/css/v/1406585375/normalize.css",
+            "foundation": "/css/v/1406585375/foundation.min.css",
+            "foundationIcons": "/css/v/1406585375/foundation-icons/foundation-icons.css",
+            "main": "/css/v/1406585375/main.css",
+            "admin": "/css/v/1406585375/admin.css",
+            "console": "/css/v/1406585375/console.css"
         }
     }
 }

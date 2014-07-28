@@ -89,7 +89,6 @@ define(function () {
                                 <select name='separatorChar'>
                                     <option>;</option>
                                     <option>,</option>
-                                    <option>''</option>
                                 </select>
                             </label>
                         </div>

@@ -88,8 +88,7 @@ define(function () {
                             React.DOM.label(null, "Separador", 
                                 React.DOM.select({name: "separatorChar"}, 
                                     React.DOM.option(null, ";"), 
-                                    React.DOM.option(null, ","), 
-                                    React.DOM.option(null, "''")
+                                    React.DOM.option(null, ",")
                                 )
                             )
                         ), 
