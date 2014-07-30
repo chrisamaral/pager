@@ -18,9 +18,7 @@ define(function () {
 
             _.forEach(tasks, function (task) {
 
-                if (!(task.marker === undefined && task.location !== undefined)) {
-                    return;
-                }
+                if (!(task.marker === undefined && task.location !== undefined)) return;
 
                 task.marker = new google.maps.Marker({
                     title: task.address.address,
@@ -160,7 +158,7 @@ define(function () {
                 mapElem = this,
                 selected;
 
-            console.log('update map view');
+            //console.log('update map view');
 
             switch (props.mapState) {
                 case pager.constant.console.map.AVAILABLE_TASKS:

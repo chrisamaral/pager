@@ -123,7 +123,7 @@ define(function () {
         }
 
         tick(originalQueue.concat());
-    }
+    };
 
     return Geocoder;
 });

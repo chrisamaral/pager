@@ -140,9 +140,9 @@ define(function () {
                     React.DOM.legend(null, "Opções"), 
                     React.DOM.div({className: "row"}, 
                         React.DOM.div({className: "small-12 columns text-left"}, 
-                            React.DOM.label(null, "Gerar Rotas Balanceadas", 
-                                React.DOM.input({type: "checkbox", ref: "balancedRoute", name: "balancedRoute"})
-                            )
+                            React.DOM.input({id: "optBalancedRoute", type: "checkbox", ref: "balancedRoute", name: "balancedRoute"}), 
+                            React.DOM.label({htmlFor: "optBalancedRoute"}, "Gerar Rotas Balanceadas")
+
                         )
                     )
                 ), 

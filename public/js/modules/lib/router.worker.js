@@ -468,7 +468,7 @@
                 }
 
                 var min = _.min(task.candidateWorkers, function (worker) {
-                    var realWorkerObject = worker.worker;
+                    var realWorkerObject = worker.worker, dist;
 
 
                     if (task.cluster && _.indexOf(task.cluster.candidateWorkers, realWorkerObject) === -1) {
@@ -491,10 +491,14 @@
                     }
 
                     if (RouterConfiguration.balanced) {
-                        return worker.distance + (realWorkerObject.tasks.length > avgTCount
-                            ? (realWorkerObject.tasks.length - avgTCount) * 0.1
-                            : 0
-                            );
+
+                        dist = worker.distance;
+
+                        if (realWorkerObject.tasks.length > avgTCount) {
+                            dist += dist * ((realWorkerObject.tasks.length - avgTCount) * 0.1);
+                        }
+
+                        return dist;
                     }
 
                     return worker.distance;

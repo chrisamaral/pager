@@ -140,9 +140,9 @@ define(function () {
                     <legend>Opções</legend>
                     <div className='row'>
                         <div className='small-12 columns text-left'>
-                            <label>Gerar Rotas Balanceadas
-                                <input type='checkbox' ref='balancedRoute' name='balancedRoute' />
-                            </label>
+                            <input id='optBalancedRoute' type='checkbox' ref='balancedRoute' name='balancedRoute' />
+                            <label htmlFor='optBalancedRoute'>Gerar Rotas Balanceadas</label>
+
                         </div>
                     </div>
                 </fieldset>

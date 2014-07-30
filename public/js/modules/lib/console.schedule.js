@@ -70,9 +70,9 @@ define(['../ext/strftime'], function (strftime) {
             this.updateDropDown();
         },
         removeDropDown: function () {
-            this.props.tasks.forEach(function (task, index) {
+            _.forEach(this.props.tasks, function (task, index) {
                 $('#info' + this.props._id + task.addressPlusTargetIDSHA1).remove();
-            }.bind(this));
+            }, this);
         },
         componentDidUpdate: function () {
             this.updateDropDown();
@@ -89,6 +89,18 @@ define(['../ext/strftime'], function (strftime) {
                 } else {
                     $content.appendTo('body');
                 }
+
+                $content = $('#' + id);
+                $content.find('.attr-table').each(function () {
+                    var $elem = $(this),
+                        $rows = $elem.children('.row');
+
+                    $rows.first().click(function () {
+                        var $this = $(this);
+                        $this.parent().find('.row').not(':first-child').toggle();
+                    });
+                    $rows.not(':first-child').hide();
+                });
 
             }.bind(this));
         },

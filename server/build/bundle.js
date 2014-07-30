@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="notranslate" name="google">
-        <title>PAGER - Painel de Gestão de Equipes e Rotas Inteligentes</title>
-        <link rel="shortcut icon" href="/fav.ico">
-        <script src="/js/modules/ext/lazyload.js"></script>
-        <script>(function () {
+(function () {
     function supports_html5_storage() {
         try {
             return 'localStorage' in window && window['localStorage'] !== null;
@@ -220,7 +211,4 @@
         require.run('lib/main.js');
     });
 
-}());</script>
-    </head>
-    <body><div id='container'></div></body>
-</html>
+}());

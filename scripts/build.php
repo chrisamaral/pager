@@ -7,10 +7,11 @@ $time = time();
 $build = file_get_contents('../input.build.json');
 $build = str_replace('[moduleROOT]', "/js/v/{$time}", $build);
 
-$l = '../server/build/lazy.cache.load.js';
+$lazyCachePath = '../server/build/lazy.cache.load.js';
+$bootLoaderPath = '../server/build/bootloader.js';
 
-$lazyCache = file_get_contents($l);
-$lazyCacheMin = shell_exec("uglifyjs {$l}");
+$bootLoader = file_get_contents($bootLoaderPath);
+$lazyCache = file_get_contents($lazyCachePath);
 
 $inputHtml = file_get_contents('../server/build/index.html');
 $build = json_decode($build, true);
@@ -46,7 +47,7 @@ $build = json_decode($build, true);
         $build['production']['css'][$key] = $renamed;
     }
 
-    //exec('rm ../public/js/v/*');
+    exec('rm ../public/js/v/*');
     //exec('rm ../public/css/v/*');
 
     chdir('../public/js/v');
@@ -64,10 +65,20 @@ foreach (array('development', 'production')  as $env) {
     $output = $build[$env];
     
     $outputHtml = str_replace('[ INSERT LAZYLOAD SCRIPT URL HERE ]', $output['js']['lazyload'], $inputHtml);
-    $outputHtml = str_replace('[ INSERT BUILD OBJECT HERE ]', json_encode($output), $outputHtml);
+    $bootLoader = str_replace('[ INSERT BUILD OBJECT HERE ]', json_encode($output, JSON_UNESCAPED_SLASHES), $bootLoader);
     
-    $outputHtml = str_replace('//INSERT LAZY CACHE LOAD HERE',
-        $env === 'development' ? $lazyCache : $lazyCacheMin, $outputHtml);
+    if ($env === 'development') {
+        $outputHtml = str_replace('//[ INSERT BOOTLOADER HERE ]', "{$lazyCache}\n{$bootLoader}", $outputHtml);
+    } else {
+        
+        $bundle = fopen('../server/build/bundle.js', 'w');
+        fwrite($bundle, "{$lazyCache}\n{$bootLoader}");
+        fclose($bundle);
+        exec('uglifyjs --output ../server/build/bundle.min.js ../server/build/bundle.js');
+
+        $bundle = file_get_contents("../server/build/bundle.min.js");
+        $outputHtml = str_replace('//[ INSERT BOOTLOADER HERE ]', $bundle, $outputHtml);
+    }
 
     $outputHtml = str_replace(' PLEASE_REPLACE_WITH_MANIFEST', 
         $env === 'development' ? '' : ' manifest="/pager.manifest"', $outputHtml);
@@ -90,9 +101,11 @@ function replaceV ($str, $time) {
 
 $static = 
     trim(
-        shell_exec(
-            "find ../public/js/v/{$time}/ -name '*.js'"
-        )
+        replaceV(
+            shell_exec(
+                "find ../public/css/build -type f -name '*.css'"
+            )
+        , $time)
     )
     ."\n".
     trim(
@@ -104,11 +117,9 @@ $static =
     )
     ."\n".
     trim(
-        replaceV(
-            shell_exec(
-                "find ../public/css/build -type f -name '*.css'"
-            )
-        , $time)
+        shell_exec(
+            "find ../public/js/v/{$time}/ -name '*.js'"
+        )
     );
 
 $static = str_replace('../public', '', $static);
