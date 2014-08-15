@@ -39,7 +39,7 @@ define(function(){
            if (Modernizr.localstorage) {
 
                localStorage.setItem('pager.' + pager.org.id + '.console.queries',
-                   JSON.stringify(this.state.queries.filter(function (query) {
+                   JSON.stringify(items.filter(function (query) {
                            return query.name !== 'Agenda';
                        }).map(function (query) {
                            query = _.clone(query);
