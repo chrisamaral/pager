@@ -3,11 +3,25 @@
 define(function () {
 
     var UserSelector = React.createClass({displayName: 'UserSelector',
+        handleChange: function (e) {
+            e.currentTarget.value && this.props.selectUser(e.currentTarget.value);
+        },
         render: function () {
-            return React.DOM.select({defaultValue: this.props.selected || ''}, 
+            return React.DOM.select({defaultValue: this.props.selected || '', onChange: this.handleChange}, 
                 React.DOM.option({value: ""}, '########## Nenhum #########'), 
                 this.props.users.map(function (user) {
                     return React.DOM.option({key: user.id, value: user.id}, user.name);
+                })
+            );
+        }
+    });
+
+    var ShiftSelector = React.createClass({displayName: 'ShiftSelector',
+        render: function () {
+            return React.DOM.select({defaultValue: this.props.selected || ''}, 
+                React.DOM.option({value: ""}, '########## Nenhum #########'), 
+                this.props.shifts.map(function (shift) {
+                    return React.DOM.option({key: shift._id, value: shift._id}, shift.name + '    ∙   ' + shift.from + ' <> ' + shift.to);
                 })
             );
         }
@@ -21,10 +35,10 @@ define(function () {
 
         selectUser: function (userID) {
             var usr = _.find(this.props.users, {id: userID}),
-                nameElem = this.refs.workerName.getDOMNode();
+                nameElem = this.refs.name.getDOMNode();
 
             if (!usr) return;
-            if (nameElem.name === '') nameElem.value = usr.name;
+            if (nameElem.value === '') nameElem.value = usr.name;
         },
 
         handleSubmit: function (e) {
@@ -34,7 +48,8 @@ define(function () {
                 sys_id: this.refs.sys_id.getDOMNode().value,
                 name: this.refs.name.getDOMNode().value,
                 user_id: this.refs.user_id.getDOMNode().value,
-                types: []
+                types: [],
+                work_shift: this.refs.work_shift.getDOMNode().value
             };
 
             var $form = $(e.currentTarget);
@@ -96,7 +111,7 @@ define(function () {
                                 ), 
                                 React.DOM.div({className: "medium-8 large-9 columns"}, 
                                     React.DOM.label(null, "Nome", 
-                                        React.DOM.input({type: "text", ref: "workerName", required: true, placeholder: "Nome", ref: "name", defaultValue: thisWorker.name})
+                                        React.DOM.input({type: "text", required: true, placeholder: "Nome", ref: "name", defaultValue: thisWorker.name})
                                     )
                                 )
                             ), 
@@ -105,6 +120,13 @@ define(function () {
                                     React.DOM.label(null, "Usuário Associado", 
                                         UserSelector({ref: "user_id", selected: thisWorker.user_id, 
                                         users: this.props.users, selectUser: this.selectUser})
+                                    )
+                                )
+                            ), 
+                            React.DOM.div({className: "row"}, 
+                                React.DOM.div({className: "large-12 columns"}, 
+                                    React.DOM.label(null, "Horário de Trabalho", 
+                                        ShiftSelector({ref: "work_shift", selected: thisWorker.work_shift, shifts: this.props.shifts})
                                     )
                                 )
                             ), 
@@ -187,7 +209,7 @@ define(function () {
                         WorkerHeader({worker: worker, toggleEditor: this.props.toggleEdit}), 
 
                             worker.editable
-                                ? EditWorkerForm({users: this.props.users, worker: worker, availableTypes: this.props.availableTypes, 
+                                ? EditWorkerForm({users: this.props.users, worker: worker, availableTypes: this.props.availableTypes, shifts: this.props.shifts, 
                                     saveWorker: this.props.saveWorker, deleteWorker: this.props.deleteWorker})
                                 : null
 
@@ -206,6 +228,7 @@ define(function () {
                 defaultWorker: {name: '', sys_id: '', user_id: ''},
                 workers: [],
                 users: [],
+                shifts: [],
                 availableTypes: []
             };
         },
@@ -281,19 +304,29 @@ define(function () {
         componentDidMount: function () {
             this.reloadUsers();
             this.reloadWorkers();
+
             $.get(pager.urls.ajax + 'admin/types')
                 .done(function (types) {
                     this.setState({availableTypes: types});
                 }.bind(this));
+
+            $.get(pager.urls.ajax + 'admin/work_shifts')
+                .done(function (s) {
+
+                    if (!this.isMounted()) return;
+
+                    this.setState({shifts: s});
+                }.bind(this))
+
         },
 
         render: function () {
             return React.DOM.div(null, 
 
-                WorkerList({availableTypes: this.state.availableTypes, workers: this.state.workers, users: this.state.users, 
+                WorkerList({availableTypes: this.state.availableTypes, workers: this.state.workers, users: this.state.users, shifts: this.state.shifts, 
                     deleteWorker: this.deleteWorker, toggleEdit: this.toggleEdit, saveWorker: this.saveWorker}), 
 
-                EditWorkerForm({availableTypes: this.state.availableTypes, 
+                EditWorkerForm({availableTypes: this.state.availableTypes, shifts: this.state.shifts, 
                     saveWorker: this.saveWorker, worker: this.state.defaultWorker, users: this.state.users})
             );
         }

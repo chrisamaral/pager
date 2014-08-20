@@ -1103,7 +1103,7 @@ define(function () {
 
     BpTspSolver.prototype.setAvoidTolls = function (avoid) {
         avoidTolls = avoid;
-    }
+    };
 
     BpTspSolver.prototype.getTravelMode = function () {
         return travelMode;

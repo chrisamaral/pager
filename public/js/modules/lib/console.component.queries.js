@@ -2,8 +2,8 @@ define(function(){
    return {
        updateDefaultQuery: function (dayHasChanged) {
 
-           var qs = this.state.queries,
-               d = {
+           var queryList = this.state.queries,
+               newQ = {
                    id: 'query-' + Math.random().toString(36).substr(2),
                    name: 'Agenda',
                    tasks: [],
@@ -11,21 +11,21 @@ define(function(){
                        schedule: [this.state.day]
                    }
                },
-               index = _.findIndex(qs, {name: 'Agenda'});
+               currentQ = _.find(queryList, {name: 'Agenda'});
 
-           if (index >= 0) {
-               if (qs[index].query.schedule[0] === d.query.schedule[0]) {
-                   return;
-               }
-               qs[index] = d;
+           if (currentQ) {
+                if (dayHasChanged) {
+                    queryList[0] = newQ;
+                } else {
+                    _.merge(currentQ, newQ);
+                }
            } else {
-               if (!dayHasChanged) {
-                   return;
-               }
-               qs.unshift(d);
+               if (!dayHasChanged) return;
+
+               queryList.unshift(newQ);
            }
 
-           this.setState({queries: qs}, this.syncQueries);
+           this.setState({queries: queryList}, this.syncQueries);
        },
        setQueries: function (items) {
 

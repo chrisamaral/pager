@@ -1,5 +1,6 @@
 define(['../ext/strftime'], function (strftime) {
     var BpTspSolver, tsp;
+
     function Router (day, tasks, workers, options) {
 
         var dead = false;
@@ -205,6 +206,8 @@ define(['../ext/strftime'], function (strftime) {
                 router.stopRouter();
                 router.deferred.reject();
             });
+
+            tsp.setAvoidHighways(true);
 
             async.eachSeries(workers,
                 router.workerRouteOptimizer.bind(router),

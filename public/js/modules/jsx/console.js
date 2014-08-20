@@ -56,7 +56,7 @@ define([
 
     AttrItem = React.createClass({
         toggleTb: function() {
-            $(this.getDOMNode()).closest('.attr-table').find('.row').not('.main-attr').toggle();
+            this.props.toggleCollapsed && this.props.toggleCollapsed();
         },
         render: function () {
 
@@ -91,19 +91,26 @@ define([
     });
 
     AttrTable = React.createClass({
+        getInitialState: function () {
+            return {collapsed: !!this.props.collapsed};
+        },
+        toggleCollapsed: function () {
+            this.setState({collapsed: !this.state.collapsed});
+        },
         render: function () {
             var attrs = _.filter(this.props.attrs, {relevance: 3})
                 .concat(_.filter(this.props.attrs, {relevance: 2}))
                 .concat(_.filter(this.props.attrs, function(attr){
                     return !attr.relevance || attr.relevance <= 1;
-                }));
+                })),
+                classes = React.addons.classSet({'attr-table': true, collapsed: this.state.collapsed});
 
             attrs = pager.helpers.dateAutoConv(attrs);
 
-            return <div className='attr-table'>
+            return <div className={classes}>
                     {attrs.map(function(attr, index){
-                        return <AttrItem key={index} attr={attr} />;
-                    })}
+                        return <AttrItem key={index} attr={attr} toggleCollapsed={index === 0 ? this.toggleCollapsed : null} />;
+                    }.bind(this))}
             </div>;
         }
     });

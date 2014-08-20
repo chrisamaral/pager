@@ -80,7 +80,7 @@ define(['../helpers/utils', '../helpers/consts', '../ext/aviator/main'], functio
     });
 
     function getAppIDFromURI (uri) {
-        return uri.split('/')[2] || null
+        return uri.split('/')[2] || null;
     }
 
     Root = React.createClass({

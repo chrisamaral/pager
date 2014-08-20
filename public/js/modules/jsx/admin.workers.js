@@ -3,11 +3,25 @@
 define(function () {
 
     var UserSelector = React.createClass({
+        handleChange: function (e) {
+            e.currentTarget.value && this.props.selectUser(e.currentTarget.value);
+        },
         render: function () {
-            return <select defaultValue={this.props.selected || ''} >
+            return <select defaultValue={this.props.selected || ''} onChange={this.handleChange}>
                 <option value=''>{'########## Nenhum #########'}</option>
                 {this.props.users.map(function (user) {
                     return <option key={user.id} value={user.id}>{user.name}</option>;
+                })}
+            </select>;
+        }
+    });
+
+    var ShiftSelector = React.createClass({
+        render: function () {
+            return <select defaultValue={this.props.selected || ''} >
+                <option value=''>{'########## Nenhum #########'}</option>
+                {this.props.shifts.map(function (shift) {
+                    return <option key={shift._id} value={shift._id}>{shift.name + '    ∙   ' + shift.from + ' <> ' + shift.to}</option>;
                 })}
             </select>;
         }
@@ -21,10 +35,10 @@ define(function () {
 
         selectUser: function (userID) {
             var usr = _.find(this.props.users, {id: userID}),
-                nameElem = this.refs.workerName.getDOMNode();
+                nameElem = this.refs.name.getDOMNode();
 
             if (!usr) return;
-            if (nameElem.name === '') nameElem.value = usr.name;
+            if (nameElem.value === '') nameElem.value = usr.name;
         },
 
         handleSubmit: function (e) {
@@ -34,7 +48,8 @@ define(function () {
                 sys_id: this.refs.sys_id.getDOMNode().value,
                 name: this.refs.name.getDOMNode().value,
                 user_id: this.refs.user_id.getDOMNode().value,
-                types: []
+                types: [],
+                work_shift: this.refs.work_shift.getDOMNode().value
             };
 
             var $form = $(e.currentTarget);
@@ -96,7 +111,7 @@ define(function () {
                                 </div>
                                 <div className='medium-8 large-9 columns'>
                                     <label>Nome
-                                        <input type='text' ref='workerName' required={true} placeholder='Nome' ref='name' defaultValue={thisWorker.name} />
+                                        <input type='text' required={true} placeholder='Nome' ref='name' defaultValue={thisWorker.name} />
                                     </label>
                                 </div>
                             </div>
@@ -105,6 +120,13 @@ define(function () {
                                     <label>Usuário Associado
                                         <UserSelector ref='user_id' selected={thisWorker.user_id}
                                         users={this.props.users} selectUser={this.selectUser} />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className='row'>
+                                <div className='large-12 columns'>
+                                    <label>Horário de Trabalho
+                                        <ShiftSelector ref='work_shift' selected={thisWorker.work_shift} shifts={this.props.shifts}  />
                                     </label>
                                 </div>
                             </div>
@@ -187,7 +209,7 @@ define(function () {
                         <WorkerHeader worker={worker} toggleEditor={this.props.toggleEdit} />
 
                             {worker.editable
-                                ? <EditWorkerForm users={this.props.users} worker={worker} availableTypes={this.props.availableTypes}
+                                ? <EditWorkerForm users={this.props.users} worker={worker} availableTypes={this.props.availableTypes} shifts={this.props.shifts}
                                     saveWorker={this.props.saveWorker} deleteWorker={this.props.deleteWorker} />
                                 : null}
 
@@ -206,6 +228,7 @@ define(function () {
                 defaultWorker: {name: '', sys_id: '', user_id: ''},
                 workers: [],
                 users: [],
+                shifts: [],
                 availableTypes: []
             };
         },
@@ -281,19 +304,29 @@ define(function () {
         componentDidMount: function () {
             this.reloadUsers();
             this.reloadWorkers();
+
             $.get(pager.urls.ajax + 'admin/types')
                 .done(function (types) {
                     this.setState({availableTypes: types});
                 }.bind(this));
+
+            $.get(pager.urls.ajax + 'admin/work_shifts')
+                .done(function (s) {
+
+                    if (!this.isMounted()) return;
+
+                    this.setState({shifts: s});
+                }.bind(this))
+
         },
 
         render: function () {
             return <div>
 
-                <WorkerList availableTypes={this.state.availableTypes} workers={this.state.workers} users={this.state.users}
+                <WorkerList availableTypes={this.state.availableTypes} workers={this.state.workers} users={this.state.users} shifts={this.state.shifts}
                     deleteWorker={this.deleteWorker} toggleEdit={this.toggleEdit} saveWorker={this.saveWorker}  />
 
-                <EditWorkerForm availableTypes={this.state.availableTypes}
+                <EditWorkerForm availableTypes={this.state.availableTypes} shifts={this.state.shifts}
                     saveWorker={this.saveWorker} worker={this.state.defaultWorker} users={this.state.users} />
             </div>;
         }

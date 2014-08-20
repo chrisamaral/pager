@@ -16,49 +16,72 @@ define(['../ext/strftime'], function (strftime) {
             return React.DOM.div({className: "scheduleTask", style: {width:  w + 'px', left: leftPos + 'px'}, 'data-dropdown': this.props.dropdown});
         }
     });
-
+    var ScheduleControls = React.createClass({displayName: 'ScheduleControls',
+        render: function () {
+            return React.DOM.div({className: "text-right"}, 
+                React.DOM.button({onClick: this.props.moveSchedule, className: "tiny button"}, "Mover"), 
+                React.DOM.button({onClick: this.props.removeSchedule, className: "tiny button alert"}, "Remover")
+            );
+        }
+    });
+    var ScheduleInfoHeader = React.createClass({displayName: 'ScheduleInfoHeader',
+        render: function () {
+            return React.DOM.table({className: "dropdown-table"}, 
+                React.DOM.tbody(null, 
+                    React.DOM.tr(null, 
+                        React.DOM.td({colSpan: 2}, 
+                            React.DOM.strong(null, this.props.task.address.address)
+                        )
+                    ), 
+                    React.DOM.tr(null, 
+                        React.DOM.td(null, 
+                            React.DOM.i({className: "f-ico fi-clock"}), 
+                            React.DOM.strong(null, "Deslocamento")
+                        ), 
+                        React.DOM.td(null, 
+                                strftime('%H:%M', new Date(this.props.task.directions.schedule.ini)) +
+                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.directions.schedule.end))
+                        )
+                    ), 
+                    React.DOM.tr(null, 
+                        React.DOM.td(null, 
+                            React.DOM.i({className: "f-ico fi-map"}), 
+                            React.DOM.strong(null, "Deslocamento")
+                        ), 
+                        React.DOM.td(null, this.props.task.directions.distance.text + '   •   ' + this.props.task.directions.duration.text)
+                    ), 
+                    React.DOM.tr(null, 
+                        React.DOM.td(null, 
+                            React.DOM.i({className: "f-ico fi-clock"}), 
+                            React.DOM.strong(null, "Execução")
+                        ), 
+                        React.DOM.td(null, strftime('%H:%M', new Date(this.props.task.schedule.ini)) +
+                            '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end)))
+                    ), 
+                    React.DOM.tr(null, React.DOM.td({colSpan: 2}, 
+                        ScheduleControls({task: this.props.task, 
+                            removeSchedule: this.props.removeSchedule, 
+                            moveSchedule: this.props.moveSchedule})
+                    ))
+                )
+            );
+        }
+    });
     var ScheduleInfo = React.createClass({displayName: 'ScheduleInfo',
         render: function () {
             var AttrTable = pager.components.AttrTable;
-            return React.DOM.div({id: this.props._id, className: "f-dropdown medium content", 'data-dropdown-content': true}, 
-                React.DOM.table({className: "dropdown-table"}, 
-                    React.DOM.tbody(null, 
-                        React.DOM.tr(null, 
-                            React.DOM.td({colSpan: 2}, 
-                                React.DOM.strong(null, this.props.task.address.address)
-                            )
-                        ), 
-                        React.DOM.tr(null, 
-                            React.DOM.td(null, 
-                                React.DOM.i({className: "f-ico fi-clock"}), 
-                                React.DOM.strong(null, "Deslocamento")
-                            ), 
-                            React.DOM.td(null, 
-                                strftime('%H:%M', new Date(this.props.task.directions.schedule.ini)) +
-                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.directions.schedule.end))
-                            )
-                        ), 
-                        React.DOM.tr(null, 
-                            React.DOM.td(null, 
-                                React.DOM.i({className: "f-ico fi-map"}), 
-                                React.DOM.strong(null, "Deslocamento")
-                            ), 
-                            React.DOM.td(null, this.props.task.directions.distance.text + '   •   ' + this.props.task.directions.duration.text)
-                        ), 
-                        React.DOM.tr(null, 
-                            React.DOM.td(null, 
-                                React.DOM.i({className: "f-ico fi-clock"}), 
-                                React.DOM.strong(null, "Execução")
-                            ), 
-                            React.DOM.td(null, strftime('%H:%M', new Date(this.props.task.schedule.ini)) +
-                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end)))
-                        )
-                    )
-                ), 
+            return React.DOM.div(null, 
+                ScheduleInfoHeader({task: this.props.task}), 
                 this.props.task.work_orders.map(function(wo){
-                    return AttrTable({key: wo._id, attrs: wo.attrs});
+                    return AttrTable({key: wo._id, attrs: wo.attrs, collapsed: true});
                 })
             );
+        }
+    });
+
+    var SInfoContainer = React.createClass({displayName: 'SInfoContainer',
+        render: function () {
+            return React.DOM.div({id: this.props._id, className: "f-dropdown medium content", 'data-dropdown-content': true});
         }
     });
 
@@ -71,36 +94,31 @@ define(['../ext/strftime'], function (strftime) {
         },
         removeDropDown: function () {
             _.forEach(this.props.tasks, function (task, index) {
-                $('#info' + this.props._id + task.addressPlusTargetIDSHA1).remove();
+                var $popup = $('#info' + this.props._id + task.addressPlusTargetIDSHA1);
+                React.unmountComponentAtNode($popup[0]);
+                $popup.remove();
             }, this);
         },
         componentDidUpdate: function () {
             this.updateDropDown();
         },
+        removeSchedule: function () {
+
+        },
+        moveSchedule: function () {
+
+        },
         updateDropDown: function () {
             this.props.tasks.forEach(function (task, index) {
 
                 var id = 'info' + this.props._id + task.addressPlusTargetIDSHA1,
-                    $content = $(React.renderComponentToStaticMarkup(ScheduleInfo({_id: id, task: task}))),
                     $old = $('#' + id);
 
-                if ($old.length) {
-                    $old.html($content.html());
-                } else {
-                    $content.appendTo('body');
-                }
+                if (!$old.length) $old = $(React.renderComponentToStaticMarkup(
+                    SInfoContainer({_id: id, task: task}))).appendTo('body');
 
-                $content = $('#' + id);
-                $content.find('.attr-table').each(function () {
-                    var $elem = $(this),
-                        $rows = $elem.children('.row');
-
-                    $rows.first().click(function () {
-                        var $this = $(this);
-                        $this.parent().find('.row').not(':first-child').toggle();
-                    });
-                    $rows.not(':first-child').hide();
-                });
+                React.renderComponent(ScheduleInfo({_id: id, task: task, 
+                    removeSchedule: this.removeSchedule, moveSchedule: this.moveSchedule}), $old[0]);
 
             }.bind(this));
         },

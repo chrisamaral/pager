@@ -16,49 +16,72 @@ define(['../ext/strftime'], function (strftime) {
             return <div className='scheduleTask' style={{width:  w + 'px', left: leftPos + 'px'}} data-dropdown={this.props.dropdown} />;
         }
     });
-
+    var ScheduleControls = React.createClass({
+        render: function () {
+            return <div className='text-right'>
+                <button onClick={this.props.moveSchedule} className='tiny button'>Mover</button>
+                <button onClick={this.props.removeSchedule} className='tiny button alert'>Remover</button>
+            </div>;
+        }
+    });
+    var ScheduleInfoHeader = React.createClass({
+        render: function () {
+            return <table className='dropdown-table'>
+                <tbody>
+                    <tr>
+                        <td colSpan={2}>
+                            <strong>{this.props.task.address.address}</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i className='f-ico fi-clock'></i>
+                            <strong>Deslocamento</strong>
+                        </td>
+                        <td>
+                                {strftime('%H:%M', new Date(this.props.task.directions.schedule.ini)) +
+                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.directions.schedule.end))}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i className='f-ico fi-map'></i>
+                            <strong>Deslocamento</strong>
+                        </td>
+                        <td>{this.props.task.directions.distance.text + '   •   ' + this.props.task.directions.duration.text}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i className='f-ico fi-clock'></i>
+                            <strong>Execução</strong>
+                        </td>
+                        <td>{strftime('%H:%M', new Date(this.props.task.schedule.ini)) +
+                            '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end))}</td>
+                    </tr>
+                    <tr><td colSpan={2}>
+                        <ScheduleControls task={this.props.task}
+                            removeSchedule={this.props.removeSchedule}
+                            moveSchedule={this.props.moveSchedule} />
+                    </td></tr>
+                </tbody>
+            </table>;
+        }
+    });
     var ScheduleInfo = React.createClass({
         render: function () {
             var AttrTable = pager.components.AttrTable;
-            return <div id={this.props._id} className='f-dropdown medium content' data-dropdown-content>
-                <table className='dropdown-table'>
-                    <tbody>
-                        <tr>
-                            <td colSpan={2}>
-                                <strong>{this.props.task.address.address}</strong>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i className='f-ico fi-clock'></i>
-                                <strong>Deslocamento</strong>
-                            </td>
-                            <td>
-                                {strftime('%H:%M', new Date(this.props.task.directions.schedule.ini)) +
-                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.directions.schedule.end))}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i className='f-ico fi-map'></i>
-                                <strong>Deslocamento</strong>
-                            </td>
-                            <td>{this.props.task.directions.distance.text + '   •   ' + this.props.task.directions.duration.text}</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i className='f-ico fi-clock'></i>
-                                <strong>Execução</strong>
-                            </td>
-                            <td>{strftime('%H:%M', new Date(this.props.task.schedule.ini)) +
-                                    '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end))}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            return <div>
+                <ScheduleInfoHeader task={this.props.task} />
                 {this.props.task.work_orders.map(function(wo){
-                    return <AttrTable key={wo._id} attrs={wo.attrs} />;
+                    return <AttrTable key={wo._id} attrs={wo.attrs} collapsed={true} />;
                 })}
             </div>;
+        }
+    });
+
+    var SInfoContainer = React.createClass({
+        render: function () {
+            return <div id={this.props._id} className='f-dropdown medium content' data-dropdown-content></div>;
         }
     });
 
@@ -71,36 +94,31 @@ define(['../ext/strftime'], function (strftime) {
         },
         removeDropDown: function () {
             _.forEach(this.props.tasks, function (task, index) {
-                $('#info' + this.props._id + task.addressPlusTargetIDSHA1).remove();
+                var $popup = $('#info' + this.props._id + task.addressPlusTargetIDSHA1);
+                React.unmountComponentAtNode($popup[0]);
+                $popup.remove();
             }, this);
         },
         componentDidUpdate: function () {
             this.updateDropDown();
         },
+        removeSchedule: function () {
+
+        },
+        moveSchedule: function () {
+
+        },
         updateDropDown: function () {
             this.props.tasks.forEach(function (task, index) {
 
                 var id = 'info' + this.props._id + task.addressPlusTargetIDSHA1,
-                    $content = $(React.renderComponentToStaticMarkup(<ScheduleInfo _id={id} task={task} />)),
                     $old = $('#' + id);
 
-                if ($old.length) {
-                    $old.html($content.html());
-                } else {
-                    $content.appendTo('body');
-                }
+                if (!$old.length) $old = $(React.renderComponentToStaticMarkup(
+                    <SInfoContainer _id={id} task={task} />)).appendTo('body');
 
-                $content = $('#' + id);
-                $content.find('.attr-table').each(function () {
-                    var $elem = $(this),
-                        $rows = $elem.children('.row');
-
-                    $rows.first().click(function () {
-                        var $this = $(this);
-                        $this.parent().find('.row').not(':first-child').toggle();
-                    });
-                    $rows.not(':first-child').hide();
-                });
+                React.renderComponent(<ScheduleInfo _id={id} task={task}
+                    removeSchedule={this.removeSchedule} moveSchedule={this.moveSchedule} />, $old[0]);
 
             }.bind(this));
         },

@@ -13,6 +13,11 @@ define(function () {
             this.props.removeUser(this.props.index);
         },
         render: function () {
+            var selectedWS, pos;
+            if (this.props.worker.work_shift) {
+                pos = _.findIndex(this.props.options.workShifts, {_id: this.props.worker.work_shift});
+                if (pos > -1) selectedWS = pos;
+            }
             return (
                 <div className='row'>
                     <div className='medium-6 columns'>
@@ -30,7 +35,7 @@ define(function () {
                         </select>
                     </div>
                     <div className='medium-3 columns'>
-                        <select className='shiftSelector' data-collection='workShifts' data-field='workShift' data-worker={this.props.worker._id}>
+                        <select className='shiftSelector' data-collection='workShifts' data-field='workShift' data-worker={this.props.worker._id} defaultValue={selectedWS}>
                             {
                                 this.props.options.workShifts.map(function (option, index) {
                                     return <option key={index} value={index}>{option.name}</option>;

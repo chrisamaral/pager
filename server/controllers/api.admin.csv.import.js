@@ -1,7 +1,7 @@
 'use strict';
 var app = require('../base.js')(),
     $mongo = require('mongodb'),
-    strftime = require('strftime'),
+    moment = require('moment'),
     async = require('async'),
     _ = require('lodash');
 
@@ -16,6 +16,10 @@ function lameSanitize (row) {
     });
 
     return newRow;
+}
+
+function parseToDate (str) {
+    return moment(str, ['DD/MM/YYYY', 'DD-MM-YYYY',  'MM/DD/YYYY', 'MM-DD-YYYY', 'YYYY/MM/DD', 'YYYY/MM/DD']).toDate();
 }
 
 function wOParse (row, shifts, statuses) {
@@ -62,8 +66,7 @@ function wOParse (row, shifts, statuses) {
 
         switch (guess) {
             case 'creation':
-                newRow.creation = new Date(val);
-                //newRow.creation_day = strftime('%Y-%m-%d', newRow.creation);
+                newRow.creation = parseToDate(val);
                 break;
             case 'sys_id':
             case 'type':
@@ -78,8 +81,7 @@ function wOParse (row, shifts, statuses) {
 
             case 'schedule.date':
                 newRow.schedule = newRow.schedule || {};
-                newRow.schedule.date = new Date(val);
-                //newRow.schedule.day = strftime('%Y-%m-%d', newRow.schedule.date);
+                newRow.schedule.date = parseToDate(val);
 
                 break;
             case 'schedule.shift':
@@ -116,7 +118,7 @@ function wOParse (row, shifts, statuses) {
 
             case 'customer.creation':
                 newRow.customer = newRow.customer || {};
-                newRow.customer.creation = new Date(val);
+                newRow.customer.creation = parseToDate(val);
 
                 break;
 
@@ -255,7 +257,7 @@ exports.workOrderCSVUploadHandler = function (req, res) {
             csv = require('ya-csv'),
             reader = csv.createCsvFileReader(tmpFile, csvOpts);
 
-        workOrderHandler(function(Handler){
+        workOrderHandler(function (Handler) {
             var rows = 0,
                 parsedRows = 0,
                 validRows = 0,

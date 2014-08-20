@@ -93,7 +93,7 @@ app.express.get('/:org/api/admin/workers',  app.authorized.can('enter app'), fun
             return res.send(500);
         }
 
-        workerCollection.find({org: req.params.org, deleted: {$ne: true}})
+        workerCollection.find({org: req.params.org, deleted: {$ne: true}}, {_id: true, name: true, sys_id: true, user_id: true, types: true, work_shift: true})
             .sort('creation', 1)
             .toArray(function (err, ws) {
 
@@ -103,17 +103,7 @@ app.express.get('/:org/api/admin/workers',  app.authorized.can('enter app'), fun
                 }
 
                 res.json(
-                    _.map(ws,
-                        function (worker) {
-                            return {
-                                _id: worker._id,
-                                name: worker.name,
-                                sys_id: worker.sys_id,
-                                user_id: worker.user_id,
-                                types: worker.types || []
-                            };
-                        }
-                    )
+                    _.map(ws, function (worker) {if (!worker.types) worker.types = []; return worker;})
                 );
             });
     });

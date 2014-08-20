@@ -13,7 +13,7 @@
             "modernizr": "/js/modules/ext/modernizr.js",
             "pace": "/js/modules/ext/pace.js",
             "jquery": "/js/modules/ext/jquery.js",
-            "react": "/js/modules/ext/react-with-addons-0.10.0.js",
+            "react": "/js/modules/ext/react-with-addons-0.11.1.js",
             "foundation": "/js/modules/ext/foundation.min.js"
         },
         "css": {
@@ -40,7 +40,7 @@
             "modernizr": "/js/build/ext/modernizr.js",
             "pace": "/js/build/ext/pace.js",
             "jquery": "/js/build/ext/jquery.js",
-            "react": "/js/build/ext/react-with-addons-0.10.0.js",
+            "react": "/js/build/ext/react-with-addons-0.11.1.min.js",
             "foundation": "/js/build/ext/foundation.min.js"
         },
         "css": {}

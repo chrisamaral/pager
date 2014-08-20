@@ -172,7 +172,7 @@
         });
     }
 
-    var build = JSON.parse('{"moduleRoot":"/js/modules","moduleExpiration":0,"pager":{"isDev":true},"js":{"lazyload":"/js/modules/ext/lazyload.js","inject":"/js/inject.js","base64":"/js/modules/ext/base64.js","lodash":"/js/modules/ext/lodash.js","modernizr":"/js/modules/ext/modernizr.js","pace":"/js/modules/ext/pace.js","jquery":"/js/modules/ext/jquery.js","react":"/js/modules/ext/react-with-addons-0.10.0.js","foundation":"/js/modules/ext/foundation.min.js"},"css":{"pace":"/css/pace.css","normalize":"/css/normalize.css","foundation":"/css/foundation.min.css","foundationIcons":"/css/foundation-icons/foundation-icons.css","main":"/css/main.css","admin":"/css/admin.css","console":"/css/console.css"}}'),
+    var build = JSON.parse('{"moduleRoot":"/js/modules","moduleExpiration":0,"pager":{"isDev":true},"js":{"lazyload":"/js/modules/ext/lazyload.js","inject":"/js/inject.js","base64":"/js/modules/ext/base64.js","lodash":"/js/modules/ext/lodash.js","modernizr":"/js/modules/ext/modernizr.js","pace":"/js/modules/ext/pace.js","jquery":"/js/modules/ext/jquery.js","react":"/js/modules/ext/react-with-addons-0.11.1.js","foundation":"/js/modules/ext/foundation.min.js"},"css":{"pace":"/css/pace.css","normalize":"/css/normalize.css","foundation":"/css/foundation.min.css","foundationIcons":"/css/foundation-icons/foundation-icons.css","main":"/css/main.css","admin":"/css/admin.css","console":"/css/console.css"}}'),
         jsDeps = [
             build.js.lodash,
             build.js.modernizr,

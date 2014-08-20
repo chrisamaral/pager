@@ -101,22 +101,13 @@ app.express.get('/:org/api/console/workers/:day',  app.authorized.can('enter app
             return res.send(500);
         }
 
-        workerCollection.find({org: req.params.org, deleted: {$ne: true}})
+        workerCollection.find({org: req.params.org, deleted: {$ne: true}}, {_id: true, name: true, types: true, work_shift: true})
             .toArray(function (err, ws) {
                 if (err) {
                     console.log(err);
                     return res.send(500);
                 }
-                res.json(
-                    _.map(ws,
-                        function (worker) {
-                            return {
-                                _id: worker._id,
-                                name: worker.name,
-                                types: worker.types
-                            };
-                        })
-                );
+                res.json(ws);
             });
     });
 });

@@ -166,31 +166,26 @@ define(['./component.DateInput'], function (DateInput) {
             };
         },
 
-        startGeoLookup: function () {
+        startGeoLookup: function (newProps) {
 
-            if (this.state.alreadyStartedLookup) {
-                return;
-            }
+            if (this.state.alreadyStartedLookup) return;
 
             this.setState({alreadyStartedLookup: true});
 
             require(['../lib/task.geocoder'], function (Geocoder) {
-                var g = new Geocoder(this.props.tasks);
+                var props = newProps || this.props;
+                var g = new Geocoder(props.tasks);
 
                 g.onProgress = function (completed, total, currentTask, status) {
 
-                    if (!this.isMounted()) {
-                        return g.abort();
-                    }
+                    if (!this.isMounted()) return g.abort();
 
                     try{
 
                         this.setState({
                             lookupProgress: total ? Math.floor(100 * completed / total) : null
                         }, function () {
-                            if (status !== 'unchanged') {
-                                this.props.updateTask(currentTask);
-                            }
+                            if (status !== 'unchanged') props.updateTask(currentTask);
                         }.bind(this));
 
 
@@ -204,7 +199,8 @@ define(['./component.DateInput'], function (DateInput) {
                 g.onComplete = function () {
                     setTimeout(function(){
                         this.setState({
-                            lookupProgress: null
+                            lookupProgress: null,
+                            alreadyStartedLookup: false
                         });
                     }.bind(this), 1000 * 2);
 
@@ -217,7 +213,7 @@ define(['./component.DateInput'], function (DateInput) {
 
         componentWillReceiveProps: function (newProps) {
             if (newProps.hasGoogleMaps) {
-                this.startGeoLookup();
+                this.startGeoLookup(newProps);
             }
         },
         componentDidMount: function () {

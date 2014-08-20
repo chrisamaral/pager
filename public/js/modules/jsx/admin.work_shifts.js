@@ -87,7 +87,7 @@ define(function(){
                     if (!this.isMounted()) return;
 
                     this.setState({shifts: s});
-                }.bind(this))
+                }.bind(this));
         },
         render: function () {
             return <div>

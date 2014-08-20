@@ -13,7 +13,7 @@
             "modernizr": "/js/modules/ext/modernizr.js",
             "pace": "/js/modules/ext/pace.js",
             "jquery": "/js/modules/ext/jquery.js",
-            "react": "/js/modules/ext/react-with-addons-0.10.0.js",
+            "react": "/js/modules/ext/react-with-addons-0.11.1.js",
             "foundation": "/js/modules/ext/foundation.min.js"
         },
         "css": {
@@ -27,30 +27,30 @@
         }
     },
     "production": {
-        "moduleRoot": "/js/v/1408061598",
+        "moduleRoot": "/js/v/1408374159",
         "moduleExpiration": 0,
         "pager": {
             "isDev": false
         },
         "js": {
-            "lazyload": "/js/v/1408061598/ext/lazyload.js",
+            "lazyload": "/js/v/1408374159/ext/lazyload.js",
             "inject": "/js/inject.min.js",
-            "base64": "/js/v/1408061598/ext/base64.js",
-            "lodash": "/js/v/1408061598/ext/lodash.js",
-            "modernizr": "/js/v/1408061598/ext/modernizr.js",
-            "pace": "/js/v/1408061598/ext/pace.js",
-            "jquery": "/js/v/1408061598/ext/jquery.js",
-            "react": "/js/v/1408061598/ext/react-with-addons-0.10.0.js",
-            "foundation": "/js/v/1408061598/ext/foundation.min.js"
+            "base64": "/js/v/1408374159/ext/base64.js",
+            "lodash": "/js/v/1408374159/ext/lodash.js",
+            "modernizr": "/js/v/1408374159/ext/modernizr.js",
+            "pace": "/js/v/1408374159/ext/pace.js",
+            "jquery": "/js/v/1408374159/ext/jquery.js",
+            "react": "/js/v/1408374159/ext/react-with-addons-0.11.1.min.js",
+            "foundation": "/js/v/1408374159/ext/foundation.min.js"
         },
         "css": {
-            "pace": "/css/v/1408061598/pace.css",
-            "normalize": "/css/v/1408061598/normalize.css",
-            "foundation": "/css/v/1408061598/foundation.min.css",
-            "foundationIcons": "/css/v/1408061598/foundation-icons/foundation-icons.css",
-            "main": "/css/v/1408061598/main.css",
-            "admin": "/css/v/1408061598/admin.css",
-            "console": "/css/v/1408061598/console.css"
+            "pace": "/css/v/1408374159/pace.css",
+            "normalize": "/css/v/1408374159/normalize.css",
+            "foundation": "/css/v/1408374159/foundation.min.css",
+            "foundationIcons": "/css/v/1408374159/foundation-icons/foundation-icons.css",
+            "main": "/css/v/1408374159/main.css",
+            "admin": "/css/v/1408374159/admin.css",
+            "console": "/css/v/1408374159/console.css"
         }
     }
 }
