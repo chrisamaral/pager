@@ -84,6 +84,10 @@ Base.prototype.mongoSetup = function () {
     this.mongoClient = MongoClient;
 };
 
+Base.prototype.renderMainPage = function (req, res, org) {
+    res.sendFile('build/index.' + app.ENV + '.html', {root: __dirname});
+};
+
 module.exports = function (mysql) {
     if (mysql) {
         app = new Base(mysql);
@@ -93,4 +97,3 @@ module.exports = function (mysql) {
     }
     return app;
 };
-

@@ -23,6 +23,9 @@ define(function() {
                     callback && callback();
                     this.setState({schedule: result});
                 }.bind(this));
+        },
+        setScheduleMover: function (s) {
+            this.setState({selectedSchedule: s});
         }
     };
 });

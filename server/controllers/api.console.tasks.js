@@ -225,7 +225,7 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
             query.schedule.forEach(function (schedule) {
 
                 var ini = moment(new Date(schedule)).toDate();
-                var end = moment(new Date(schedule)).add('d', 1).toDate();
+                var end = moment(new Date(schedule)).add(1, 'd').toDate();
 
                 aux.$or.push({'schedule.date': {$lte: end, $gt: ini}});
 
@@ -237,7 +237,7 @@ app.express.get('/:org/api/console/tasks/:day', app.authorized.can('enter app'),
             aux = {$or: []};
             query.creation.forEach(function (creation) {
                 var ini = moment(new Date(creation)).toDate();
-                var end = moment(new Date(creation)).add('d', 1).toDate();
+                var end = moment(new Date(creation)).add(1, 'd').toDate();
 
                 aux.$or.push({'creation': {$lte: end, $gt: ini}});
             });

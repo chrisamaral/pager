@@ -3,9 +3,92 @@ define(['../ext/strftime'], function (strftime) {
     var ScheduleView, ScheduleRow, ScheduleTimeLine, ScheduleTask;
 
     ScheduleTask = React.createClass({displayName: 'ScheduleTask',
+        getInitialState: function () {
+            return {dropdownMounted: false};
+        },
+        removeSchedule: function () {
+            /*
+            this.props.removeSchedule({
+                task: this.props.task,
+                schedule: this.props._id
+            });
+            */
+        },
+        dropdownContainer: function (props) {
+            return $('#' + this.myID(props));
+        },
+        myID: function (props) {
+            props = props || this.props;
+            return 'info' + props._id + props.task.addressPlusTargetIDSHA1;
+        },
 
+        componentWillReceiveProps: function (props) {
+            var $dropdown = this.dropdownContainer();
+            if ($dropdown.length && $dropdown.is('.open')) {
+                this.renderDropDown(props);
+            }
+        },
+
+        moveSchedule: function () {
+            if (this.props.isSelected) return this.props.startScheduleMover(null);
+
+            this.props.startScheduleMover({
+                task: this.props.task,
+                schedule: this.props._id
+            });
+        },
+
+        removeDropDown: function () {
+            var $popup = this.dropdownContainer();
+            React.unmountComponentAtNode($popup[0]);
+            $popup.remove();
+        },
+
+        componentWillUnmount: function () {
+            this.removeDropDown();
+        },
+
+        renderTo: function (task, id, isSelected, $container) {
+
+            React.renderComponent(ScheduleInfo({_id: id, task: task, 
+                isSelected: isSelected, 
+                removeSchedule: this.removeSchedule, 
+                moveSchedule: this.moveSchedule}), $container[0]);
+        },
+
+        renderDropDown: function (props) {
+            props = props || this.props;
+
+            var task = props.task,
+                isSelected = props.isSelected;
+
+            var id = this.myID(props),
+                $container = this.dropdownContainer(props);
+
+            if (!$container.length) {
+                $container = $(React.renderComponentToStaticMarkup(SInfoContainer({_id: id, task: task}))).appendTo('body');
+            }
+
+            this.renderTo(task, id, isSelected, $container);
+
+            if (!$container.is('.open')) {
+                $container.foundation();
+                $(this.getDOMNode()).trigger("click");
+            }
+        },
+        showDropDown: function () {
+            var $container = this.dropdownContainer();
+            if (!$container.length) {
+                this.renderDropDown();
+                this.setState({dropdownMounted: true});
+            }
+        },
         render: function () {
-            var w, myIni, leftPos;
+            var w, myIni, leftPos,
+                classes = React.addons.classSet({
+                    scheduleTask: true,
+                    decoupled: this.props.isSelected
+                });
 
             w = (this.props.task.duration + (this.props.task.directions.duration.value * 1000)) * this.props.microSecondWidth;
             myIni = new Date(this.props.task.directions.schedule.ini);
@@ -13,18 +96,23 @@ define(['../ext/strftime'], function (strftime) {
 
             leftPos += this.props.index * 3;
 
-            return React.DOM.div({className: "scheduleTask", style: {width:  w + 'px', left: leftPos + 'px'}, 'data-dropdown': this.props.dropdown});
+            return React.DOM.div({className: classes, onClick: this.showDropDown, style: {width:  w + 'px', left: leftPos + 'px'}, 'data-dropdown': this.props.dropdown});
         }
     });
+
     var ScheduleControls = React.createClass({displayName: 'ScheduleControls',
         render: function () {
+            var isSelected = this.props.isSelected;
+            var moveClasses = React.addons.classSet({tiny: true, button: true, secondary: isSelected});
+
             return React.DOM.div({className: "text-right"}, 
-                React.DOM.button({onClick: this.props.moveSchedule, className: "tiny button"}, "Mover"), 
+                React.DOM.button({onClick: this.props.moveSchedule, className: moveClasses}, isSelected ? 'Cancelar' : 'Mover'), 
                 React.DOM.button({onClick: this.props.removeSchedule, className: "tiny button alert"}, "Remover")
             );
         }
     });
     var ScheduleInfoHeader = React.createClass({displayName: 'ScheduleInfoHeader',
+
         render: function () {
             return React.DOM.table({className: "dropdown-table"}, 
                 React.DOM.tbody(null, 
@@ -59,9 +147,7 @@ define(['../ext/strftime'], function (strftime) {
                             '   <>   ' + strftime('%H:%M', new Date(this.props.task.schedule.end)))
                     ), 
                     React.DOM.tr(null, React.DOM.td({colSpan: 2}, 
-                        ScheduleControls({task: this.props.task, 
-                            removeSchedule: this.props.removeSchedule, 
-                            moveSchedule: this.props.moveSchedule})
+                        ScheduleControls({removeSchedule: this.props.removeSchedule, moveSchedule: this.props.moveSchedule, isSelected: this.props.isSelected})
                     ))
                 )
             );
@@ -70,11 +156,17 @@ define(['../ext/strftime'], function (strftime) {
     var ScheduleInfo = React.createClass({displayName: 'ScheduleInfo',
         render: function () {
             var AttrTable = pager.components.AttrTable;
+
             return React.DOM.div(null, 
-                ScheduleInfoHeader({task: this.props.task}), 
-                this.props.task.work_orders.map(function(wo){
+
+                ScheduleInfoHeader({task: this.props.task, 
+                            isSelected: this.props.isSelected, 
+                            moveSchedule: this.props.moveSchedule, removeSchedule: this.props.removeSchedule}), 
+
+                this.props.task.work_orders.map(function (wo) {
                     return AttrTable({key: wo._id, attrs: wo.attrs, collapsed: true});
                 })
+
             );
         }
     });
@@ -86,54 +178,24 @@ define(['../ext/strftime'], function (strftime) {
     });
 
     ScheduleTimeLine = React.createClass({displayName: 'ScheduleTimeLine',
-        getInitialState: function () {
-            return {id: Math.random().toString(36).substr(2)};
-        },
-        componentDidMount: function () {
-            this.updateDropDown();
-        },
-        removeDropDown: function () {
-            _.forEach(this.props.tasks, function (task, index) {
-                var $popup = $('#info' + this.props._id + task.addressPlusTargetIDSHA1);
-                React.unmountComponentAtNode($popup[0]);
-                $popup.remove();
-            }, this);
-        },
-        componentDidUpdate: function () {
-            this.updateDropDown();
-        },
-        removeSchedule: function () {
 
-        },
-        moveSchedule: function () {
-
-        },
-        updateDropDown: function () {
-            this.props.tasks.forEach(function (task, index) {
-
-                var id = 'info' + this.props._id + task.addressPlusTargetIDSHA1,
-                    $old = $('#' + id);
-
-                if (!$old.length) $old = $(React.renderComponentToStaticMarkup(
-                    SInfoContainer({_id: id, task: task}))).appendTo('body');
-
-                React.renderComponent(ScheduleInfo({_id: id, task: task, 
-                    removeSchedule: this.removeSchedule, moveSchedule: this.moveSchedule}), $old[0]);
-
-            }.bind(this));
-        },
-        componentWillUnmount: function () {
-            this.removeDropDown();
-        },
         render: function () {
             return React.DOM.div({className: "panel scheduleTimeLine"}, 
                 React.DOM.div(null, 
                     
                         this.props.tasks.map(function (task, index) {
+                            var selected = this.props.selectedSchedule, isSelected = false;
+                            if (selected) {
+                                isSelected = task.addressPlusTargetIDSHA1 === selected.task.addressPlusTargetIDSHA1
+                                    && selected.schedule === this.props._id
+                            }
                             return (
                                 ScheduleTask({
+                                        _id: this.props._id, 
                                         key: 't-' + task.addressPlusTargetIDSHA1, task: task, index: index, 
                                         dropdown: 'info' + this.props._id+ task.addressPlusTargetIDSHA1, 
+                                        isSelected: isSelected, 
+                                        startScheduleMover: this.props.startScheduleMover, 
                                         microSecondWidth: this.props.microSecondWidth, 
                                         timelineBoundaries: this.props.timelineBoundaries})
                             );
@@ -193,6 +255,8 @@ define(['../ext/strftime'], function (strftime) {
                 ), 
 
                 ScheduleTimeLine({tasks: this.props.schedule.tasks, _id: this.props.schedule.worker._id, 
+                        startScheduleMover: this.props.startScheduleMover, 
+                        selectedSchedule: this.props.selectedSchedule, 
                         microSecondWidth: this.props.microSecondWidth, 
                         timelineBoundaries: this.props.timelineBoundaries})
 
@@ -273,6 +337,9 @@ define(['../ext/strftime'], function (strftime) {
             this.props.updateSchedule();
             this.props.syncQueries();
         },
+        startScheduleMover: function (task) {
+            this.props.setScheduleMover(task);
+        },
         render: function () {
             return React.DOM.div({id: "Schedule"}, 
                 React.DOM.div({id: "ScheduleContainer", ref: "container"}, 
@@ -285,6 +352,8 @@ define(['../ext/strftime'], function (strftime) {
                         ?
                             this.props.schedule.map(function (schedule) {
                                 return ScheduleRow({key: schedule._id, 
+                                            selectedSchedule: this.props.selectedSchedule, 
+                                            startScheduleMover: this.startScheduleMover, 
                                             updateSchedule: this.syncSchedules, 
                                             schedule: schedule, 
                                             microSecondWidth: this.state.microSecondWidth, 

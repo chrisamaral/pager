@@ -210,14 +210,18 @@ define(['./component.DateInput'], function (DateInput) {
             }.bind(this));
 
         },
-
+        shouldLookupGeo: function (props) {
+            props = props || this.props;
+            var noGeo = _.find(props.tasks, function (x) { return !x.location; });
+            return noGeo;
+        },
         componentWillReceiveProps: function (newProps) {
-            if (newProps.hasGoogleMaps) {
+            if (newProps.hasGoogleMaps && this.shouldLookupGeo(newProps)) {
                 this.startGeoLookup(newProps);
             }
         },
         componentDidMount: function () {
-            if (this.props.hasGoogleMaps) {
+            if (this.props.hasGoogleMaps && this.shouldLookupGeo()) {
                 this.startGeoLookup();
             }
         },

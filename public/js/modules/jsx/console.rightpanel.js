@@ -175,7 +175,7 @@ define(['./console.schedule'], function (Schedule) {
                             : null
                             }
                         {this.props.schedule.length
-                            ? <Schedule schedule={this.props.schedule} day={this.props.day} syncQueries={this.props.syncQueries} updateSchedule={this.props.updateSchedule} />
+                            ? <Schedule setScheduleMover={this.props.setScheduleMover} selectedSchedule={this.props.selectedSchedule} schedule={this.props.schedule} day={this.props.day} syncQueries={this.props.syncQueries} updateSchedule={this.props.updateSchedule} />
                             : null
                             }
                         {this.props.schedule.length

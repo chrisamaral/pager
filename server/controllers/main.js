@@ -146,25 +146,11 @@ authLib(function () {
             });
     }
 
-    function renderMainPage(req, res, org) {
-        /*
-            res.locals.isDev = app.ENV === 'development';
-            res.locals.pager = {
-                user: req.user,
-                org: org,
-                urls: {
-                    base: app.baseUrl,
-                    app: app.appUrl
-                }
-            };
-            res.locals.appData = new Buffer(JSON.stringify(res.locals.pager)).toString('base64');
-        */
-        res.sendfile('build/index.' + app.ENV + '.html');
-    }
+
 
     app.express.get('/:org', app.authorized.can('enter app'), function (req, res) {
         translateOrg(req, res, false, function (org) {
-            renderMainPage(req, res, org);
+            app.renderMainPage(req, res, org);
         });
     });
 
@@ -178,7 +164,7 @@ authLib(function () {
                 req.org = org;
                 return next();
             }
-            renderMainPage(req, res, org);
+            app.renderMainPage(req, res, org);
         });
     });
 

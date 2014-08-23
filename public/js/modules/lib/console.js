@@ -131,6 +131,7 @@ define([
         getInitialState: function () {
             var aux, state = _.merge(this.parseArgsToState(), {
                 mapState: pager.constant.console.map.AVAILABLE_TASKS,
+                selectedSchedule: null,
                 pending: [],
                 queries: [],
                 schedule: []
@@ -226,7 +227,7 @@ define([
         initRouter: cCompRouter.initRouter,
 
         updateSchedule: cCompSchedule.updateSchedule,
-
+        setScheduleMover: cCompSchedule.setScheduleMover,
         render: function () {
 
             var h = this.state.myHeight || $(window).height() - $('#MainTopBar').outerHeight(),
@@ -260,6 +261,8 @@ define([
                     setTaskFocus: this.setTaskFocus}), 
 
                 RightPanel({router: this.state.router, 
+                    setScheduleMover: this.setScheduleMover, 
+                    selectedSchedule: this.state.selectedSchedule, 
                     updateSchedule: this.updateSchedule, 
                     syncQueries: this.syncQueries, 
                     schedule: this.state.schedule, 
