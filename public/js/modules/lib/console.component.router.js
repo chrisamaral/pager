@@ -31,7 +31,7 @@ define(function(){
             function mountTask (task) {
 
                 var new_t = {
-                    addressPlusTargetIDSHA1: task.addressPlusTargetIDSHA1,
+                    fakeID: task.fakeID,
                     address: task.address,
                     location: task.location,
                     directions: task.directions,

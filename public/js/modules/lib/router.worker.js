@@ -139,7 +139,24 @@
             task.minDistance = closest === Infinity ? undefined : closest;
         });
     }
+    function taskEqual (currentTask, otherTask) {
+        var matches = currentTask.address.address.toLowerCase() === otherTask.address.address.toLowerCase();
 
+        if (!matches) return matches;
+
+        matches = matches && !!currentTask.target === !!otherTask.target;
+
+        if (!matches) return matches;
+
+        if (currentTask.target) {
+            matches = matches && currentTask.target._id === otherTask.target._id;
+        }
+
+        return matches;
+    }
+    function idGen() {
+        return 't' + Math.random().toString(16).substr(2) + Math.random().toString(16).substr(2);
+    }
     function groupTasksByTarget(tasks) {
         var grouped = [];
 
@@ -154,13 +171,15 @@
                 itIsAMe = function (me) {
                     return me._id === currentTask._id || me._id === currentTask._id;
                 },
-                fakedID = '' + CryptoJS.SHA1((currentTask.target ? currentTask.target._id : '') + currentTask.address.address.toLowerCase()),
-                inCollection = _.find(grouped, {addressPlusTargetIDSHA1: fakedID});
+
+                inCollection = _.find(grouped, function (otherTask) {
+                    return taskEqual(currentTask, otherTask);
+                });
 
             if (!inCollection) {
 
                 newTask = {
-                    addressPlusTargetIDSHA1: fakedID,
+                    fakeID: idGen(),
                     ref: currentTask.ref,
                     address: currentTask.address,
                     target: currentTask.target,
@@ -309,7 +328,7 @@
 
             _.forEach(tasks, function (otherTask) {
 
-                if (otherTask.addressPlusTargetIDSHA1 === task.addressPlusTargetIDSHA1) {
+                if (taskEqual(otherTask, task)) {
                     return;
                 }
 
@@ -327,14 +346,14 @@
 
                 if (workerIntersection.length) {
 
-                    task.others[otherTask.addressPlusTargetIDSHA1] = {
+                    task.others[otherTask.fakeID] = {
                         distance: distance,
                         task: otherTask,
                         sharedWorkers: workerIntersection
                     };
 
-                    task.minDistance = pickMin(task.minDistance, task.others[otherTask.addressPlusTargetIDSHA1]);
-                    otherTask.minDistance = pickMin(otherTask.minDistance, task.others[otherTask.addressPlusTargetIDSHA1]);
+                    task.minDistance = pickMin(task.minDistance, task.others[otherTask.fakeID]);
+                    otherTask.minDistance = pickMin(otherTask.minDistance, task.others[otherTask.fakeID]);
                     total += distance;
                 }
 

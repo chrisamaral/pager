@@ -15,11 +15,12 @@ define(['../ext/strftime'], function (strftime) {
             */
         },
         dropdownContainer: function (props) {
-            return $('#' + this.myID(props));
+            return $('#' + this.infoElemID(props));
         },
-        myID: function (props) {
+        
+        infoElemID: function (props) {
             props = props || this.props;
-            return 'info' + props._id + props.task.addressPlusTargetIDSHA1;
+            return 'info' + props.scheduleID + props.task.fakeID;
         },
 
         componentWillReceiveProps: function (props) {
@@ -30,11 +31,13 @@ define(['../ext/strftime'], function (strftime) {
         },
 
         moveSchedule: function () {
+            $(this.getDOMNode()).trigger("click");
+
             if (this.props.isSelected) return this.props.startScheduleMover(null);
 
             this.props.startScheduleMover({
-                task: this.props.task,
-                schedule: this.props._id
+                task: _.cloneDeep(this.props.task),
+                schedule: this.props.scheduleID
             });
         },
 
@@ -48,28 +51,22 @@ define(['../ext/strftime'], function (strftime) {
             this.removeDropDown();
         },
 
-        renderTo: function (task, id, isSelected, $container) {
-
-            React.renderComponent(<ScheduleInfo _id={id} task={task}
-                isSelected={isSelected}
-                removeSchedule={this.removeSchedule}
-                moveSchedule={this.moveSchedule} />, $container[0]);
-        },
-
         renderDropDown: function (props) {
             props = props || this.props;
 
             var task = props.task,
                 isSelected = props.isSelected;
 
-            var id = this.myID(props),
+            var id = this.infoElemID(props),
                 $container = this.dropdownContainer(props);
 
             if (!$container.length) {
-                $container = $(React.renderComponentToStaticMarkup(<SInfoContainer _id={id} task={task} />)).appendTo('body');
+                $container = $(React.renderComponentToStaticMarkup(
+                    <SInfoContainer elemID={id} task={task} />)).appendTo('body');
             }
 
-            this.renderTo(task, id, isSelected, $container);
+            React.renderComponent(<ScheduleInfo task={task} isSelected={isSelected}
+                removeSchedule={this.removeSchedule} moveSchedule={this.moveSchedule} />, $container[0]);
 
             if (!$container.is('.open')) {
                 $container.foundation();
@@ -96,7 +93,9 @@ define(['../ext/strftime'], function (strftime) {
 
             leftPos += this.props.index * 3;
 
-            return <div className={classes} onClick={this.showDropDown} style={{width:  w + 'px', left: leftPos + 'px'}} data-dropdown={this.props.dropdown} />;
+            return <div className={classes} onClick={this.showDropDown}
+                    style={{width:  w + 'px', left: leftPos + 'px'}}
+                    data-dropdown={this.props.dropdown} />;
         }
     });
 
@@ -153,6 +152,7 @@ define(['../ext/strftime'], function (strftime) {
             </table>;
         }
     });
+
     var ScheduleInfo = React.createClass({
         render: function () {
             var AttrTable = pager.components.AttrTable;
@@ -173,27 +173,32 @@ define(['../ext/strftime'], function (strftime) {
 
     var SInfoContainer = React.createClass({
         render: function () {
-            return <div id={this.props._id} className='f-dropdown medium content' data-dropdown-content></div>;
+            return <div id={this.props.elemID} className='f-dropdown medium content' data-dropdown-content></div>;
         }
     });
 
     ScheduleTimeLine = React.createClass({
 
         render: function () {
-            return <div className='panel scheduleTimeLine'>
+            var isSelected = this.props.selectedSchedule && this.props.selectedSchedule.schedule === this.props.scheduleID;
+            var classes = React.addons.classSet({panel: true, scheduleTimeLine: true, selected: isSelected});
+
+            return <div className={classes}>
                 <div>
                     {
                         this.props.tasks.map(function (task, index) {
+                            
                             var selected = this.props.selectedSchedule, isSelected = false;
                             if (selected) {
-                                isSelected = task.addressPlusTargetIDSHA1 === selected.task.addressPlusTargetIDSHA1
-                                    && selected.schedule === this.props._id
+                                isSelected = task.fakeID === selected.task.fakeID
+                                    && selected.schedule === this.props.scheduleID
                             }
+                            
                             return (
                                 <ScheduleTask
-                                        _id={this.props._id}
-                                        key={'t-' + task.addressPlusTargetIDSHA1} task={task} index={index}
-                                        dropdown={'info' + this.props._id+ task.addressPlusTargetIDSHA1}
+                                        scheduleID={this.props.scheduleID}
+                                        key={'t-' + task.fakeID} task={task} index={index}
+                                        dropdown={'info' + this.props.scheduleID+ task.fakeID}
                                         isSelected={isSelected}
                                         startScheduleMover={this.props.startScheduleMover}
                                         microSecondWidth={this.props.microSecondWidth} 
@@ -209,7 +214,7 @@ define(['../ext/strftime'], function (strftime) {
 
     var ScheduleRowMenu = React.createClass({
         render: function () {
-            return <ul id={this.props._id} className='f-dropdown' data-dropdown-content>
+            return <ul id={this.props.elemID} className='f-dropdown' data-dropdown-content>
                 <li><a data-doempty>Limpar</a></li>
                 <li><a data-doremove>Remover</a></li>
             </ul>
@@ -239,7 +244,7 @@ define(['../ext/strftime'], function (strftime) {
 
             if ($old.length) return;
 
-            $content = $(React.renderComponentToStaticMarkup(<ScheduleRowMenu _id={id} />)).appendTo('body');
+            $content = $(React.renderComponentToStaticMarkup(<ScheduleRowMenu elemID={id} />)).appendTo('body');
 
             $content.find('[data-doempty]').click(this.emptySchedule);
             $content.find('[data-doremove]').click(this.removeSchedule);
@@ -247,6 +252,7 @@ define(['../ext/strftime'], function (strftime) {
             $(this.getDOMNode()).foundation();
         },
         render: function () {
+
             return <div className='scheduleRow'>
                 
                 <div className='scheduleLabels'>
@@ -254,7 +260,7 @@ define(['../ext/strftime'], function (strftime) {
                     <a className='secondary label fi-widget' title='Menu' data-dropdown={'Menu' + this.props.schedule._id}></a>
                 </div>
 
-                <ScheduleTimeLine tasks={this.props.schedule.tasks}  _id={this.props.schedule.worker._id}
+                <ScheduleTimeLine tasks={this.props.schedule.tasks}  scheduleID={this.props.schedule._id}
                         startScheduleMover={this.props.startScheduleMover}
                         selectedSchedule={this.props.selectedSchedule}
                         microSecondWidth={this.props.microSecondWidth} 
@@ -341,6 +347,15 @@ define(['../ext/strftime'], function (strftime) {
             this.props.setScheduleMover(task);
         },
         render: function () {
+            var schedules = this.props.schedule, selected = this.props.selectedSchedule, found;
+            if (selected) {
+                found = _.findIndex(schedules, {_id: selected.schedule});
+                if (found > -1) {
+                    schedules = schedules.concat();
+                    found = schedules.splice(found, 1);
+                    schedules = found.concat(schedules);
+                }
+            }
             return <div id='Schedule'>
                 <div id='ScheduleContainer' ref='container'>
                     {this.state.microSecondWidth !== null
@@ -350,7 +365,7 @@ define(['../ext/strftime'], function (strftime) {
 
                     {this.state.microSecondWidth !== null
                         ?
-                            this.props.schedule.map(function (schedule) {
+                            schedules.map(function (schedule) {
                                 return <ScheduleRow key={schedule._id}
                                             selectedSchedule={this.props.selectedSchedule}
                                             startScheduleMover={this.startScheduleMover}

@@ -7,35 +7,29 @@ define(['../ext/strftime'], function (strftime) {
         this.id = Math.random().toString(36).substr(2);
         this.deferred = $.Deferred();
 
-        $.when(
-                $.get(pager.build.moduleRoot + '/lib/router.worker.js'),
 
-                $.get(pager.build.moduleRoot + '/ext/crypto.sha1.js')
+        $.get(pager.build.moduleRoot + '/lib/router.worker.js')
+        .done(function (worker) {
 
-            ).done(function (worker, crypto) {
-                //Each argument is an array with the following structure: [ data, statusText, jqXHR ]
-                worker = worker[0];
-                crypto = crypto[0];
+            var blob = new Blob([$('#script_lodash').text(), worker], {type: 'application/javascript'}),
+                blobURL = window.URL.createObjectURL(blob);
 
-                var blob = new Blob([$('#script_lodash').text(), crypto, worker], {type: 'application/javascript'}),
-                    blobURL = window.URL.createObjectURL(blob);
+            this.webWorker = new Worker(blobURL);
+            window.URL.revokeObjectURL(blobURL);
 
-                this.webWorker = new Worker(blobURL);
-                window.URL.revokeObjectURL(blobURL);
+            this.connectToWorker();
 
-                this.connectToWorker();
+            this.webWorker.postMessage({
+                cmd: 'startRouter',
+                data: {
+                    tasks: tasks,
+                    workers: workers,
+                    day: day,
+                    options: options
+                }
+            });
 
-                this.webWorker.postMessage({
-                    cmd: 'startRouter',
-                    data: {
-                        tasks: tasks,
-                        workers: workers,
-                        day: day,
-                        options: options
-                    }
-                });
-
-            }.bind(this));
+        }.bind(this));
 
         var promise = this.deferred.promise();
         

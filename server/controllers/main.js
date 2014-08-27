@@ -9,7 +9,9 @@ var app = require('../base.js')(),
     sessMaxAge = 1000 * 60 * 60 * 24,
     path = require('path'),
     pub_dir = path.normalize(__dirname + "/../..") + '/media',
-    authLib = require('../lib/authorization.js');
+    authLib = require('../lib/authorization.js'),
+    http = require('http'),
+    _ = require('lodash');
 
 app.sessionStore = new RedisStore();
 app.express = express();
@@ -34,6 +36,32 @@ app.express.use(expressSession({
     },
     store: app.sessionStore
 }));
+
+/*
+    middleware fix for
+        >> https://github.com/strongloop/express/issues/2269
+    until
+        >> https://github.com/admittedly/express/commit/ed6d0e3819a2e7fe6f2052b4e223e57435c4fdc3
+    gets released
+*/
+
+app.express.use(function (req, res, next) {
+
+    var resSend = res.send;
+
+    res.send = function () {
+        var statusNumber;
+
+        if (_.isNumber(arguments[0])) {
+            statusNumber = arguments[0];
+            return res.status(statusNumber).end(http.STATUS_CODES[statusNumber]);
+        }
+
+        resSend.apply(res, arguments);
+    };
+
+    next();
+});
 
 app.avatarObj = function (uid, avatar) {
 
