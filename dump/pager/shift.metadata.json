@@ -1,0 +1,1 @@
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "name" : "_id_", "ns" : "pager.shift" }, { "v" : 1, "unique" : true, "key" : { "name" : 1, "org" : 1 }, "name" : "name_1_org_1", "ns" : "pager.shift" }, { "v" : 1, "key" : { "org" : 1 }, "name" : "org_1", "ns" : "pager.shift" } ] }
